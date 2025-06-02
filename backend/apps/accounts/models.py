@@ -51,3 +51,29 @@ class User(AbstractUser, PermissionsMixin):
         verbose_name = _('user')
         verbose_name_plural = _('users')
         ordering = ['username']
+
+class OneTimePassword(models.Model):
+    """
+    Model to store One-Time Passwords (OTPs) for user verification.
+    This model can be used to implement OTP-based authentication or verification.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otp_codes')
+    otp = models.CharField(max_length=6, verbose_name=_('OTP code'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('created at'))
+    expires_at = models.DateTimeField(default=timezone.now, verbose_name=_('expires at'))
+
+    def __str__(self):
+        return f"OTP for {self.user.username} - {self.otp}"
+    
+    def is_valid(self):
+        """        
+        Check if the OTP is still valid based on its expiration time.
+        Returns:
+            bool: True if the OTP is valid, False otherwise.
+        """
+        return timezone.now() < self.expires_at
+
+    class Meta:
+        verbose_name = _('One-Time Password')
+        verbose_name_plural = _('One-Time Passwords')
+        ordering = ['-created_at']
