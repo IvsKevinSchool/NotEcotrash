@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import RegisterUserView
+from .views import RegisterUserView, VerifyUserEmail
 
 # Rutas para vistas basadas en clases
 urlpatterns = [
     path('register/', RegisterUserView.as_view(), name='user-register'),
+    path('verify-email/', VerifyUserEmail.as_view(), name='user-verify-email'),
 ]
 
 # Rutas para ViewSets usando DefaultRouter
