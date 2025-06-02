@@ -23,7 +23,7 @@ BASE_APPS = [
 LOCAL_APPS = [
     'apps.accounts',
 ]
-THIRD_APPS = ["rest_framework"]
+THIRD_APPS = ["rest_framework", "drf_yasg"]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 
@@ -105,3 +105,4 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.environ.get("EMAIL_PORT", '2525')
 EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = "no-reply@example.com"
