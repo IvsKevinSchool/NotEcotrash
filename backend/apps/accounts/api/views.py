@@ -29,7 +29,7 @@ class RegisterUserView(GenericAPIView):
             # Return a success response with the created user data
             # The user instance is returned by the serializer's save method
             return Response(
-                {"data": user, "message": "User created successfully"},
+                {"data": serializer.data, "message": "User created successfully"},
                 status=HTTP_201_CREATED,
             )
         # If serializer is not valid, return the errors

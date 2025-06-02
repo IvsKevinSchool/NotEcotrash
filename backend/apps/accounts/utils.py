@@ -3,6 +3,9 @@ from django.core.mail import EmailMessage
 from .models import User, OneTimePassword
 from django.conf import settings
 from django.utils import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def generate_otp():
@@ -21,10 +24,12 @@ def send_otp_email(email):
 
     OneTimePassword.objects.create(
         user=user,
-        otp=otp_code,  # Extract the OTP from the message
-        expires_at=timezone.now()
-        + timezone.timedelta(minutes=5),  # OTP valid for 5 minutes
+        otp=otp_code,
+        expires_at=timezone.now() + timezone.timedelta(minutes=5),
     )
-    email_message = EmailMessage(subject, message, from_email, [email])
-    email_message.send(fail_silently=False)
+    try:
+        email_message = EmailMessage(subject, message, from_email, [email])
+        email_message.send(fail_silently=False)
+    except Exception as e:
+        logger.error(f"Error sending OTP email: {e}")
 
