@@ -4,6 +4,9 @@ from .managers import UserManager
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
 # Create your models here.
 class User(AbstractUser, PermissionsMixin):
     """
@@ -42,10 +45,16 @@ class User(AbstractUser, PermissionsMixin):
     
     def tokens(self):
         """
-        Placeholder for token generation logic.
-        This method can be overridden to implement token generation for the user.
+        Generates and returns access and refresh tokens for the user.
+        This method can be used for JWT authentication.
+        Returns:
+            dict: A dictionary containing access and refresh tokens.
         """
-        return None
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
 
     class Meta:
         verbose_name = _('user')

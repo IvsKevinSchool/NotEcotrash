@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from apps.accounts.models import User, OneTimePassword
-from .serializers import UserRegisterSerializer, VerifyEmailSerializer
+from .serializers import UserRegisterSerializer, VerifyEmailSerializer, LoginSerializer
 from apps.accounts.utils import send_otp_email
 
 
@@ -74,3 +74,35 @@ class VerifyUserEmail(GenericAPIView):
         except OneTimePassword.DoesNotExist:
             return Response({"message": "Invalid OTP. Does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
+class LoginUserView(GenericAPIView):
+    serializer_class = LoginSerializer
+
+    """
+    This view is responsible for handling user login.
+    It can be used to authenticate users and return a token or session.
+    Currently, it does not implement any specific functionality.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Handle user login.
+        This method processes the incoming request to authenticate a user.
+        It validates the credentials using the serializer and returns a success response if valid.
+        """
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        # Validate the serializer data
+        # If the data is valid, authenticate the user
+        if serializer.is_valid(raise_exception=True):
+            # The validate method in the serializer will handle authentication
+            return Response(
+            {
+                "message": "Login successful", 
+                "data": serializer.validated_data
+            },
+            status=status.HTTP_200_OK
+        )
+        
+        # If serializer is not valid, return the errors
+        # This will automatically raise a ValidationError if the data is invalid
+        return Response(
+            {"message": "Login failed", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
+        )

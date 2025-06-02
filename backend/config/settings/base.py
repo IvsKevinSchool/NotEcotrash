@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -21,9 +22,13 @@ BASE_APPS = [
     "django.contrib.staticfiles",
 ]
 LOCAL_APPS = [
-    'apps.accounts',
+    "apps.accounts",
 ]
-THIRD_APPS = ["rest_framework", "drf_yasg"]
+THIRD_APPS = [
+    "rest_framework",
+    "drf_yasg",
+    "rest_framework_simplejwt",
+]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 
@@ -75,8 +80,20 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Custom user model
+# Auth Application
 AUTH_USER_MODEL = "accounts.User"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
@@ -103,6 +120,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.mailtrap.io")
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-EMAIL_PORT = os.environ.get("EMAIL_PORT", '2525')
+EMAIL_PORT = os.environ.get("EMAIL_PORT", "2525")
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "no-reply@example.com"
