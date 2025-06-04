@@ -1,6 +1,15 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
+
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout(); // Ejecuta la función de logout del contexto
+        navigate('/auth/login'); // Redirige a la página de login
+    };
 
     return (
         <div className="w-64 h-screen bg-green-800 text-white fixed left-0 top-0 py-5 flex flex-col">
@@ -85,7 +94,8 @@ const Sidebar = () => {
 
             {/* Botón de cerrar sesión */}
             <NavLink
-                to="/"
+                onClick={handleLogout}
+                // to="/"
                 className="flex items-center px-4 py-3 text-red-200 hover:text-white hover:bg-red-600 rounded-lg transition-colors duration-200 mx-2 mb-3"
             >
                 <span className="mr-3">🚪</span>

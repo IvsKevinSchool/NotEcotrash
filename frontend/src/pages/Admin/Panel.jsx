@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Panel = () => {
+
+  const { user } = useAuth()
+  console.log(user)
+
   return (
     <div className="p-6">
+      <h1>{user?.name} : {user?.id}</h1>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-green-800">Panel de Administración</h1>
         <div className="text-sm text-green-600 bg-green-100 px-4 py-2 rounded-full">
