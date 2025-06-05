@@ -1,25 +1,27 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import LoadingWrapper from '../../components/Common/LoadingWrapper';
+import Loading from '../../components/Common/Loading';
 
 export default function Clients() {
-    const [users, setUsers] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState(null)
+    const [users, setUsers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        setIsLoading(true)
+        setIsLoading(true);
         fetch('https://jsonplaceholder.typicode.com/users')
             .then((response) => response.json())
             .then((data) => {
-                setUsers(data)
-                setIsLoading(false)
+                setUsers(data);
+                setIsLoading(false);
             })
             .catch((error) => {
-                console.log('Error fetching users: ', error)
-                setError(error)
-                setIsLoading(false)
-            })
-    }, [])
+                console.log('Error fetching users: ', error);
+                setError(error);
+                setIsLoading(false);
+            });
+    }, []);
 
     return (
         <div className="p-6">
@@ -32,41 +34,17 @@ export default function Clients() {
                 </span>
                 {/* Botón de acción */}
                 {!isLoading && !error && (
-                        <Link
-                            to="/admin/users/new"
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        >
-                            <span className="mr-2">➕</span>
-                            Agregar nuevo usuario
-                        </Link>
+                    <Link
+                        to="/admin/users/new"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                        <span className="mr-2">➕</span>
+                        Agregar nuevo usuario
+                    </Link>
                 )}
             </div>
 
-            {/* Estado de carga */}
-            {isLoading && (
-                <div className="flex justify-center items-center h-64">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-                </div>
-            )}
-
-            {/* Mensaje de error */}
-            {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-                    <div className="flex">
-                        <div className="flex-shrink-0">
-                            <span className="text-red-500">⚠️</span>
-                        </div>
-                        <div className="ml-3">
-                            <p className="text-sm text-red-700">
-                                Error al cargar los usuarios. Por favor intenta nuevamente.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Lista de usuarios */}
-            {!isLoading && !error && (
+            <LoadingWrapper isLoading={isLoading} error={error} loadingComponent={<Loading size="large" fullScreen />}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {users.map((user) => (
                         <Link
@@ -104,7 +82,7 @@ export default function Clients() {
                         </Link>
                     ))}
                 </div>
-            )}
+            </LoadingWrapper>
         </div>
-    )
+    );
 }

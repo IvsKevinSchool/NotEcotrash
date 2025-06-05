@@ -6,7 +6,7 @@ import Home from "./pages/Home/Home";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 // Admin
-import Layout from "./components/Layout/Layout";
+import Layout from "./components/Common/Layout";
 // Clients
 import Clients from "./pages/Clients/Clients";
 import ClientsItems from "./pages/Clients/ClientsItems";

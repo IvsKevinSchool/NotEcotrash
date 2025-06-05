@@ -1,26 +1,35 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
+import LoginForm from '../../components/Auth/LoginForm';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleLogin = async (data) => {
+        setIsLoading(true);
+        try {
+            // Aquí harías la petición real al backend
+            // const response = await api.post('/auth/login', data);
 
-        // Simular login exitoso
-        const mockUser = {
-            id: '123',
-            name: 'Usuario Ejemplo',
-            email: email,
-            token: 'mock-token'
-        };
+            // Simulación de respuesta del backend
+            const mockUser = {
+                id: '123',
+                name: 'Usuario Ejemplo',
+                email: data.email,
+                token: 'mock-token',
+            };
 
-        login(mockUser); // Guarda el usuario en el contexto
-        navigate('/admin/dashboard'); // Redirige al dashboard
+            login(mockUser); // Guarda el usuario en el contexto
+            navigate('/admin/dashboard'); // Redirige al dashboard
+        } catch (error) {
+            console.error('Error en el login:', error);
+            // Aquí puedes manejar errores, por ejemplo mostrando un toast
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -54,60 +63,7 @@ const Login = () => {
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido de vuelta</h1>
                     <p className="text-gray-600 mb-8">Ingresa para gestionar tus residuos</p>
 
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Correo electrónico
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                placeholder="tu@email.com"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Contraseña
-                            </label>
-                            <input
-                                type="password"
-                                id="password"
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                                    Recordarme
-                                </label>
-                            </div>
-
-                            <div className="text-sm">
-                                <Link to="/forgot-password" className="font-medium text-green-600 hover:text-green-500">
-                                    ¿Olvidaste tu contraseña?
-                                </Link>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                            >
-                                Iniciar sesión
-                            </button>
-                        </div>
-                    </form>
+                    <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
 
                     <div className="mt-6 text-center text-sm text-gray-600">
                         ¿No tienes una cuenta?{' '}
