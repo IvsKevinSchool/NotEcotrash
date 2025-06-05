@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import LoginForm from '../../components/Auth/LoginForm';
+import { toast } from 'react-toastify';
 
 const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +25,7 @@ const Login = () => {
 
             login(mockUser); // Guarda el usuario en el contexto
             navigate('/admin/dashboard'); // Redirige al dashboard
+            toast.success('Welcome to Eco-Trash')
         } catch (error) {
             console.error('Error en el login:', error);
             // Aquí puedes manejar errores, por ejemplo mostrando un toast

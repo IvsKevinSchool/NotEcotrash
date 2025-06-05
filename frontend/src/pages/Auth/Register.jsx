@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import RegisterForm from '../../components/Auth/RegisterForm';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -22,8 +23,9 @@ const Register = () => {
         token: 'mock-token'
       };
 
-      authRegister(mockUser); // Guarda el usuario en el contexto
-      navigate('/admin/dashboard'); // Redirige al dashboard
+      // authRegister(mockUser); // Guarda el usuario en el contexto
+      navigate('/auth/login'); // Redirige al dashboard
+      toast.success('Sing up succesfully!')
     } catch (error) {
       console.error('Error en el registro:', error);
       // Aquí puedes manejar errores, por ejemplo mostrando un toast
