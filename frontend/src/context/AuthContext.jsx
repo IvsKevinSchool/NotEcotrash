@@ -4,6 +4,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); // Estado de carga inicial
 
   useEffect(() => {
     const storedUser = localStorage.getItem('ecotrash_user');
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('ecotrash_user');
       }
     }
+    setLoading(false); // Finaliza la carga
   }, []);
 
   const login = (userData) => {
@@ -27,8 +29,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('ecotrash_user');
   };
 
+  const isAuthenticated = () => {
+    return !!user; // o tu lógica para verificar autenticación (ej: verificar token)
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   );

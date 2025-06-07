@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import LoginForm from '../../components/Auth/LoginForm';
@@ -8,6 +8,7 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogin = async (data) => {
         setIsLoading(true);
@@ -24,7 +25,8 @@ const Login = () => {
             };
 
             login(mockUser); // Guarda el usuario en el contexto
-            navigate('/admin/dashboard'); // Redirige al dashboard
+            const from = location.state?.from?.pathname || '/admin/dashboard';
+            navigate(from, { replace: true });
             toast.success('Welcome to Eco-Trash')
         } catch (error) {
             console.error('Error en el login:', error);
