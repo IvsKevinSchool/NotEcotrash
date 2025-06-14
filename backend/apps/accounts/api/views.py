@@ -1,11 +1,18 @@
-from django.utils import timezone
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
+
 
 from apps.accounts.models import User, OneTimePassword
-from .serializers import UserRegisterSerializer, VerifyEmailSerializer, LoginSerializer
+from apps.accounts.api.serializers import UserRegisterSerializer, VerifyEmailSerializer, LoginSerializer, ResetPasswordSerializer, SetNewPasswordSerializer
+from apps.accounts.api.serializers import LogoutUserSerializer
 from apps.accounts.utils import send_otp_email
+
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 
 class RegisterUserView(GenericAPIView):
@@ -106,3 +113,98 @@ class LoginUserView(GenericAPIView):
         return Response(
             {"message": "Login failed", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST
         )
+
+class PasswordResetView(GenericAPIView):
+    serializer_class = ResetPasswordSerializer
+    """
+    This view is responsible for handling password reset requests.
+    It can be used to initiate a password reset process for users.
+    Currently, it does not implement any specific functionality.
+    """
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+    
+        return Response(
+            {"message": "Password reset request received. Further instructions will be sent to your email."},
+            status=status.HTTP_200_OK
+        )
+
+class PasswordResetConfirmView(GenericAPIView):
+    def get(self, request, uidb64, token, *args, **kwargs):
+        try:
+            # Decode the user ID from the URL
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(id=uid)
+            # Check if the token is valid
+            if PasswordResetTokenGenerator().check_token(user, token):
+                # If the token is valid, return a success response
+                return Response({"message": "Token is valid. You can reset your password.", 
+                                 "uidb64": uidb64, "token": token}, status=status.HTTP_200_OK)
+            else:
+                # If the token is invalid, return an error response
+                return Response({"message": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST)
+        except DjangoUnicodeDecodeError:
+            # Handle the case where the user ID cannot be decoded
+            return Response({"message": "Invalid user ID."}, status=status.HTTP_400_BAD_REQUEST)
+        
+class SetNewPasswordView(GenericAPIView):
+    serializer_class = SetNewPasswordSerializer
+    """
+    This view is responsible for setting a new password for a user.
+    It can be used to update the user's password after verification.
+    Currently, it does not implement any specific functionality.
+    """
+    def patch(self, request, *args, **kwargs):
+        """
+        Handle setting a new password.
+        This method processes the incoming request to update the user's password.
+        It validates the data using the serializer and updates the password if valid.
+        """
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        return Response(
+            {"message": "Password updated successfully"},
+            status=status.HTTP_200_OK
+        )
+
+class LogoutUserView(GenericAPIView):
+    serializer_class = LogoutUserSerializer
+    permission_classes = [IsAuthenticated]
+    """
+    This view is responsible for handling user logout.
+    It can be used to invalidate the user's session or token.
+    Currently, it does not implement any specific functionality.
+    """
+    def post(self, request, *args, **kwargs):
+        """
+        Handle user logout.
+        This method processes the incoming request to log out the user.
+        It invalidates the user's session or token and returns a success response.
+        """
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+
+        # Call the save method to perform the logout logic
+        serializer.save()
+
+        return Response(
+            {"message": "Logout successful"},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+class TestAuthenticatedView(GenericAPIView):
+    serializer_class = None
+    """
+    A test view to check if the user is authenticated.
+    This view requires the user to be authenticated to access it.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to this view.
+        Returns a success message if the user is authenticated.
+        """
+        return Response({"message": "You are authenticated!"}, status=status.HTTP_200_OK)

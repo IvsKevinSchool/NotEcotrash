@@ -33,3 +33,15 @@ def send_otp_email(email):
     except Exception as e:
         logger.error(f"Error sending OTP email: {e}")
 
+def send_normal_email(data):
+    """Sends a normal email with the provided data."""
+    subject = data.get('subject', 'No Subject')
+    message = data.get('message', 'No Message')
+    from_email = settings.EMAIL_HOST_USER or settings.DEFAULT_FROM_EMAIL
+    recipient_list = data.get('recipient_list', [])
+
+    try:
+        email_message = EmailMessage(subject, message, from_email, recipient_list)
+        email_message.send(fail_silently=False)
+    except Exception as e:
+        logger.error(f"Error sending normal email: {e}")

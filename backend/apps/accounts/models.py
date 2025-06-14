@@ -27,6 +27,12 @@ class User(AbstractUser, PermissionsMixin):
     is_verified = models.BooleanField(_('verified'), default=False)
     is_active = models.BooleanField(_('active'), default=True) 
 
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('employee', 'Empleado'),
+    )
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='employee')
+
     USERNAME_FIELD = 'username'
 
     REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
