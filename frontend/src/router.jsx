@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-//#region
 // Home
 import Home from "./pages/Home/Home";
 // Auth
@@ -15,7 +14,6 @@ import NotFound from "./pages/NotFound";
 import Panel from "./pages/Admin/Panel";
 import PublicRoute from "./routes/PublicRoutes";
 import PrivateRoute from "./routes/PrivateRoutes";
-//#endregion
 export const router = createBrowserRouter([
     // // Home
     // { path: '/', element: <Home /> },

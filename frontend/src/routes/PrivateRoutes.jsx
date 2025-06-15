@@ -6,7 +6,7 @@ const PrivateRoute = () => {
     const { isAuthenticated, loading } = useAuth();
     const location = useLocation();
 
-    console.log(isAuthenticated)
+    console.log(isAuthenticated())
 
     if (loading) {
         return <Loading fullScreen />;
