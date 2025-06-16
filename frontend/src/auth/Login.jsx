@@ -63,7 +63,7 @@ const Login = () => {
                                 type="submit"
                                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                             >
-                                <Link to={'/admin/dashboard'}>
+                                <Link to={'/admin'}>
                                     Iniciar sesión
                                 </Link>
                             </button>
@@ -72,7 +72,7 @@ const Login = () => {
 
                     <div className="mt-6 text-center text-sm text-gray-600">
                         ¿No tienes una cuenta?{' '}
-                        <Link to="/auth/register" className="font-medium text-green-600 hover:text-green-500">
+                        <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
                             Regístrate ahora
                         </Link>
                     </div>
