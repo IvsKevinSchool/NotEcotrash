@@ -1,11 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { RouterProvider } from 'react-router-dom'
-import { router } from './router'
+// import { Toaster } from "sonner";
+import App from './App.jsx'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <App />
+    {/* <Toaster position="bottom-right" richColors expand={false} /> */}
   </StrictMode>,
 )
