@@ -4,11 +4,11 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Layout from './layout/Layout';
 import Home from './layout/Home';
 
-// Auth components
+// Auth Views
 import Login from './auth/Login';
 import Register from './auth/Register';
 
-// View Components
+// Modules Views
 import AdminRoutes from './routes/AdminRoutes';
 
 const AppRoutes = () => (
