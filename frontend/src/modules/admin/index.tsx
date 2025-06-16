@@ -1,15 +1,12 @@
 import React, { useState } from "react";
+import NavButton from "../../components/NavButton";
 
 const AdminIndex = () => {
-    const [message, setMessage] = useState("Hello from Admin Index");
 
     return (
         <div>
             <h1>Admin Dashboard</h1>
-            <p>{message}</p>
-            <button onClick={() => setMessage("You clicked the button!")}>
-                Click Me
-            </button>
+            <NavButton to="/admin/add-user" label="+ Agregar un nuevo usuario" />
         </div>
     );
 }
