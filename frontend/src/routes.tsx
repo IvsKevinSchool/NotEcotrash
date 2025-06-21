@@ -11,6 +11,7 @@ import Register from './auth/Register';
 // Modules Views
 import AdminRoutes from './routes/AdminRoutes';
 import { LayoutECO } from './layout/LayoutECO';
+import NotFound from './layout/NotFound';
 
 const AppRoutes = () => (
     <Router>
@@ -25,6 +26,8 @@ const AppRoutes = () => (
             <Route element={<LayoutECO />}>
                 <Route path="/admin/*" element={<AdminRoutes />} />
             </Route>
+
+            <Route path='*' element={<NotFound />} />
         </Routes>
     </Router>
 );
