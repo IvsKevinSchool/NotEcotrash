@@ -18,7 +18,7 @@ export const userSchema = z.object({
         invalid_type_error: "La contraseña debe ser un texto",
     }).min(6, "La contraseña debe tener al menos 6 caracteres"),
 
-    password_2: z.string({
+    password2: z.string({
         required_error: "La contraseña es requerida",
         invalid_type_error: "La contraseña debe ser un texto",
     }).min(6, "La contraseña debe tener al menos 6 caracteres"),
