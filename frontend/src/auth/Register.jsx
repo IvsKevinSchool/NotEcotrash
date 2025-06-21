@@ -1,14 +1,22 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { } from '../assets/icons';
 
 const Register = () => {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen flex">
       {/* Sección izquierda - Formulario */}
       <div className="w-1/2 bg-white flex items-center justify-center p-12">
         <div className="w-full max-w-md">
-          <div className="flex items-center mb-8">
-            <span className="text-3xl font-bold text-green-600">Eco</span>
-            <span className="text-3xl font-bold text-gray-800">Trash</span>
+          <div
+            className="flex items-center mb-8 cursor-pointer group"
+            onClick={() => navigate('/login')}
+          >
+            {/* Flecha de regreso con animación */}
+            <BackRowIcon />
+
+            <span className="text-3xl font-bold text-green-600 group-hover:text-green-800 transition-colors duration-200">Eco</span>
+            <span className="text-3xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors duration-200">Trash</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Crea tu cuenta</h1>
           <p className="text-gray-600 mb-8">Únete a nuestra comunidad ecológica</p>
@@ -118,7 +126,7 @@ const Register = () => {
           />
           <h2 className="text-4xl font-bold text-white mb-4">NotEcoTrash</h2>
           <p className="text-xl text-green-100">Juntos por un planeta más limpio</p>
-          
+
           <div className="mt-8">
             <div className="inline-flex space-x-2 bg-green-800 bg-opacity-50 px-6 py-3 rounded-full">
               <span className="text-white">♻️</span>

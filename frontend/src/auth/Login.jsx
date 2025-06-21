@@ -1,14 +1,24 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { BackRowIcon } from '../assets/icons';
+
 
 const Login = () => {
+    const navigate = useNavigate();
     return (
         <div className="min-h-screen flex">
             {/* Sección izquierda - Formulario */}
             <div className="w-1/2 bg-white flex items-center justify-center p-12">
                 <div className="w-full max-w-md">
-                    <div className="flex items-center mb-8">
-                        <span className="text-3xl font-bold text-green-600">Eco</span>
-                        <span className="text-3xl font-bold text-gray-800">Trash</span>
+                    <div
+                        className="flex items-center mb-8 cursor-pointer group"
+                        onClick={() => navigate('/')}
+                    >
+                        {/* Flecha de regreso con animación */}
+                        <BackRowIcon />
+
+
+                        <span className="text-3xl font-bold text-green-600 group-hover:text-green-800 transition-colors duration-200">Eco</span>
+                        <span className="text-3xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors duration-200">Trash</span>
                     </div>
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido de vuelta</h1>
                     <p className="text-gray-600 mb-8">Ingresa para gestionar tus residuos</p>
@@ -89,7 +99,7 @@ const Login = () => {
                     />
                     <h2 className="text-4xl font-bold text-white mb-4">NotEcoTrash</h2>
                     <p className="text-xl text-green-100">Transformando residuos en recursos</p>
-                    
+
                     <div className="mt-8 flex justify-center space-x-4">
                         <div className="bg-green-400 bg-opacity-30 p-3 rounded-full">
                             <span className="text-white">♻️</span>

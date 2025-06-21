@@ -10,6 +10,7 @@ import Register from './auth/Register';
 
 // Modules Views
 import AdminRoutes from './routes/AdminRoutes';
+import { LayoutECO } from './layout/LayoutECO';
 
 const AppRoutes = () => (
     <Router>
@@ -18,10 +19,10 @@ const AppRoutes = () => (
             <Route index element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            
+
 
             {/* Protected routes */}
-            <Route element={<Layout />}>
+            <Route element={<LayoutECO />}>
                 <Route path="/admin/*" element={<AdminRoutes />} />
             </Route>
         </Routes>
