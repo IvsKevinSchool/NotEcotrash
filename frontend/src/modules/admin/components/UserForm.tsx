@@ -55,8 +55,8 @@ const UserForm = () => {
                         type="password"
                         placeholder="Confirme la Contraseña"
                         required
-                        {...register("password_2")}
-                        error={errors.password_2?.message}
+                        {...register("password2")}
+                        error={errors.password2?.message}
                     />
 
                     <FormField
