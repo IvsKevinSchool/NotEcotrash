@@ -5,8 +5,8 @@ import UserForm from "../components/UserForm";
 const AddUser = () => {
     return (
         <>
-            <h1>Formulario</h1>
-            <BackButton />
+            {/* <h1>Formulario</h1> */}
+            {/* <BackButton /> */}
             <UserForm />
         </>
     );

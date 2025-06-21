@@ -1,23 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-type IUserData = {
-    id: string;
-    name: string;
-    email: string;
-};
+import { IAuthContext, IUserData } from '../interfaces';
 
 const initialUser: IUserData = {
     id: '',
     name: '',
     email: '',
-};
-
-type IAuthContext = {
-    user: IUserData;
-    login: (userData: IUserData) => void;
-    logout: () => void;
-    isAuthenticated: boolean;
-    loading: boolean;
 };
 
 const AuthContext = createContext<IAuthContext>({
