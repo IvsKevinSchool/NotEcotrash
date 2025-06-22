@@ -1,15 +1,34 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export const SidebarECO = () => {
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
+
 
     const { user, logout } = useAuth();
-    const navigate = useNavigate();
 
     const handleLogout = () => {
         logout();
         navigate('/login');
     };
+
+    const baseBtnStyle = 'flex items-center px-4 py-3 rounded-lg transition-colors duration-200';
+    const activeBtnStyle = 'bg-green-600 font-semibold text-white shadow-md'
+    const inactiveBtnStyle = 'text-green-100 hover:bg-green-700 hover:text-white';
+
+    const getStyle = (path: string) =>
+        pathname === path ? `${baseBtnStyle} ${activeBtnStyle}` : `${baseBtnStyle} ${inactiveBtnStyle}`;
+
+
+    const navLinks = [
+        { to: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
+        { to: '/reportes', label: 'Reportes', icon: '📈' },
+        { to: '/admin/clients', label: 'Clientes', icon: '👥' },
+        { to: '/residuos', label: 'Residuos', icon: '♻️' },
+        { to: '/configuracion', label: 'Configuración', icon: '⚙️' },
+    ]
+
 
     return (
         <div className="w-64 h-screen bg-green-800 text-white fixed left-0 top-0 py-5 flex flex-col">
@@ -26,70 +45,18 @@ export const SidebarECO = () => {
 
             {/* Menú */}
             <nav className="flex-1 space-y-1 px-2">
-                <NavLink
-                    to="/admin/dashboard"
-                    className={({ isActive }) =>
-                        `flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${isActive
-                            ? 'bg-green-600 font-semibold text-white shadow-md'
-                            : 'text-green-100 hover:bg-green-700 hover:text-white'
-                        }`
-                    }
-                >
-                    <span className="mr-3">📊</span>
-                    Dashboard
-                </NavLink>
-
-                <NavLink
-                    to="/reportes"
-                    className={({ isActive }) =>
-                        `flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${isActive
-                            ? 'bg-green-600 font-semibold text-white shadow-md'
-                            : 'text-green-100 hover:bg-green-700 hover:text-white'
-                        }`
-                    }
-                >
-                    <span className="mr-3">📈</span>
-                    Reportes
-                </NavLink>
-
-                <NavLink
-                    to="/admin/clients"
-                    className={({ isActive }) =>
-                        `flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${isActive
-                            ? 'bg-green-600 font-semibold text-white shadow-md'
-                            : 'text-green-100 hover:bg-green-700 hover:text-white'
-                        }`
-                    }
-                >
-                    <span className="mr-3">👥</span>
-                    Clientes
-                </NavLink>
-
-                <NavLink
-                    to="/residuos"
-                    className={({ isActive }) =>
-                        `flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${isActive
-                            ? 'bg-green-600 font-semibold text-white shadow-md'
-                            : 'text-green-100 hover:bg-green-700 hover:text-white'
-                        }`
-                    }
-                >
-                    <span className="mr-3">♻️</span>
-                    Residuos
-                </NavLink>
-
-                <NavLink
-                    to="/configuracion"
-                    className={({ isActive }) =>
-                        `flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${isActive
-                            ? 'bg-green-600 font-semibold text-white shadow-md'
-                            : 'text-green-100 hover:bg-green-700 hover:text-white'
-                        }`
-                    }
-                >
-                    <span className="mr-3">⚙️</span>
-                    Configuración
-                </NavLink>
+                {navLinks.map(link => {
+                    return (
+                        <NavLink
+                            key={link.to}
+                            to={link.to}
+                            className={getStyle(link.to)}
+                        >
+                            <span className="mr-3">{link.icon}</span>
+                            {link.label}
+                        </NavLink>
+                    );
+                })}
             </nav>
 
             {/* Botón de cerrar sesión */}
