@@ -1,0 +1,386 @@
+/* src/components/EcoForm.css */
+:root {
+  --eco-primary: #2e7d32;
+  --eco-primary-light: #4caf50;
+  --eco-primary-dark: #1b5e20;
+  --eco-secondary: #8bc34a;
+  --eco-accent: #689f38;
+  --eco-text: #333;
+  --eco-light: #f5f5f5;
+  --eco-white: #ffffff;
+  --eco-error: #d32f2f;
+  --eco-success: #388e3c;
+}
+
+/* Animaciones */
+@keyframes leafFloat {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+
+/* Estilos generales */
+.eco-form-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--eco-white);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(46, 125, 50, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.eco-form-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, var(--eco-primary), var(--eco-secondary));
+}
+
+.eco-form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.eco-form-header h1 {
+  color: var(--eco-primary-dark);
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.eco-leaf {
+  display: inline-block;
+  animation: leafFloat 4s ease-in-out infinite;
+}
+
+.eco-form-header p {
+  color: var(--eco-text);
+  opacity: 0.8;
+  margin-bottom: 1.5rem;
+}
+
+/* Barra de progreso */
+.eco-progress {
+  margin: 2rem 0;
+}
+
+.eco-progress-bar {
+  height: 6px;
+  background: linear-gradient(90deg, var(--eco-primary), var(--eco-secondary));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.eco-progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.eco-progress-step {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--eco-light);
+  color: var(--eco-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  position: relative;
+}
+
+.eco-progress-step.active {
+  background-color: var(--eco-primary);
+  color: var(--eco-white);
+}
+
+.eco-progress-step.active::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 2px solid var(--eco-primary-light);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  70% { transform: scale(1.1); opacity: 0.3; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+/* Grupos de formulario */
+.eco-form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.eco-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--eco-primary-dark);
+  font-weight: 500;
+}
+
+.eco-input, .eco-select, .eco-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: var(--eco-white);
+}
+
+.eco-input:focus, .eco-select:focus, .eco-textarea:focus {
+  outline: none;
+  border-color: var(--eco-primary);
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.eco-input-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--eco-primary-light);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.eco-input:focus ~ .eco-input-decoration,
+.eco-textarea:focus ~ .eco-textarea-decoration {
+  transform: scaleX(1);
+}
+
+/* Select personalizado */
+.eco-select {
+  appearance: none;
+  padding-right: 2.5rem;
+}
+
+.eco-select-arrow {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--eco-primary);
+}
+
+/* Textarea */
+.eco-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.eco-textarea-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--eco-primary-light);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+/* Checkbox personalizado */
+.eco-form-checkbox {
+  position: relative;
+  padding-left: 2rem;
+  margin: 1.5rem 0;
+  cursor: pointer;
+}
+
+.eco-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.eco-checkbox-label {
+  color: var(--eco-text);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.eco-checkbox-checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 1.25rem;
+  width: 1.25rem;
+  background-color: var(--eco-white);
+  border: 2px solid var(--eco-primary);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.eco-checkbox-input:checked ~ .eco-checkbox-checkmark {
+  background-color: var(--eco-primary);
+}
+
+.eco-checkbox-checkmark svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.8rem;
+  height: 0.8rem;
+  color: var(--eco-white);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.eco-checkbox-input:checked ~ .eco-checkbox-checkmark svg {
+  opacity: 1;
+}
+
+/* Botones */
+.eco-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.eco-btn-primary {
+  background-color: var(--eco-primary);
+  color: var(--eco-white);
+}
+
+.eco-btn-primary:hover {
+  background-color: var(--eco-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(46, 125, 50, 0.3);
+}
+
+.eco-btn-primary:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.eco-btn-secondary {
+  background-color: transparent;
+  color: var(--eco-primary);
+  border: 2px solid var(--eco-primary);
+}
+
+.eco-btn-secondary:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.eco-btn-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+.eco-btn-secondary .eco-btn-icon {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* Spinner */
+.eco-spinner {
+  animation: spinner 0.8s linear infinite;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+.eco-spinner circle {
+  stroke: var(--eco-white);
+  stroke-linecap: round;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 50;
+}
+
+/* Acciones del formulario */
+.eco-form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+/* Footer del formulario */
+.eco-form-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--eco-text);
+  opacity: 0.7;
+}
+
+.eco-footer-icon {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: middle;
+  margin-right: 0.25rem;
+  color: var(--eco-primary);
+}
+
+/* Mensaje de éxito */
+.eco-success {
+  text-align: center;
+  padding: 2rem;
+}
+
+.eco-success-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background-color: rgba(56, 142, 60, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.eco-success-icon svg {
+  width: 40px;
+  height: 40px;
+  color: var(--eco-success);
+}
+
+.eco-success h2 {
+  color: var(--eco-primary-dark);
+  margin-bottom: 1rem;
+}
+
+.eco-success p {
+  color: var(--eco-text);
+  margin-bottom: 2rem;
+  max-width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+}
