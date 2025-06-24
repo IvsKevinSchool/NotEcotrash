@@ -9,7 +9,7 @@ import Login from './auth/Login';
 import Register from './auth/Register';
 
 // Modules Views
-import AdminRoutes from './routes/AdminRoutes';
+import AdminRoutes from './routes/admin/AdminRoutes';
 import { LayoutECO } from './layout/LayoutECO';
 import NotFound from './layout/NotFound';
 
