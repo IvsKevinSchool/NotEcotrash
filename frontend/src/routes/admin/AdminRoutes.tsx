@@ -8,6 +8,8 @@ import EcoForm from '../../modules/admin/components/UserEcoForm';
 import { Panel } from '../../modules/admin/pages/Panel';
 import ClientsList from '../../modules/client/ClientsList';
 import ClientsItems from '../../modules/client/ClientsItem';
+import { ListLocations } from '../../modules/locations/pages/ListLocations';
+import { AddLocation } from '../../modules/locations/pages/AddLocation';
 
 const AdminRoutes = () => {
     return (
@@ -15,10 +17,13 @@ const AdminRoutes = () => {
             <Route path="/" />
             <Route path="add-user" element={<AddUser />} />
             <Route path="eco-form" element={<EcoForm />} />
-            
+
             <Route path="/dashboard" element={<Panel />} />
             <Route path="/clients" element={<ClientsList />} />
             <Route path="/clients/:id" element={<ClientsItems />} />
+            {/* Location Module */}
+            <Route path="/locations" element={<ListLocations />} />
+            <Route path="/locations/add" element={<AddLocation />} />
         </Routes>
     );
 };
