@@ -15,6 +15,8 @@ El backend se encuentra en la carpeta `backend` y utiliza un entorno virtual par
 
 ### Instrucciones
 
+Inicializar carpeta env: ```python -m venv env```
+
 1. **Abrir una terminal** y navegar a la carpeta del backend:
    ```
    cd c:\Users\kevin\Documents\TrabajosUTT\Archivos_Cuatrimestre_8\NotEcotrash\backend
