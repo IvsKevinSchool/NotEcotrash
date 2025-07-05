@@ -1,8 +1,39 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { } from '../assets/icons';
+import RegisterForm from './RegisterForm';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const Register = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { register: authRegister } = useAuth();
   const navigate = useNavigate();
+
+  const handleRegister = async (data) => {
+    setIsLoading(true);
+    try {
+      // Aquí harías la petición real al backend
+      // const response = await api.post('/auth/register', data);
+
+      // Simulación de registro exitoso
+      const mockUser = {
+        id: '123',
+        name: `${data.firstName} ${data.lastName}`,
+        email: data.email,
+        token: 'mock-token'
+      };
+
+      // authRegister(mockUser); // Guarda el usuario en el contexto
+      navigate('/login'); // Redirige al dashboard
+      toast.success('Sing up succesfully!')
+    } catch (error) {
+      console.error('Error en el registro:', error);
+      // Aquí puedes manejar errores, por ejemplo mostrando un toast
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Sección izquierda - Formulario */}
@@ -10,10 +41,23 @@ const Register = () => {
         <div className="w-full max-w-md">
           <div
             className="flex items-center mb-8 cursor-pointer group"
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/')}
           >
             {/* Flecha de regreso con animación */}
-            <BackRowIcon />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 mr-2 text-green-600 group-hover:text-green-800 transition-colors duration-200 transform group-hover:-translate-x-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
 
             <span className="text-3xl font-bold text-green-600 group-hover:text-green-800 transition-colors duration-200">Eco</span>
             <span className="text-3xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors duration-200">Trash</span>
@@ -21,95 +65,11 @@ const Register = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Crea tu cuenta</h1>
           <p className="text-gray-600 mb-8">Únete a nuestra comunidad ecológica</p>
 
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">
-                  Nombre
-                </label>
-                <input
-                  type="text"
-                  id="first-name"
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                  placeholder="Juan"
-                />
-              </div>
-              <div>
-                <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">
-                  Apellido
-                </label>
-                <input
-                  type="text"
-                  id="last-name"
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                  placeholder="Pérez"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Correo electrónico
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                placeholder="tu@email.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                id="password"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                placeholder="••••••••"
-              />
-              <p className="mt-1 text-xs text-gray-500">Mínimo 8 caracteres</p>
-            </div>
-
-            <div>
-              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
-                Confirmar contraseña
-              </label>
-              <input
-                type="password"
-                id="confirm-password"
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                id="terms"
-                name="terms"
-                type="checkbox"
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                required
-              />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-                Acepto los <Link to="/terms" className="text-green-600 hover:text-green-500">términos y condiciones</Link>
-              </label>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-              >
-                Registrarse
-              </button>
-            </div>
-          </form>
+          <RegisterForm onSubmit={handleRegister} isLoading={isLoading} />
 
           <div className="mt-6 text-center text-sm text-gray-600">
             ¿Ya tienes una cuenta?{' '}
-            <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
+            <Link to="/auth/login" className="font-medium text-green-600 hover:text-green-500">
               Inicia sesión
             </Link>
           </div>

@@ -71,7 +71,7 @@ const Login = () => {
 
                     <div className="mt-6 text-center text-sm text-gray-600">
                         ¿No tienes una cuenta?{' '}
-                        <Link to="/auth/register" className="font-medium text-green-600 hover:text-green-500">
+                        <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
                             Regístrate ahora
                         </Link>
                     </div>
