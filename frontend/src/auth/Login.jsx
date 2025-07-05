@@ -1,9 +1,41 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { BackRowIcon } from '../assets/icons';
-
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
+import LoginForm from './LoginForm';
+import { toast } from 'react-toastify';
 
 const Login = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleLogin = async (data) => {
+        setIsLoading(true);
+        try {
+            // Aquí harías la petición real al backend
+            // const response = await api.post('/auth/login', data);
+
+            // Simulación de respuesta del backend
+            const mockUser = {
+                id: '123',
+                name: 'Usuario Ejemplo',
+                email: data.email,
+                token: 'mock-token',
+            };
+
+            login(mockUser); // Guarda el usuario en el contexto
+            const from = location.state?.from?.pathname || '/admin/dashboard';
+            navigate(from, { replace: true });
+            toast.success('Welcome to Eco-Trash')
+        } catch (error) {
+            console.error('Error en el login:', error);
+            // Aquí puedes manejar errores, por ejemplo mostrando un toast
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex">
             {/* Sección izquierda - Formulario */}
@@ -14,8 +46,20 @@ const Login = () => {
                         onClick={() => navigate('/')}
                     >
                         {/* Flecha de regreso con animación */}
-                        <BackRowIcon />
-
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 mr-2 text-green-600 group-hover:text-green-800 transition-colors duration-200 transform group-hover:-translate-x-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                            />
+                        </svg>
 
                         <span className="text-3xl font-bold text-green-600 group-hover:text-green-800 transition-colors duration-200">Eco</span>
                         <span className="text-3xl font-bold text-gray-800 group-hover:text-gray-900 transition-colors duration-200">Trash</span>
@@ -23,66 +67,11 @@ const Login = () => {
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido de vuelta</h1>
                     <p className="text-gray-600 mb-8">Ingresa para gestionar tus residuos</p>
 
-                    <form className="space-y-6">
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Correo electrónico
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                placeholder="tu@email.com"
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Contraseña
-                            </label>
-                            <input
-                                type="password"
-                                id="password"
-                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
-                                placeholder="••••••••"
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                                    Recordarme
-                                </label>
-                            </div>
-
-                            <div className="text-sm">
-                                <Link to="/forgot-password" className="font-medium text-green-600 hover:text-green-500">
-                                    ¿Olvidaste tu contraseña?
-                                </Link>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                            >
-                                <Link to={'/admin'}>
-                                    Iniciar sesión
-                                </Link>
-                            </button>
-                        </div>
-                    </form>
+                    <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
 
                     <div className="mt-6 text-center text-sm text-gray-600">
                         ¿No tienes una cuenta?{' '}
-                        <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
+                        <Link to="/auth/register" className="font-medium text-green-600 hover:text-green-500">
                             Regístrate ahora
                         </Link>
                     </div>
