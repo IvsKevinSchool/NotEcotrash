@@ -12,19 +12,19 @@ export const LocationTable = ({ locations, onDelete }: LocationTableProps) => (
             <thead className="bg-green-600">
                 <tr>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                        Empresa
+                        Nombre
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        Dirección
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        Código Postal
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        Ciudad/Estado
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                         Contacto
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                        Tipo de Residuo
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                        Frecuencia
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                        Próxima Recolección
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                         Acciones
@@ -33,7 +33,7 @@ export const LocationTable = ({ locations, onDelete }: LocationTableProps) => (
             </thead>
             <tbody className="bg-white divide-y divide-green-200">
                 {locations.map((location) => (
-                    <LocationRow key={location.id} location={location} onDelete={onDelete} />
+                    <LocationRow key={location.pk_location} location={location} onDelete={onDelete} />
                 ))}
             </tbody>
         </table>

@@ -15,35 +15,34 @@ export const ListLocations = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Mock data - en producción sería una llamada API
+        // Mock data actualizado con la nueva estructura
         const mockData: Location[] = [
           {
-            id: "1",
-            companyName: "EcoTech Solutions",
-            address: "Av. Ecológica 123, Ciudad Verde",
-            contactPerson: "María González",
-            phone: "+1 234 567 890",
-            email: "contacto@ecotech.com",
-            wasteType: "Electrónicos",
-            collectionFrequency: "Semanal",
-            lastCollection: "2023-05-15",
-            nextCollection: "2023-05-22",
-            coordinates: "12.3456, -98.7654",
-            notes: "Solo recoger después de las 3pm"
+            pk_location: "1",
+            name: "Oficinas Centrales",
+            postal_code: "11520",
+            exterior_number: "123",
+            interior_number: "Piso 5",
+            street_name: "Avenida Reforma",
+            neighborhood: "Polanco",
+            country: "México",
+            city: "Ciudad de México",
+            state: "CDMX",
+            email: "contacto@empresa.com",
+            phone_number: "+52 55 1234 5678"
           },
           {
-            id: "2",
-            companyName: "Verde Futuro SA",
-            address: "Calle Sustentable 456, Distrito Eco",
-            contactPerson: "Carlos Mendoza",
-            phone: "+1 987 654 321",
-            email: "info@verdefuturo.com",
-            wasteType: "Orgánico",
-            collectionFrequency: "Diario",
-            lastCollection: "2023-05-20",
-            nextCollection: "2023-05-21",
-            coordinates: "12.3789, -98.7321",
-            notes: "Tienen contenedores especiales"
+            pk_location: "2",
+            name: "Planta de Producción",
+            postal_code: "54020",
+            exterior_number: "456",
+            street_name: "Boulevard Toluca",
+            neighborhood: "Industrial",
+            country: "México",
+            city: "Toluca",
+            state: "Estado de México",
+            email: "produccion@empresa.com",
+            phone_number: "+52 722 987 6543"
           }
         ];
 
@@ -61,21 +60,22 @@ export const ListLocations = () => {
   }, []);
 
   const filteredLocations = locations.filter(location =>
-    location.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())
+    location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    location.street_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (location.email && location.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (location.phone_number && location.phone_number.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleDelete = (id: string) => {
     if (window.confirm("¿Estás seguro de eliminar esta ubicación?")) {
-      setLocations(locations.filter(location => location.id !== id));
+      setLocations(locations.filter(location => location.pk_location !== id));
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-green-700">Ubicaciones de Recolección</h1>
+        <h1 className="text-3xl font-bold text-green-700">Ubicaciones</h1>
         <Link
           to="/admin/locations/add"
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"

@@ -1,17 +1,16 @@
-// List Location
 export interface Location {
-    id: string;
-    companyName: string;
-    address: string;
-    contactPerson: string;
-    phone: string;
-    email: string;
-    wasteType: string;
-    collectionFrequency: string;
-    lastCollection: string;
-    nextCollection: string;
-    coordinates: string;
-    notes: string;
+    pk_location: string;
+    name: string;
+    postal_code: string;
+    interior_number?: string;
+    exterior_number: string;
+    street_name: string;
+    neighborhood?: string;
+    country: string;
+    city: string;
+    state: string;
+    email?: string;
+    phone_number?: string;
 }
 
 export type LocationActionHandler = (id: string) => void;
