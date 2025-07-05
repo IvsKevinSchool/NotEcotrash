@@ -1,159 +1,167 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-    MapPinIcon,
-    BuildingOfficeIcon,
-    UserIcon,
-    PhoneIcon,
-    EnvelopeIcon,
-    TrashIcon,
-    ClockIcon,
-    CalendarIcon
-} from "@heroicons/react/24/outline";
-import { LocationFormData, HandleFormChange } from "../../types";
-import { FormSection } from "./FormSection";
+import { FormProvider, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LocationFormData, locationSchema } from "../../schemas";
 import { FormInput } from "./FormInput";
-import { FormSelect } from "./FormSelect";
-import { FormTextarea } from "./FormTextarea";
 import { FormActions } from "./FormActions";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const wasteTypes = [
-    "Orgánico",
-    "Inorgánico",
-    "Electrónicos",
-    "Peligroso",
-    "Reciclable",
-    "Otro"
-];
+export const AddLocationForm = () => {
+    const navigate = useNavigate();
+    const methods = useForm<LocationFormData>({
+        resolver: zodResolver(locationSchema),
+        defaultValues: {
+            interior_number: "",
+            email: ""
+        }
+    });
 
-const frequencies = [
-    "Diario",
-    "Semanal",
-    "Quincenal",
-    "Mensual",
-    "Bimestral",
-    "Trimestral"
-];
+    const {
+        handleSubmit,
+        formState: { isSubmitting },
+        reset,
+        setError
+    } = methods;
 
-interface AddLocationFormProps {
-    formData: LocationFormData;
-    onChange: HandleFormChange;
-    onSubmit: (e: React.FormEvent) => void;
-}
+    const onSubmit = async (data: LocationFormData) => {
+        try {
+            console.log("Datos validados:", data);
 
-export const AddLocationForm = ({ formData, onChange, onSubmit }: AddLocationFormProps) => (
-    <form onSubmit={onSubmit} className="bg-green-50 p-6 rounded-lg shadow">
-        <div className="space-y-6">
-            {/* Sección Información de la Empresa */}
-            <FormSection title="Información de la Empresa" icon={BuildingOfficeIcon}>
-                <FormInput
-                    id="companyName"
-                    name="companyName"
-                    label="Nombre de la Empresa *"
-                    value={formData.companyName}
-                    onChange={onChange}
-                    required
-                />
-                <FormInput
-                    id="address"
-                    name="address"
-                    label="Dirección *"
-                    value={formData.address}
-                    onChange={onChange}
-                    required
-                    icon={MapPinIcon}
-                />
-                <FormInput
-                    id="coordinates"
-                    name="coordinates"
-                    label="Coordenadas (opcional)"
-                    value={formData.coordinates}
-                    onChange={onChange}
-                    placeholder="Ej: 12.3456, -98.7654"
-                />
-                <FormSelect
-                    id="wasteType"
-                    name="wasteType"
-                    label="Tipo de Residuo *"
-                    value={formData.wasteType}
-                    onChange={onChange}
-                    options={wasteTypes}
-                    required
-                />
-            </FormSection>
+            const response = await axios.post("/api/locations", data);
 
-            {/* Sección Contacto */}
-            <FormSection title="Información de Contacto" icon={UserIcon}>
-                <FormInput
-                    id="contactPerson"
-                    name="contactPerson"
-                    label="Persona de Contacto *"
-                    value={formData.contactPerson}
-                    onChange={onChange}
-                    required
-                />
-                <FormInput
-                    id="phone"
-                    name="phone"
-                    label="Teléfono *"
-                    value={formData.phone}
-                    onChange={onChange}
-                    type="tel"
-                    required
-                    icon={PhoneIcon}
-                />
-                <FormInput
-                    id="email"
-                    name="email"
-                    label="Email"
-                    value={formData.email}
-                    onChange={onChange}
-                    type="email"
-                    icon={EnvelopeIcon}
-                />
-            </FormSection>
+            if (response.status === 201) {
+                toast.success("Ubicación creada exitosamente");
+                reset();
+                navigate("/admin/locations");
+            }
+        } catch (error) {
+            console.error("Error al crear ubicación:", error);
 
-            {/* Sección Recolección */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-semibold text-green-700 mb-4 flex items-center gap-2">
-                    <TrashIcon className="h-5 w-5" />
-                    Detalles de Recolección
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormSelect
-                        id="collectionFrequency"
-                        name="collectionFrequency"
-                        label="Frecuencia de Recolección *"
-                        value={formData.collectionFrequency}
-                        onChange={onChange}
-                        options={frequencies}
-                        required
-                        icon={ClockIcon}
-                    />
-                    <FormInput
-                        id="nextCollection"
-                        name="nextCollection"
-                        label="Próxima Recolección *"
-                        value={formData.nextCollection}
-                        onChange={onChange}
-                        type="date"
-                        required
-                        icon={CalendarIcon}
+            if (axios.isAxiosError(error) && error.response?.data?.errors) {
+                // Manejo de errores del backend
+                Object.entries(error.response.data.errors).forEach(([field, message]) => {
+                    setError(field as keyof LocationFormData, {
+                        type: "manual",
+                        message: message as string
+                    });
+                });
+                toast.error("Corrige los errores en el formulario");
+            } else {
+                toast.error("Error al guardar la ubicación");
+            }
+        }
+    };
+
+    return (
+        <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="bg-green-50 p-6 rounded-lg shadow">
+                <div className="space-y-6">
+                    {/* Sección Información Básica */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold text-green-700 mb-4">
+                            Información de la Ubicación
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormInput
+                                name="name"
+                                label="Nombre *"
+                                placeholder="Ej: Oficina Principal"
+                            />
+
+                            <FormInput
+                                name="postal_code"
+                                label="Código Postal *"
+                                placeholder="Ej: 11520"
+                            />
+
+                            <FormInput
+                                name="exterior_number"
+                                label="Número Exterior *"
+                                placeholder="Ej: 123"
+                            />
+
+                            <FormInput
+                                name="interior_number"
+                                label="Número Interior"
+                                placeholder="Ej: 4B"
+                                optional
+                            />
+                        </div>
+                    </div>
+
+                    {/* Sección Dirección */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold text-green-700 mb-4">
+                            Dirección Completa
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormInput
+                                name="street_name"
+                                label="Calle *"
+                                placeholder="Ej: Av. Reforma"
+                            />
+
+                            <FormInput
+                                name="neighborhood"
+                                label="Colonia/Barrio *"
+                                placeholder="Ej: Polanco"
+                            />
+
+                            <FormInput
+                                name="city"
+                                label="Ciudad *"
+                                placeholder="Ej: Ciudad de México"
+                            />
+
+                            <FormInput
+                                name="state"
+                                label="Estado *"
+                                placeholder="Ej: CDMX"
+                            />
+
+                            <FormInput
+                                name="country"
+                                label="País *"
+                                placeholder="Ej: México"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Sección Contacto */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                        <h2 className="text-xl font-semibold text-green-700 mb-4">
+                            Información de Contacto
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormInput
+                                name="email"
+                                label="Email"
+                                type="email"
+                                placeholder="Ej: contacto@empresa.com"
+                                optional
+                            />
+
+                            <FormInput
+                                name="phone_number"
+                                label="Teléfono *"
+                                type="tel"
+                                placeholder="Ej: +525512345678"
+                            />
+                        </div>
+                    </div>
+
+                    <FormActions
+                        isSubmitting={isSubmitting}
+                        submitText="Guardar Ubicación"
+                        onCancel={() => reset()}
+                        cancelText="Limpiar Formulario"
                     />
                 </div>
-                <div className="mt-6">
-                    <FormTextarea
-                        id="notes"
-                        name="notes"
-                        label="Notas Adicionales"
-                        value={formData.notes}
-                        onChange={onChange}
-                        placeholder="Instrucciones especiales, horarios preferidos, etc."
-                    />
-                </div>
-            </div>
-
-            <FormActions />
-        </div>
-    </form>
-);
+            </form>
+        </FormProvider>
+    );
+};
