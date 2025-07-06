@@ -4,12 +4,12 @@ from apps.waste.models import Waste
 from apps.core.models import Location
 
 # Create your models here.
-class Managment(models.Model):
+class Management(models.Model):
     """
     Model representing a management entity.
     This model can be extended in the future to include additional fields or methods.
     """
-    pk_managment = models.AutoField(primary_key=True)
+    pk_management = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
@@ -21,15 +21,15 @@ class Managment(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Management ID: {self.pk_managment}"
+        return f"Management ID: {self.pk_management}"
 
 class ManagementUser(models.Model):
     """
     Model representing a user in the management system.
     This model can be extended in the future to include additional fields or methods.
     """
-    pk_managment_user = models.AutoField(primary_key=True)
-    fk_managment = models.ForeignKey(Managment, on_delete=models.CASCADE, related_name='users')
+    pk_management_user = models.AutoField(primary_key=True)
+    fk_management = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='users')
     fk_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='management_users')
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,7 +41,7 @@ class ManagementUser(models.Model):
 
 class ManagementLocations(models.Model):
     pk_management_locations = models.AutoField(primary_key=True)
-    fk_managment = models.ForeignKey(Managment, on_delete=models.CASCADE, related_name='management_locations')
+    fk_manageement = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='management_locations')
     fk_location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='locations')
     
     is_main = models.BooleanField(default=True)
@@ -59,7 +59,7 @@ class ManagementWaste(models.Model):
     This model can be extended in the future to include additional fields or methods.
     """
     pk_management_waste = models.AutoField(primary_key=True)
-    fk_managment = models.ForeignKey(Managment, on_delete=models.CASCADE, related_name='waste_managements')
+    fk_management = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='waste_managements')
     fk_waste = models.ForeignKey(Waste, on_delete=models.CASCADE, related_name='waste_managements')
 
     created_at = models.DateTimeField(auto_now_add=True)
