@@ -194,17 +194,17 @@ class LogoutUserView(GenericAPIView):
             status=status.HTTP_204_NO_CONTENT
         )
 
-class TestAuthenticatedView(GenericAPIView):
-    serializer_class = None
-    """
-    A test view to check if the user is authenticated.
-    This view requires the user to be authenticated to access it.
-    """
-    permission_classes = [IsAuthenticated]
+# class TestAuthenticatedView(GenericAPIView):
+#     serializer_class = None
+#     """
+#     A test view to check if the user is authenticated.
+#     This view requires the user to be authenticated to access it.
+#     """
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        """
-        Handle GET requests to this view.
-        Returns a success message if the user is authenticated.
-        """
-        return Response({"message": "You are authenticated!"}, status=status.HTTP_200_OK)
+#     def get(self, request, *args, **kwargs):
+#         """
+#         Handle GET requests to this view.
+#         Returns a success message if the user is authenticated.
+#         """
+#         return Response({"message": "You are authenticated!"}, status=status.HTTP_200_OK)
