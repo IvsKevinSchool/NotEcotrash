@@ -17,11 +17,50 @@ export const WasteListPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [refresh, setRefresh] = useState(false);
 
+    // useEffect(() => {
+    //     const fetchWastes = async () => {
+    //         try {
+    //             setIsLoading(true);
+    //             const data = await wasteService.getAll();
+    //             setWastes(data);
+    //         } catch (error) {
+    //             toast.error("Error al cargar los residuos");
+    //             console.error("Error fetching wastes:", error);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     };
+
+    //     fetchWastes();
+    // }, [refresh]);
+
     useEffect(() => {
         const fetchWastes = async () => {
             try {
                 setIsLoading(true);
-                const data = await wasteService.getAll();
+                // Reemplaza esto temporalmente para ver los datos de ejemplo
+                // const data = await wasteService.getAll();
+                const data: Waste[] = [
+                    {
+                        pk_waste: "1",
+                        name: "Papel y Cartón",
+                        description: "Residuos de papel, cartón, periódicos, revistas y envases de cartón",
+                        is_active: true
+                    },
+                    {
+                        pk_waste: "2",
+                        name: "Plásticos",
+                        description: "Botellas, envases, bolsas y otros productos plásticos",
+                        is_active: true
+                    },
+                    {
+                        pk_waste: "3",
+                        name: "Vidrio",
+                        description: "Botellas, frascos y otros recipientes de vidrio",
+                        is_active: false
+                    },
+                    // ... puedes agregar más items si necesitas
+                ];
                 setWastes(data);
             } catch (error) {
                 toast.error("Error al cargar los residuos");
@@ -101,25 +140,25 @@ export const WasteListPage = () => {
 
                 {/* Waste Table */}
                 {!isLoading && wastes.length > 0 && (
-                    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-green-50">
+                    <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+                        <table className="min-w-full divide-y divide-green-200">
+                            <thead className="bg-green-600">
                                 <tr>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                         Nombre
                                     </th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                         Descripción
                                     </th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                         Estado
                                     </th>
-                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                                         Acciones
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white divide-y divide-green-200">
                                 {wastes.map((waste) => (
                                     <tr key={waste.pk_waste} className="hover:bg-green-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
