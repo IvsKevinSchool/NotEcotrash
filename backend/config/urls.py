@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/v1/accounts/auth/', include('apps.accounts.api.urls')),  # Rutas de la aplicación accounts
     path('api/v1/core/', include('apps.core.api.urls')),  # Rutas de la aplicación accounts
     path('api/v1/management/', include('apps.management.api.urls')),
+    path('api/v1/waste/', include('apps.waste.api.urls')),
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
