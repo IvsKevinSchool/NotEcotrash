@@ -29,9 +29,11 @@ class User(AbstractUser, PermissionsMixin):
 
     ROLE_CHOICES = (
         ('admin', 'Admin'),
-        ('employee', 'Empleado'),
+        ('managment', 'Gerencia'),
+        ('client', 'Cliente'),
+        ('collector', 'Recolector'),
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='employee')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='managment', verbose_name=_('role'))
 
     USERNAME_FIELD = 'username'
 
