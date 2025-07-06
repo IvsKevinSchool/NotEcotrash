@@ -22,7 +22,10 @@ BASE_APPS = [
     "django.contrib.staticfiles",
 ]
 LOCAL_APPS = [
+    "apps.core",
     "apps.accounts",
+    "apps.management",
+    "apps.waste",
 ]
 THIRD_APPS = [
     "rest_framework",
