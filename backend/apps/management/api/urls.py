@@ -8,6 +8,7 @@ router.register(r'management', ManagementViewSet, basename='management')
 router.register(r'locations', ManagementLocationsViewSet, basename='locations')
 router.register(r'user', ManagementUserViewSet, basename='user')
 router.register(r'waste', ManagementWasteViewSet, basename='waste')
+router.register(r'certificate', ManagementWasteViewSet, basename='certificate')
 
 
 # Define the URL patterns for the core app

@@ -26,6 +26,7 @@ LOCAL_APPS = [
     "apps.accounts",
     "apps.management",
     "apps.waste",
+    "apps.client",
 ]
 THIRD_APPS = [
     "rest_framework",
