@@ -26,6 +26,7 @@ const AdminRoutes = () => {
             {/* Location Module */}
             <Route path="/locations" element={<ListLocations />} />
             <Route path="/locations/add" element={<AddLocation />} />
+            <Route path="/locations/edit/:pk" element={<AddLocation />} />
             {/* Waste Module */}
             <Route path="/wastes" element={<WasteListPage />} />
             <Route path="/wastes/add" element={<CreateWastePage />} />

@@ -6,6 +6,7 @@ import { LocationTable } from "../components/ListLocation/LocationTable";
 import { LocationSearch } from "../components/ListLocation/LocationSearch";
 import { LocationLoading } from "../components/ListLocation/LocationLoading";
 import { LocationEmptyState } from "../components/ListLocation/LocationEmptyState";
+import api from "../../../api";
 
 export const ListLocations = () => {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -15,41 +16,12 @@ export const ListLocations = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Mock data actualizado con la nueva estructura
-        const mockData: Location[] = [
-          {
-            pk_location: "1",
-            name: "Oficinas Centrales",
-            postal_code: "11520",
-            exterior_number: "123",
-            interior_number: "Piso 5",
-            street_name: "Avenida Reforma",
-            neighborhood: "Polanco",
-            country: "México",
-            city: "Ciudad de México",
-            state: "CDMX",
-            email: "contacto@empresa.com",
-            phone_number: "+52 55 1234 5678"
-          },
-          {
-            pk_location: "2",
-            name: "Planta de Producción",
-            postal_code: "54020",
-            exterior_number: "456",
-            street_name: "Boulevard Toluca",
-            neighborhood: "Industrial",
-            country: "México",
-            city: "Toluca",
-            state: "Estado de México",
-            email: "produccion@empresa.com",
-            phone_number: "+52 722 987 6543"
-          }
-        ];
+        const response = await api('core/locations/')
 
-        setTimeout(() => {
-          setLocations(mockData);
-          setLoading(false);
-        }, 800);
+        console.log(response)
+
+        setLocations(response.data);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching locations:", error);
         setLoading(false);
@@ -62,7 +34,6 @@ export const ListLocations = () => {
   const filteredLocations = locations.filter(location =>
     location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     location.street_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (location.email && location.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (location.phone_number && location.phone_number.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 

@@ -3,17 +3,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LocationFormData, locationSchema } from "../../schemas";
 import { FormInput } from "./FormInput";
 import { FormActions } from "./FormActions";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import api from "../../../../api";
 import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 export const AddLocationForm = () => {
+    const { pk } = useParams(); // Obtener el ID si estamos editando
+    const isEditing = Boolean(pk); // Determinar si estamos en modo edición
     const navigate = useNavigate();
+
     const methods = useForm<LocationFormData>({
         resolver: zodResolver(locationSchema),
         defaultValues: {
-            interior_number: "",
-            email: ""
+            country: "Mexico",
         }
     });
 
@@ -24,38 +27,69 @@ export const AddLocationForm = () => {
         setError
     } = methods;
 
+    // Cargar datos de la ubicación si estamos editando
+    useEffect(() => {
+        if (isEditing) {
+            const fetchLocationData = async () => {
+                try {
+                    const response = await api.get(`core/locations/${pk}/`);
+                    const parsedData = {
+                        ...response.data,
+                        interior_number: response.data.interior_number?.toString(),
+                        exterior_number: response.data.exterior_number?.toString()
+                    }
+                    reset(parsedData); // Rellenar el formulario con los datos existentes
+                } catch (error) {
+                    console.error("Error al cargar la ubicación:", error);
+                    toast.error("No se pudo cargar la ubicación para editar");
+                    navigate("/admin/locations");
+                }
+            };
+            fetchLocationData();
+        }
+    }, [pk, isEditing, reset, navigate]);
+
     const onSubmit = async (data: LocationFormData) => {
         try {
             console.log("Datos validados:", data);
 
-            const response = await axios.post("/api/locations", data);
-
-            if (response.status === 201) {
-                toast.success("Ubicación creada exitosamente");
-                reset();
-                navigate("/admin/locations");
-            }
-        } catch (error) {
-            console.error("Error al crear ubicación:", error);
-
-            if (axios.isAxiosError(error) && error.response?.data?.errors) {
-                // Manejo de errores del backend
-                Object.entries(error.response.data.errors).forEach(([field, message]) => {
-                    setError(field as keyof LocationFormData, {
-                        type: "manual",
-                        message: message as string
-                    });
-                });
-                toast.error("Corrige los errores en el formulario");
+            let response;
+            if (isEditing) {
+                // Petición PATCH para edición
+                response = await api.patch(`core/locations/${pk}/`, data);
+                toast.success("Ubicación actualizada exitosamente");
             } else {
-                toast.error("Error al guardar la ubicación");
+                // Petición POST para creación
+                response = await api.post("core/locations/", data);
+                toast.success("Ubicación creada exitosamente");
             }
+
+            // Redirigir después de 1 segundo para que se vea el toast
+            setTimeout(() => navigate("/admin/locations"), 1000);
+        } catch (error) {
+            console.error(`Error al ${isEditing ? 'actualizar' : 'crear'} ubicación:`, error);
+            toast.error(`Error al ${isEditing ? 'actualizar' : 'guardar'} la ubicación`);
+
+            // Manejo de errores del backend (descomenta cuando lo necesites)
+            // if (error.response?.data?.errors) {
+            //     Object.entries(error.response.data.errors).forEach(([field, message]) => {
+            //         setError(field as keyof LocationFormData, {
+            //             type: "manual",
+            //             message: message as string
+            //         });
+            //     });
+            //     toast.error("Corrige los errores en el formulario");
+            // }
         }
     };
 
     return (
         <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(onSubmit)} className="bg-green-50 p-6 rounded-lg shadow">
+            <form onSubmit={methods.handleSubmit(onSubmit)} className="bg-green-50 p-6 rounded-lg shadow">
+                <h1 className="text-2xl font-bold text-green-800 mb-6">
+                    {isEditing ? 'Editar Ubicación' : 'Agregar Nueva Ubicación'}
+                </h1>
+
                 <div className="space-y-6">
                     {/* Sección Información Básica */}
                     <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -71,7 +105,7 @@ export const AddLocationForm = () => {
                             />
 
                             <FormInput
-                                name="postal_code"
+                                name="postcode"
                                 label="Código Postal *"
                                 placeholder="Ej: 11520"
                             />
@@ -87,6 +121,7 @@ export const AddLocationForm = () => {
                                 label="Número Interior"
                                 placeholder="Ej: 4B"
                                 optional
+
                             />
                         </div>
                     </div>
@@ -138,14 +173,6 @@ export const AddLocationForm = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormInput
-                                name="email"
-                                label="Email"
-                                type="email"
-                                placeholder="Ej: contacto@empresa.com"
-                                optional
-                            />
-
-                            <FormInput
                                 name="phone_number"
                                 label="Teléfono *"
                                 type="tel"
@@ -153,12 +180,15 @@ export const AddLocationForm = () => {
                             />
                         </div>
                     </div>
-
                     <FormActions
                         isSubmitting={isSubmitting}
-                        submitText="Guardar Ubicación"
-                        onCancel={() => reset()}
+                        submitText={isEditing ? "Actualizar Ubicación" : "Guardar Ubicación"}
+                        onCancel={() => {
+                            reset();
+                            toast.info("Formulario limpiado");
+                        }}
                         cancelText="Limpiar Formulario"
+                        onSubmit={methods.handleSubmit(onSubmit)} // Pasa el manejador directamente
                     />
                 </div>
             </form>

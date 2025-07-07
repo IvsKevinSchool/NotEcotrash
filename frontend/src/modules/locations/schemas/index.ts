@@ -5,7 +5,7 @@ export const locationSchema = z.object({
     name: z.string()
         .min(3, "El nombre debe tener al menos 3 caracteres")
         .max(100, "El nombre no puede exceder 100 caracteres"),
-    postal_code: z.string()
+    postcode: z.string()
         .min(4, "El código postal debe tener al menos 4 caracteres")
         .max(10, "El código postal no puede exceder 10 caracteres"),
     interior_number: z.string()
@@ -29,10 +29,6 @@ export const locationSchema = z.object({
     state: z.string()
         .min(3, "El estado debe tener al menos 3 caracteres")
         .max(50, "El estado no puede exceder 50 caracteres"),
-    email: z.string()
-        .email("Ingresa un email válido")
-        .optional()
-        .or(z.literal("")),
     phone_number: z.string()
         .min(7, "El teléfono debe tener al menos 7 caracteres")
         .max(20, "El teléfono no puede exceder 20 caracteres")

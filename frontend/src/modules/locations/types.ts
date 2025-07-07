@@ -1,7 +1,7 @@
 export interface Location {
     pk_location: string;
     name: string;
-    postal_code: string;
+    postcode: string;
     interior_number?: string;
     exterior_number: string;
     street_name: string;
@@ -9,8 +9,9 @@ export interface Location {
     country: string;
     city: string;
     state: string;
-    email?: string;
     phone_number?: string;
+    created_at: string;
+    is_active: boolean;
 }
 
 export type LocationActionHandler = (id: string) => void;
