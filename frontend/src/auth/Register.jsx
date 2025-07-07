@@ -3,6 +3,7 @@ import RegisterForm from './RegisterForm';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import api from '../api'
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,26 +11,34 @@ const Register = () => {
   const navigate = useNavigate();
 
   const handleRegister = async (data) => {
+    console.log('Datos de registro:', data);
     setIsLoading(true);
+
     try {
-      // Aquí harías la petición real al backend
-      // const response = await api.post('/auth/register', data);
+      // 1. Hacer la petición al backend
+      const response = await api.post('accounts/auth/register/', data);
 
-      // Simulación de registro exitoso
-      const mockUser = {
-        id: '123',
-        name: `${data.firstName} ${data.lastName}`,
-        email: data.email,
-        token: 'mock-token'
-      };
+      // 2. Verificar si la respuesta fue exitosa (código 2xx)
+      if (response.status >= 200 && response.status < 300) {
 
-      // authRegister(mockUser); // Guarda el usuario en el contexto
-      navigate('/login'); // Redirige al dashboard
-      toast.success('Sing up succesfully!')
+        // 5. Mostrar feedback al usuario
+        toast.success('Sign up successfully!');
+
+        navigate('/login');
+      } else {
+        // Manejar respuestas no exitosas (ej. 400, 500)
+        throw new Error(response.data.message || 'Registration failed');
+      }
     } catch (error) {
       console.error('Error en el registro:', error);
-      // Aquí puedes manejar errores, por ejemplo mostrando un toast
+
+      // 7. Mostrar error específico al usuario
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        'Registration failed, please try again';
+      toast.error(errorMessage);
     } finally {
+      // 8. Restablecer el estado de carga
       setIsLoading(false);
     }
   };
@@ -67,12 +76,6 @@ const Register = () => {
 
           <RegisterForm onSubmit={handleRegister} isLoading={isLoading} />
 
-          <div className="mt-6 text-center text-sm text-gray-600">
-            ¿Ya tienes una cuenta?{' '}
-            <Link to="/auth/login" className="font-medium text-green-600 hover:text-green-500">
-              Inicia sesión
-            </Link>
-          </div>
         </div>
       </div>
 

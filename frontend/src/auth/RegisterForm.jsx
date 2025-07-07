@@ -13,147 +13,185 @@ const RegisterForm = ({ onSubmit, isLoading }) => {
 
     return (
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+            {/* Sección de Información Personal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Nombre de Usuario */}
                 <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-                        Nombre
+                    <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                        Nombre de Usuario*
                     </label>
                     <input
                         type="text"
-                        id="firstName"
-                        className={`mt-1 block w-full px-4 py-2 border ${errors.firstName ? 'border-red-500' : 'border-gray-300'
+                        id="username"
+                        className={`mt-1 block w-full px-4 py-2 border ${errors.username ? 'border-red-500' : 'border-gray-300'
+                            } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
+                        placeholder="juan123"
+                        {...register('username', {
+                            required: 'El nombre de usuario es requerido',
+                            minLength: {
+                                value: 4,
+                                message: 'Debe tener al menos 4 caracteres',
+                            },
+                        })}
+                    />
+                    {errors.username && (
+                        <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+                    )}
+                </div>
+
+                {/* Correo Electrónico */}
+                <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        Correo electrónico*
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        className={`mt-1 block w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'
+                            } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
+                        placeholder="tu@email.com"
+                        {...register('email', {
+                            required: 'El correo electrónico es requerido',
+                            pattern: {
+                                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                message: 'Correo electrónico inválido',
+                            },
+                        })}
+                    />
+                    {errors.email && (
+                        <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Usado para iniciar sesión</p>
+                </div>
+
+                {/* Nombre */}
+                <div>
+                    <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
+                        Nombre(s)*
+                    </label>
+                    <input
+                        type="text"
+                        id="first_name"
+                        className={`mt-1 block w-full px-4 py-2 border ${errors.first_name ? 'border-red-500' : 'border-gray-300'
                             } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
                         placeholder="Juan"
-                        {...register('firstName', {
+                        {...register('first_name', {
                             required: 'El nombre es requerido',
                             minLength: {
                                 value: 2,
-                                message: 'El nombre debe tener al menos 2 caracteres',
+                                message: 'Debe tener al menos 2 caracteres',
                             },
                         })}
                     />
-                    {errors.firstName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
+                    {errors.first_name && (
+                        <p className="mt-1 text-sm text-red-600">{errors.first_name.message}</p>
                     )}
                 </div>
+
+                {/* Apellido */}
                 <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-                        Apellido
+                    <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
+                        Apellido(s)*
                     </label>
                     <input
                         type="text"
-                        id="lastName"
-                        className={`mt-1 block w-full px-4 py-2 border ${errors.lastName ? 'border-red-500' : 'border-gray-300'
+                        id="last_name"
+                        className={`mt-1 block w-full px-4 py-2 border ${errors.last_name ? 'border-red-500' : 'border-gray-300'
                             } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
                         placeholder="Pérez"
-                        {...register('lastName', {
+                        {...register('last_name', {
                             required: 'El apellido es requerido',
                             minLength: {
                                 value: 2,
-                                message: 'El apellido debe tener al menos 2 caracteres',
+                                message: 'Debe tener al menos 2 caracteres',
                             },
                         })}
                     />
-                    {errors.lastName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
+                    {errors.last_name && (
+                        <p className="mt-1 text-sm text-red-600">{errors.last_name.message}</p>
                     )}
                 </div>
             </div>
 
-            <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Correo electrónico
-                </label>
-                <input
-                    type="email"
-                    id="email"
-                    className={`mt-1 block w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'
-                        } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
-                    placeholder="tu@email.com"
-                    {...register('email', {
-                        required: 'El correo electrónico es requerido',
-                        pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: 'Correo electrónico inválido',
-                        },
-                    })}
-                />
-                {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-                )}
+            {/* Sección de Contraseñas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Contraseña */}
+                <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                        Contraseña*
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        className={`mt-1 block w-full px-4 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'
+                            } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
+                        placeholder="••••••••"
+                        {...register('password', {
+                            required: 'La contraseña es requerida',
+                            minLength: {
+                                value: 8,
+                                message: 'Debe tener al menos 8 caracteres',
+                            },
+                            pattern: {
+                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+                                message: 'Debe contener mayúsculas, minúsculas y números'
+                            }
+                        })}
+                    />
+                    {errors.password && (
+                        <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Mínimo 8 caracteres con mayúsculas, minúsculas y números</p>
+                </div>
+
+                {/* Confirmar Contraseña */}
+                <div>
+                    <label htmlFor="password2" className="block text-sm font-medium text-gray-700">
+                        Confirmar contraseña*
+                    </label>
+                    <input
+                        type="password"
+                        id="password2"
+                        className={`mt-1 block w-full px-4 py-2 border ${errors.password2 ? 'border-red-500' : 'border-gray-300'
+                            } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
+                        placeholder="••••••••"
+                        {...register('password2', {
+                            required: 'Debes confirmar tu contraseña',
+                            validate: value =>
+                                value === password || 'Las contraseñas no coinciden',
+                        })}
+                    />
+                    {errors.password2 && (
+                        <p className="mt-1 text-sm text-red-600">{errors.password2.message}</p>
+                    )}
+                </div>
             </div>
 
-            <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Contraseña
-                </label>
-                <input
-                    type="password"
-                    id="password"
-                    className={`mt-1 block w-full px-4 py-2 border ${errors.password ? 'border-red-500' : 'border-gray-300'
-                        } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
-                    placeholder="••••••••"
-                    {...register('password', {
-                        required: 'La contraseña es requerida',
-                        minLength: {
-                            value: 8,
-                            message: 'La contraseña debe tener al menos 8 caracteres',
-                        },
-                    })}
-                />
-                {errors.password && (
-                    <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
-                )}
-                <p className="mt-1 text-xs text-gray-500">Mínimo 8 caracteres</p>
-            </div>
-
-            <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                    Confirmar contraseña
-                </label>
-                <input
-                    type="password"
-                    id="confirmPassword"
-                    className={`mt-1 block w-full px-4 py-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                        } rounded-md shadow-sm focus:ring-green-500 focus:border-green-500`}
-                    placeholder="••••••••"
-                    {...register('confirmPassword', {
-                        required: 'Debes confirmar tu contraseña',
-                        validate: value =>
-                            value === password || 'Las contraseñas no coinciden',
-                    })}
-                />
-                {errors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
-                )}
-            </div>
-
-            <div className="flex items-center">
-                <input
-                    id="terms"
-                    type="checkbox"
-                    className={`h-4 w-4 ${errors.terms ? 'text-red-600' : 'text-green-600'
-                        } focus:ring-green-500 border-gray-300 rounded`}
-                    {...register('terms', {
-                        required: 'Debes aceptar los términos y condiciones',
-                    })}
-                />
-                <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-                    Acepto los <Link to="/terms" className="text-green-600 hover:text-green-500">términos y condiciones</Link>
-                </label>
-            </div>
-            {errors.terms && (
-                <p className="text-sm text-red-600">{errors.terms.message}</p>
-            )}
-
+            {/* Botón de Registro */}
             <div className="pt-2">
                 <button
                     type="submit"
                     disabled={isLoading}
                     className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    {isLoading ? 'Registrando...' : 'Registrarse'}
+                    {isLoading ? (
+                        <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Registrando...
+                        </>
+                    ) : 'Registrarse'}
                 </button>
+            </div>
+
+            {/* Enlace a Login */}
+            <div className="text-center text-sm text-gray-600">
+                ¿Ya tienes una cuenta? {' '}
+                <Link to="/login" className="font-medium text-green-600 hover:text-green-500">
+                    Inicia sesión
+                </Link>
             </div>
         </form>
     );
