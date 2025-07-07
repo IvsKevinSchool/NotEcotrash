@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 import LoginForm from './LoginForm';
 import { toast } from 'react-toastify';
+import api from '../api'; // Asegúrate de importar tu configuración de axios
 
 const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -13,39 +14,86 @@ const Login = () => {
     const handleLogin = async (data) => {
         setIsLoading(true);
         try {
-            // Aquí harías la petición real al backend
-            // const response = await api.post('/auth/login', data);
+            const response = await api.post('accounts/auth/login/', data);
+            console.log(response.data)
 
-            // Simulación de respuesta del backend
-            const mockUser = {
-                id: '123',
-                name: 'Usuario Ejemplo',
-                email: data.email,
-                token: 'mock-token',
-            };
+            // 2. Verificar si la respuesta fue exitosa
+            if (response.status >= 200 && response.status < 300) {
+                const userData = {
+                    id: response.data.data.user.pk, // Accede a través de data.user
+                    username: response.data.data.user.username,
+                    name: response.data.data.user.full_name, // Usa full_name en lugar de combinar first y last
+                    email: response.data.data.user.email,
+                    token: response.data.data.access_token, // access_token en lugar de access
+                    //refreshToken: response.data.data.refresh_token, // refresh_token en lugar de refresh
+                    role: response.data.data.user.role
+                };
 
-            login(mockUser); // Guarda el usuario en el contexto
-            const from = location.state?.from?.pathname || '/admin/dashboard';
-            navigate(from, { replace: true });
-            toast.success('Welcome to Eco-Trash')
+                console.log('Datos del usuario:', userData);
+
+                // 3. Guardar usuario en el contexto de autenticación
+                login(userData);
+
+                // 4. Mostrar mensaje de bienvenida
+                toast.success(`Bienvenido ${userData.name}`);
+
+                // 5. Redireccionar según el rol
+                const from = location.state?.from?.pathname || getDashboardPath(userData.role);
+                navigate(from, { replace: true });
+            } else {
+                throw new Error(response.data?.message || 'Error en el login');
+            }
         } catch (error) {
             console.error('Error en el login:', error);
-            // Aquí puedes manejar errores, por ejemplo mostrando un toast
+
+            // 6. Manejo de errores específicos
+            let errorMessage = 'Error al iniciar sesión';
+
+            if (error.response) {
+                if (error.response.status === 401) {
+                    errorMessage = 'Credenciales inválidas';
+                } else if (error.response.status === 403) {
+                    errorMessage = 'Cuenta no verificada o sin permisos';
+                } else {
+                    errorMessage = error.response.data?.detail ||
+                        error.response.data?.message ||
+                        `Error ${error.response.status}`;
+                }
+            } else if (error.request) {
+                errorMessage = 'No se pudo conectar con el servidor';
+            }
+
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
     };
 
+    // Función para determinar la ruta según el rol
+    const getDashboardPath = (role) => {
+        switch (role) {
+            case 'admin':
+                return '/admin/dashboard';
+            case 'management':
+                return '/admin/dashboard';
+            case 'collector':
+                return '/collector/routes';
+            case 'client':
+                return '/client/requests';
+            default:
+                return '/dashboard';
+        }
+    };
+
     return (
-        <div className="min-h-screen flex">
+        <div className="min-h-screen flex flex-col md:flex-row">
             {/* Sección izquierda - Formulario */}
-            <div className="w-1/2 bg-white flex items-center justify-center p-12">
+            <div className="w-full md:w-1/2 bg-white flex items-center justify-center p-8 md:p-12">
                 <div className="w-full max-w-md">
                     <div
                         className="flex items-center mb-8 cursor-pointer group"
                         onClick={() => navigate('/')}
                     >
-                        {/* Flecha de regreso con animación */}
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-6 w-6 mr-2 text-green-600 group-hover:text-green-800 transition-colors duration-200 transform group-hover:-translate-x-1"
@@ -71,7 +119,10 @@ const Login = () => {
 
                     <div className="mt-6 text-center text-sm text-gray-600">
                         ¿No tienes una cuenta?{' '}
-                        <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
+                        <Link
+                            to="/register"
+                            className="font-medium text-green-600 hover:text-green-500 transition-colors duration-200"
+                        >
                             Regístrate ahora
                         </Link>
                     </div>
@@ -79,26 +130,25 @@ const Login = () => {
             </div>
 
             {/* Sección derecha - Imagen */}
-            <div className="w-1/2 bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center">
-                <div className="text-center p-8">
+            <div className="w-full md:w-1/2 bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center p-8">
+                <div className="text-center p-4 md:p-8">
                     <img
                         src="/logo.png"
                         alt="Logo EcoTrash"
-                        className="mx-auto h-48 w-auto mb-6"
+                        className="mx-auto h-32 md:h-48 w-auto mb-6"
                     />
-                    <h2 className="text-4xl font-bold text-white mb-4">NotEcoTrash</h2>
-                    <p className="text-xl text-green-100">Transformando residuos en recursos</p>
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">EcoTrash</h2>
+                    <p className="text-lg md:text-xl text-green-100">Transformando residuos en recursos</p>
 
                     <div className="mt-8 flex justify-center space-x-4">
-                        <div className="bg-green-400 bg-opacity-30 p-3 rounded-full">
-                            <span className="text-white">♻️</span>
-                        </div>
-                        <div className="bg-green-400 bg-opacity-30 p-3 rounded-full">
-                            <span className="text-white">🌱</span>
-                        </div>
-                        <div className="bg-green-400 bg-opacity-30 p-3 rounded-full">
-                            <span className="text-white">🌍</span>
-                        </div>
+                        {['♻️', '🌱', '🌍'].map((emoji, index) => (
+                            <div
+                                key={index}
+                                className="bg-green-400 bg-opacity-30 p-3 rounded-full hover:bg-opacity-50 transition-all duration-300"
+                            >
+                                <span className="text-white text-xl">{emoji}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>

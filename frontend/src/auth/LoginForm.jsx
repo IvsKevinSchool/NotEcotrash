@@ -56,27 +56,6 @@ const LoginForm = ({ onSubmit, isLoading }) => {
                 )}
             </div>
 
-            <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                    <input
-                        id="remember-me"
-                        name="remember-me"
-                        type="checkbox"
-                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                        {...register('rememberMe')}
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                        Recordarme
-                    </label>
-                </div>
-
-                <div className="text-sm">
-                    <Link to="/forgot-password" className="font-medium text-green-600 hover:text-green-500">
-                        ¿Olvidaste tu contraseña?
-                    </Link>
-                </div>
-            </div>
-
             <div>
                 <button
                     type="submit"

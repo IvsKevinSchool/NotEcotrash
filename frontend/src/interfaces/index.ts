@@ -15,9 +15,12 @@ export type LoadingProps = {
 }
 
 export interface IUserData {
-    id: string;
+    id: number;
+    username: string;
     name: string;
     email: string;
+    role: string;
+    token: string;
 }
 
 export interface IAuthContext {

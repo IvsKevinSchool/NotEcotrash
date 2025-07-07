@@ -2,9 +2,12 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { IAuthContext, IUserData } from '../interfaces';
 
 const initialUser: IUserData = {
-    id: '',
+    id: 0,
+    username: '',
     name: '',
     email: '',
+    role: '',
+    token: ''
 };
 
 const AuthContext = createContext<IAuthContext>({
