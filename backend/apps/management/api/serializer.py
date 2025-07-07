@@ -1,8 +1,26 @@
 from rest_framework import serializers
-from apps.management.models import Management
+from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste
 
 class ManagementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Management
         fields = '__all__'
-        read_only_fields = ['pk_management', 'created_at', 'updated_at', 'is_active']   
+        read_only_fields = ['pk_management', 'created_at', 'updated_at', 'is_active']
+
+class ManagementUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ManagementUser
+        fields = '__all__'
+        read_only_fields = ['pk_management_user', 'created_at', 'updated_at', 'is_active']
+
+class ManagementLocationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ManagementLocations
+        fields = '__all__'
+        read_only_fields = ['pk_management_locations', 'created_at', 'updated_at', 'is_active']
+
+class ManagementWasteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ManagementWaste
+        fields = '__all__'
+        read_only_fields = ['pk_management_waste', 'created_at', 'updated_at', 'is_active']   
