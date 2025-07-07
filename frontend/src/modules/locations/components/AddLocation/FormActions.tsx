@@ -3,15 +3,13 @@ interface FormActionsProps {
     submitText: string;
     onCancel?: () => void;
     cancelText?: string;
-    onSubmit?: () => void; // Nueva prop para manejar el submit
 }
 
 export const FormActions = ({
     isSubmitting,
     submitText,
     onCancel,
-    cancelText = "Cancelar",
-    onSubmit // Nueva prop
+    cancelText = "Cancelar"
 }: FormActionsProps) => (
     <div className="flex justify-end gap-4 mt-8">
         {onCancel && (
@@ -26,7 +24,6 @@ export const FormActions = ({
         )}
         <button
             type="submit"
-            onClick={onSubmit} // Manejo explícito del submit
             disabled={isSubmitting}
             className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
         >
