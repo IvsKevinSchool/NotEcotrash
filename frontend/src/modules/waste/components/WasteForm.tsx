@@ -1,31 +1,83 @@
+import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { wasteSchema, WasteFormValues } from "../schemas/wasteSchema";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { wasteSchema, WasteFormValues } from "../schemas/wasteSchema";
+import { useWastes } from "../hooks/useWastes";
+import { useEffect, useState } from "react";
 
-interface WasteFormProps {
-    onSubmit: (data: WasteFormValues) => Promise<void>;
-    isSubmitting: boolean;
-}
+export const WasteForm = () => {
+    const { pk } = useParams();
+    const navigate = useNavigate();
+    const isEditing = Boolean(pk);
+    const { createWaste, updateWaste, fetchOneWaste } = useWastes();
 
-export const WasteForm = ({ onSubmit, isSubmitting }: WasteFormProps) => {
+    const [loadingFetch, setLoadingFetch] = useState(false);
+    const [loadingSubmit, setLoadingSubmit] = useState(false);
+
     const {
         register,
         handleSubmit,
         formState: { errors, isValid },
-    } = useForm<WasteFormValues>({
+        reset,
+    } = useForm<Omit<WasteFormValues, 'is_active'>>({
         resolver: zodResolver(wasteSchema) as any,
         defaultValues: {
-            is_active: true,
+            name: '',
+            description: ''
         },
         mode: "onChange",
     });
 
+    useEffect(() => {
+        const fetchData = async () => {
+            if (isEditing && pk) {
+                try {
+                    setLoadingFetch(true);
+                    const waste = await fetchOneWaste(pk);
+                    if (waste) {
+                        reset({
+                            name: waste.name || '',
+                            description: waste.description || ''
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error al obtener el residuo:", error);
+                } finally {
+                    setLoadingFetch(false);
+                }
+            }
+        };
+        fetchData();
+    }, [isEditing, pk]); // ❌ Quitamos "reset" del array de dependencias
+
+    const onSubmit = async (data: Omit<WasteFormValues, 'is_active'>) => {
+        try {
+            setLoadingSubmit(true);
+            if (isEditing && pk) {
+                await updateWaste(pk, data);
+            } else {
+                await createWaste(data);
+                reset();
+            }
+            navigate("/admin/wastes");
+        } catch (error) {
+            console.error("Error al guardar:", error);
+        } finally {
+            setLoadingSubmit(false);
+        }
+    };
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-green-50 p-6 rounded-lg shadow-md">
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-6 bg-green-50 p-6 rounded-lg shadow-md"
+        >
             <div className="flex items-center gap-2 mb-4">
                 <ArrowPathIcon className="h-8 w-8 text-green-600" />
-                <h2 className="text-xl font-bold text-green-700">Nuevo Tipo de Residuo</h2>
+                <h2 className="text-xl font-bold text-green-700">
+                    {isEditing ? "Editar Tipo de Residuo" : "Nuevo Tipo de Residuo"}
+                </h2>
             </div>
 
             {/* Campo Nombre */}
@@ -37,8 +89,8 @@ export const WasteForm = ({ onSubmit, isSubmitting }: WasteFormProps) => {
                     id="name"
                     type="text"
                     {...register("name")}
-                    disabled={isSubmitting}
-                    className={`block w-full px-3 py-2 border ${errors.name ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                    className={`block w-full px-3 py-2 border ${errors.name
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                         : "border-green-300 focus:ring-green-500 focus:border-green-500"
                         } rounded-lg shadow-sm`}
                     placeholder="Ej: Plásticos"
@@ -57,8 +109,8 @@ export const WasteForm = ({ onSubmit, isSubmitting }: WasteFormProps) => {
                     id="description"
                     rows={3}
                     {...register("description")}
-                    disabled={isSubmitting}
-                    className={`block w-full px-3 py-2 border ${errors.description ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+                    className={`block w-full px-3 py-2 border ${errors.description
+                        ? "border-red-300 focus:ring-red-500 focus:border-red-500"
                         : "border-green-300 focus:ring-green-500 focus:border-green-500"
                         } rounded-lg shadow-sm`}
                     placeholder="Descripción del tipo de residuo"
@@ -68,31 +120,17 @@ export const WasteForm = ({ onSubmit, isSubmitting }: WasteFormProps) => {
                 )}
             </div>
 
-            {/* Campo Activo */}
-            <div className="flex items-center">
-                <input
-                    type="checkbox"
-                    id="is_active"
-                    {...register("is_active")}
-                    disabled={isSubmitting}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-                />
-                <label htmlFor="is_active" className="ml-2 block text-sm text-green-700">
-                    Residuo activo (disponible para selección)
-                </label>
-            </div>
-
             {/* Botón de envío */}
             <div className="pt-4">
                 <button
                     type="submit"
-                    disabled={isSubmitting || !isValid}
-                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isSubmitting || !isValid
+                    disabled={loadingSubmit || !isValid}
+                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${loadingSubmit || !isValid
                         ? "bg-green-300 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         }`}
                 >
-                    {isSubmitting ? (
+                    {loadingSubmit ? (
                         <span className="flex items-center">
                             <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -101,7 +139,7 @@ export const WasteForm = ({ onSubmit, isSubmitting }: WasteFormProps) => {
                             Procesando...
                         </span>
                     ) : (
-                        "Registrar Residuo"
+                        isEditing ? "Actualizar Residuo" : "Registrar Residuo"
                     )}
                 </button>
             </div>

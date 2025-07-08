@@ -2,7 +2,7 @@ export interface Waste {
     pk_waste: string;
     name: string;
     description: string;
-    is_active: boolean;
+    is_active?: boolean;
 }
 
 export interface WasteSubcategory {

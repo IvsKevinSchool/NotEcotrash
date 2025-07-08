@@ -9,7 +9,7 @@ export const wasteSchema = z.object({
         .max(500, "La descripción no puede exceder 500 caracteres")
         .optional()
         .default(""),
-    is_active: z.boolean().default(true)
+    is_active: z.boolean().default(true).optional()
 });
 
 // Esquema para Subcategorías

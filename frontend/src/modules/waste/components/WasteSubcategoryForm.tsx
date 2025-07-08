@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { wasteSubcategorySchema, WasteSubcategoryFormValues } from "../schemas/wasteSchema";
 import { useEffect, useState } from "react";
-import { wasteService } from "../services/wasteService";
+import { wasteService } from "../hooks/useWastes";
 import { toast } from "react-toastify";
 import { ArrowPathIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
 

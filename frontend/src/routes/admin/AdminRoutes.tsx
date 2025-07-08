@@ -30,6 +30,7 @@ const AdminRoutes = () => {
             {/* Waste Module */}
             <Route path="/wastes" element={<WasteListPage />} />
             <Route path="/wastes/add" element={<CreateWastePage />} />
+            <Route path="/wastes/edit/:pk" element={<CreateWastePage />} />
         </Routes>
     );
 };
