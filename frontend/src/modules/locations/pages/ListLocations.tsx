@@ -1,46 +1,59 @@
-import { useState, useEffect } from "react";
+// pages/ListLocations.tsx
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import { Location } from "../types";
 import { LocationTable } from "../components/ListLocation/LocationTable";
 import { LocationSearch } from "../components/ListLocation/LocationSearch";
 import { LocationLoading } from "../components/ListLocation/LocationLoading";
 import { LocationEmptyState } from "../components/ListLocation/LocationEmptyState";
-import api from "../../../api";
+import { useLocations } from "../hooks/useLocations";
+import { toast } from "react-toastify";
 
 export const ListLocations = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { locations, loading, fetchData, deleteLocation } = useLocations();
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api('core/locations/')
-
-        console.log(response)
-
-        setLocations(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
-  const filteredLocations = locations.filter(location =>
-    location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.street_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (location.phone_number && location.phone_number.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredLocations = locations.filter(
+    (location) =>
+      location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.street_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (location.phone_number &&
+        location.phone_number.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleDelete = (id: string) => {
-    if (window.confirm("¿Estás seguro de eliminar esta ubicación?")) {
-      setLocations(locations.filter(location => location.pk_location !== id));
-    }
+    toast(
+      <div>
+        <p>¿Estás seguro de eliminar esta ubicación?</p>
+        <div className="flex gap-2 justify-end mt-2">
+          <button
+            onClick={() => {
+              deleteLocation(id);
+              toast.dismiss();
+            }}
+            className="px-3 py-1 bg-red-500 text-white rounded"
+          >
+            Eliminar
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="px-3 py-1 bg-gray-300 rounded"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>,
+      {
+        autoClose: false,
+        closeButton: false,
+        draggable: false,
+        closeOnClick: false,
+      }
+    );
   };
 
   return (
