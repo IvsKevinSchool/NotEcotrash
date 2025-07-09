@@ -23,11 +23,12 @@ export const SidebarECO = () => {
 
     const navLinks = [
         { to: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-        { to: '/reportes', label: 'Reportes', icon: '📈' },
-        { to: '/admin/clients', label: 'Clientes', icon: '👥' },
-        { to: '/admin/wastes', label: 'Residuos', icon: '♻️' },
+        { to: '/reportes', label: 'Reports', icon: '📈' },
+        { to: '/admin/clients', label: 'Clients', icon: '👥' },
+        { to: '/admin/wastes', label: 'Wastes', icon: '♻️' },
         { to: '/admin/locations', label: 'Locations', icon: '🚩' }, // De momento esta en admin
-        { to: '/configuracion', label: 'Configuración', icon: '⚙️' },
+        { to: '/configuracion', label: 'Configuration', icon: '⚙️' },
+        { to: '/admin/management', label: 'Management', icon: '💼' },
     ]
 
 

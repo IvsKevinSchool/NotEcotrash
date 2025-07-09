@@ -12,6 +12,7 @@ import { ListLocations } from '../../modules/locations/pages/ListLocations';
 import { AddLocation } from '../../modules/locations/pages/AddLocation';
 import { CreateWastePage } from '../../modules/waste/pages/CreateWastePage';
 import { WasteListPage } from '../../modules/waste/components/WasteListPage';
+import ManagementList from '../../modules/management/pages/ManagementList';
 
 const AdminRoutes = () => {
     return (
@@ -31,6 +32,8 @@ const AdminRoutes = () => {
             <Route path="/wastes" element={<WasteListPage />} />
             <Route path="/wastes/add" element={<CreateWastePage />} />
             <Route path="/wastes/edit/:pk" element={<CreateWastePage />} />
+            {/* Management Module */}
+            <Route path="/management" element={<ManagementList />} />
         </Routes>
     );
 };
