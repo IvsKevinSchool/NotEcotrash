@@ -16,6 +16,7 @@ import ManagementList from '../../modules/management/pages/ManagementList';
 import CollectorUsers from '../../modules/collector/pages/CollectorUsers';
 import ServicesIndex from '../../modules/services/pages/ServicesIndex';
 import TypeServicesIndex from '../../modules/typeServices/components/TypeServicesIndex';
+import CertificateIndex from '../../modules/certificate/pages/CertificateIndex';
 
 const AdminRoutes = () => {
     return (
@@ -42,6 +43,8 @@ const AdminRoutes = () => {
             {/* Services Module */}
             <Route path="/services" element={<ServicesIndex />} />
             <Route path="/typeServices" element={<TypeServicesIndex />} />
+            {/* Certificate Module */}
+            <Route path="/certificate" element={<CertificateIndex />} />
         </Routes>
     );
 };
