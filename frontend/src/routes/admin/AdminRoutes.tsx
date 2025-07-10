@@ -15,6 +15,7 @@ import { WasteListPage } from '../../modules/waste/components/WasteListPage';
 import ManagementList from '../../modules/management/pages/ManagementList';
 import CollectorUsers from '../../modules/collector/pages/CollectorUsers';
 import ServicesIndex from '../../modules/services/pages/ServicesIndex';
+import TypeServicesIndex from '../../modules/typeServices/components/TypeServicesIndex';
 
 const AdminRoutes = () => {
     return (
@@ -40,6 +41,7 @@ const AdminRoutes = () => {
             <Route path="/collector" element={<CollectorUsers />} />
             {/* Services Module */}
             <Route path="/services" element={<ServicesIndex />} />
+            <Route path="/typeServices" element={<TypeServicesIndex />} />
         </Routes>
     );
 };

@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.parsers import MultiPartParser, FormParser
 from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer, CollectorUsersSerializer
 from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
 
@@ -21,6 +22,7 @@ class ManagementWasteViewSet(viewsets.ModelViewSet):
 class CertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
+    parser_classes = (MultiPartParser, FormParser) 
 
 class CollectorUsersViewSet(viewsets.ModelViewSet):
     queryset = CollectorUsers.objects.all()

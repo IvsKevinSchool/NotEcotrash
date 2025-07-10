@@ -30,7 +30,7 @@ class CertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         fields = '__all__'
-        read_only_fields = ['pk_certificate', 'fk_management', 'created_at', 'updated_at', 'is_active']   
+        #read_only_fields = ['pk_certificate', 'fk_management', 'created_at', 'updated_at', 'is_active']   
 
 class CollectorUsersSerializer(serializers.ModelSerializer):
     #fk_management = serializers.PrimaryKeyRelatedField(queryset=Management.objects.all(), required=False, allow_null=True)
