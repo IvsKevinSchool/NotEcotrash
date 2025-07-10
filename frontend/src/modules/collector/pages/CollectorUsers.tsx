@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { CollectorUserFormData, collectorUserSchema } from "../schemas/collectorUserSchema";
 import {
     getCollectorUsers,
@@ -77,47 +76,15 @@ const CollectorUsers = () => {
         }
     };
 
-    const handleDelete = (id: number) => {
-        const toastId = toast.info(
-            <div className="p-4">
-                <h3 className="font-bold text-lg mb-2">¿Estás seguro?</h3>
-                <p className="mb-4">Esta acción eliminará permanentemente al recolector.</p>
-                <div className="flex justify-end space-x-2">
-                    <button
-                        onClick={() => {
-                            toast.dismiss(toastId);
-                            confirmDelete(id);
-                        }}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                    >
-                        Eliminar
-                    </button>
-                    <button
-                        onClick={() => toast.dismiss(toastId)}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-                    >
-                        Cancelar
-                    </button>
-                </div>
-            </div>,
-            {
-                position: "top-right",
-                autoClose: false,
-                closeButton: false,
-                closeOnClick: false,
-                draggable: false,
-                className: "w-full max-w-md",
+    const handleDelete = async (id: number) => {
+        if (window.confirm("¿Estás seguro que deseas eliminar este recolector? Esta acción no se puede deshacer.")) {
+            try {
+                await deleteCollectorUser(id);
+                toast.success("Collector user deleted successfully");
+                fetchData();
+            } catch (error) {
+                toast.error("Error deleting collector user");
             }
-        );
-    };
-
-    const confirmDelete = async (id: number) => {
-        try {
-            await deleteCollectorUser(id);
-            toast.success("Collector user deleted successfully");
-            fetchData();
-        } catch (error) {
-            toast.error("Error deleting collector user");
         }
     };
 
@@ -129,7 +96,6 @@ const CollectorUsers = () => {
 
     return (
         <div className="min-h-screen bg-green-50 p-6">
-            <ToastContainer />
             <div className="max-w-6xl mx-auto">
                 <h1 className="text-3xl font-bold text-green-800 mb-8">Collector Users Management</h1>
 
