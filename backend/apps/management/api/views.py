@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer
-from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate
+from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer, CollectorUsersSerializer
+from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
 
 class ManagementViewSet(viewsets.ModelViewSet):
     queryset = Management.objects.all()
@@ -21,3 +21,7 @@ class ManagementWasteViewSet(viewsets.ModelViewSet):
 class CertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
+
+class CollectorUsersViewSet(viewsets.ModelViewSet):
+    queryset = CollectorUsers.objects.all()
+    serializer_class = CollectorUsersSerializer

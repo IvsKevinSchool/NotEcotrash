@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate
+from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
+from apps.accounts.models import User
 
 class ManagementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,3 +31,10 @@ class CertificateSerializer(serializers.ModelSerializer):
         model = Certificate
         fields = '__all__'
         read_only_fields = ['pk_certificate', 'fk_management', 'created_at', 'updated_at', 'is_active']   
+
+class CollectorUsersSerializer(serializers.ModelSerializer):
+    #fk_management = serializers.PrimaryKeyRelatedField(queryset=Management.objects.all(), required=False, allow_null=True)
+    #fk_user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+    class Meta:
+        model = CollectorUsers
+        fields = '__all__'

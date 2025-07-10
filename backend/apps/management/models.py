@@ -78,4 +78,19 @@ class Certificate(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True) 
+
+class CollectorUsers(models.Model):
+    """
+    Model representing a collector entity.
+    This model can be extended in the future to include additional fields or methods.
+    """
+    pk_collector_user = models.AutoField(primary_key=True)
+    fk_management = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='collectors')
+    fk_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collector_users')
     
+    name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+
+    def __str__(self):
+        return self.name + ' ' + self.last_name
