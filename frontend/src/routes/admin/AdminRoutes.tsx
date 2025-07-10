@@ -13,6 +13,7 @@ import { AddLocation } from '../../modules/locations/pages/AddLocation';
 import { CreateWastePage } from '../../modules/waste/pages/CreateWastePage';
 import { WasteListPage } from '../../modules/waste/components/WasteListPage';
 import ManagementList from '../../modules/management/pages/ManagementList';
+import CollectorUsers from '../../modules/collector/pages/CollectorUsers';
 
 const AdminRoutes = () => {
     return (
@@ -34,6 +35,8 @@ const AdminRoutes = () => {
             <Route path="/wastes/edit/:pk" element={<CreateWastePage />} />
             {/* Management Module */}
             <Route path="/management" element={<ManagementList />} />
+            {/* Collector Module */}
+            <Route path="/collector" element={<CollectorUsers />} />
         </Routes>
     );
 };

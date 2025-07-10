@@ -29,6 +29,7 @@ export const SidebarECO = () => {
         { to: '/admin/locations', label: 'Locations', icon: '🚩' }, // De momento esta en admin
         { to: '/configuracion', label: 'Configuration', icon: '⚙️' },
         { to: '/admin/management', label: 'Management', icon: '💼' },
+        { to: '/admin/collector', label: 'Collector', icon: '🚛' },
     ]
 
 
