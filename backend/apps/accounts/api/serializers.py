@@ -55,7 +55,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             username=validated_data["username"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
-            role=validated_data.get("role", "employee"),
+            role=validated_data.get("role", "managment"),
         )
         user.set_password(validated_data["password"])
         user.save()
