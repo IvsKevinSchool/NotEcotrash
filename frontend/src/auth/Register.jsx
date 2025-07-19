@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import api from '../api'
+import { handleApiError } from '../components/handleApiError';
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,13 +31,7 @@ const Register = () => {
         throw new Error(response.data.message || 'Registration failed');
       }
     } catch (error) {
-      console.error('Error en el registro:', error);
-
-      // 7. Mostrar error específico al usuario
-      const errorMessage = error.response?.data?.message ||
-        error.message ||
-        'Registration failed, please try again';
-      toast.error(errorMessage);
+      handleApiError(error, 'Error al registrarse');
     } finally {
       // 8. Restablecer el estado de carga
       setIsLoading(false);
