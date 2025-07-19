@@ -6,7 +6,7 @@ class ManagementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Management
         fields = '__all__'
-        read_only_fields = ['pk_management', 'created_at', 'updated_at', 'is_active']
+        #read_only_fields = ['pk_management', 'created_at', 'updated_at', 'is_active']
 
 class ManagementUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -24,7 +24,8 @@ class ManagementWasteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ManagementWaste
         fields = '__all__'
-        read_only_fields = ['pk_management_waste', 'created_at', 'updated_at', 'is_active']   
+        read_only_fields = ('created_at',)
+        #read_only_fields = ['pk_management_waste', 'created_at', 'updated_at', 'is_active']   
 
 class CertificateSerializer(serializers.ModelSerializer):
     class Meta:

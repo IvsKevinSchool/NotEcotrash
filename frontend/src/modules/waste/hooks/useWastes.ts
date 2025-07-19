@@ -39,10 +39,14 @@ export const useWastes = () => {
         }
     };
 
-    const createWaste = async (data: WasteFormData) => {
+    const createWaste = async (data: WasteFormData, pk: number) => {
         setLoading(true);
+        console.log("Creating waste with data:", data, "and management ID:", pk);
+        if (!pk) {
+            throw new Error("Management ID is required to create a waste");
+        }
         try {
-            const response = await api.post("/waste/waste/", data);
+            const response = await api.post(`/management/management/${pk}/create-waste/`, data);
             setWastes(prev => [...prev, response.data]);
             toast.success("Residuo creado exitosamente");
             return response.data;
@@ -53,18 +57,23 @@ export const useWastes = () => {
         }
     };
 
-    const updateWaste = async (pk: string, data: WasteFormData) => {
+    const updateWaste = async (management_id: number, waste_id: string, data: WasteFormData) => {
+        console.log("Updating waste with ID:", waste_id, "and data:", data);
+        if (!management_id || !waste_id) {
+            throw new Error("Management ID and Waste ID are required to update a waste");
+        }
         setLoading(true);
         try {
-            const response = await api.patch(`/waste/waste/${pk}/`, data);
+            const response = await api.patch(`/management/management/${management_id}/update-waste/${waste_id}/`, data);
             setWastes(prev =>
                 prev.map(waste =>
-                    String(waste.pk_waste) === String(pk) ? response.data : waste
+                    String(waste.pk_waste) === String(waste_id) ? response.data : waste
                 )
             );
             toast.success("Residuo actualizado exitosamente");
             return response.data;
         } catch (err) {
+            console.error("Error updating waste:", err);
             return handleApiError(err, "Error al actualizar el residuo");
         } finally {
             setLoading(false);
