@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useWastes } from "../hooks/useWastes";
 import { ArrowPathIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../context/AuthContext";
 
 export const WasteListPage = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const {
         wastes,
         loading,
@@ -16,7 +18,7 @@ export const WasteListPage = () => {
     } = useWastes();
 
     useEffect(() => {
-        fetchAllWastes();
+        fetchAllWastes(user.id);
     }, []);
 
     const handleToggleStatus = async (id: string) => {
@@ -104,7 +106,7 @@ export const WasteListPage = () => {
                 <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                     <p className="text-red-600">{error}</p>
                     <button
-                        onClick={fetchAllWastes}
+                        onClick={() => fetchAllWastes(user.id)}
                         className="mt-2 text-sm text-red-600 hover:text-red-800 font-medium"
                     >
                         Reintentar

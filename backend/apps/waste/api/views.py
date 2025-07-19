@@ -59,3 +59,14 @@ class UpdateWasteForManagementAPIView(RetrieveUpdateAPIView):
             raise PermissionDenied("Este Waste no pertenece al Management especificado.")
         
         serializer.save()  # Actualiza el Waste
+
+class WasteByManagementAPIView(APIView):
+    def get(self, request, management_id):
+        # Obtiene los Waste relacionados con el Management
+        waste_ids = ManagementWaste.objects.filter(
+            fk_management=management_id
+        ).values_list('fk_waste', flat=True)  # Lista de IDs de Waste
+        
+        wastes = Waste.objects.filter(pk_waste__in=waste_ids)
+        serializer = WasteSerializer(wastes, many=True)
+        return Response(serializer.data)

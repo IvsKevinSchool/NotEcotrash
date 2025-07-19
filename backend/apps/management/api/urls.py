@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from apps.management.api.views import ManagementViewSet, ManagementLocationsViewSet, ManagementUserViewSet, ManagementWasteViewSet, CollectorUsersViewSet, CertificateViewSet
-from apps.waste.api.views import CreateWasteForManagementAPIView, UpdateWasteForManagementAPIView
+from apps.waste.api.views import CreateWasteForManagementAPIView, UpdateWasteForManagementAPIView, WasteByManagementAPIView
 from django.urls import path
 
 
@@ -22,6 +22,11 @@ urlpatterns = [
     'management/<int:management_id>/update-waste/<int:pk>/',
     UpdateWasteForManagementAPIView.as_view(),
     name='update-waste-for-management'
+    ),
+    path(
+    'management/<int:management_id>/wastes/',
+    WasteByManagementAPIView.as_view(),
+    name='wastes-by-management'
     ),
 ]
 

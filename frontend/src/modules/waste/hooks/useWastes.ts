@@ -2,20 +2,21 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import api from "../../../api";
 import { Waste, WasteFormData, WasteSubcategoryFormData } from "../types/wasteTypes";
+import { handleApiError } from "../../../components/handleApiError";
 
 export const useWastes = () => {
     const [wastes, setWastes] = useState<Waste[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleApiError = (err: unknown, defaultMessage: string): never => {
-        const error = err as { response?: { data?: { message?: string }, status?: number } };
-        const message = error.response?.data?.message || defaultMessage;
+    // const handleApiError = (err: unknown, defaultMessage: string): never => {
+    //     const error = err as { response?: { data?: { message?: string }, status?: number } };
+    //     const message = error.response?.data?.message || defaultMessage;
 
-        setError(message);
-        toast.error(message);
-        throw new Error(message);
-    };
+    //     setError(message);
+    //     toast.error(message);
+    //     throw new Error(message);
+    // };
 
     const fetchOneWaste = async (id: string) => {
         try {
@@ -26,10 +27,10 @@ export const useWastes = () => {
         }
     };
 
-    const fetchAllWastes = async () => {
+    const fetchAllWastes = async (managementId: number) => {
         setLoading(true);
         try {
-            const response = await api.get("/waste/waste/");
+            const response = await api.get(`/management/management/${managementId}/wastes/`);
             setWastes(response.data);
             return response.data;
         } catch (err) {
