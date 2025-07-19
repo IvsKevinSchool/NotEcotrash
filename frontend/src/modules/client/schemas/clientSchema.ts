@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const clientSchema = z.object({
     pk_client: z.number().optional(),
-    fk_management: z.number().min(1, "Management is required"),
+    // fk_management: z.number().min(1, "Management is required"),
     name: z.string().min(2, "Name must be at least 2 characters"),
     legal_name: z.string().min(2, "Legal name must be at least 2 characters"),
     rfc: z.string().min(12, "RFC must be 12-13 characters").max(13, "RFC must be 12-13 characters"),
