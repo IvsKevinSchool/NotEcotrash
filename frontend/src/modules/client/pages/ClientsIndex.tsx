@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
@@ -38,7 +38,8 @@ const ClientsIndex = () => {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            const data = await getClients();
+            console.log(user)
+            const data = await getClients(user?.id || 0);
             setClients(data);
         } catch (error) {
             toast.error("Error fetching clients");
@@ -49,7 +50,11 @@ const ClientsIndex = () => {
 
     const onSubmit = async (data: ClientFormData) => {
         try {
-            const payload = { ...data, fk_management: user?.id };
+            const payload = {
+                ...data,
+                fk_management: user?.id,
+                phone_number_2: data.phone_number_2 ?? ""
+            };
             if (!payload.fk_management) {
                 toast.error("Management ID is required");
                 return;
@@ -71,7 +76,10 @@ const ClientsIndex = () => {
     const handleEdit = async (id: number) => {
         try {
             const client = await getClient(id);
-            reset(client);
+            reset({
+                ...client,
+                phone_number_2: client.phone_number_2 ?? "", // Convierte null a ""
+            });
             setIsEditing(true);
             setCurrentId(id);
         } catch (error) {
@@ -150,6 +158,7 @@ const ClientsIndex = () => {
                             <label className="block text-green-700 mb-1">RFC</label>
                             <input
                                 type="text"
+                                maxLength={13}
                                 {...register("rfc")}
                                 className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             />
@@ -178,7 +187,7 @@ const ClientsIndex = () => {
                                 type="text"
                                 {...register("phone_number")}
                                 className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                placeholder="Optional"
+                                placeholder="Enter main phone number"
                             />
                             {errors.phone_number && (
                                 <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>

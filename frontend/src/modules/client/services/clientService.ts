@@ -2,8 +2,8 @@ import api from "../../../api";
 import { ClientFormData } from "../schemas/clientSchema";
 const API_URL = "/client/client/";
 
-export const getClients = async () => {
-    const response = await api.get(API_URL);
+export const getClients = async (management_id: number) => {
+    const response = await api.get(`${API_URL}by-management/${management_id}/`);
     return response.data;
 };
 
