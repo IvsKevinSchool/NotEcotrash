@@ -21,19 +21,64 @@ export const SidebarECO = () => {
         pathname === path ? `${baseBtnStyle} ${activeBtnStyle}` : `${baseBtnStyle} ${inactiveBtnStyle}`;
 
 
-    const navLinks = [
+    // Menús por rol
+    interface INavLink {
+        to: string;
+        label: string;
+        icon: string;
+    }
+
+    const adminLinks = [
         { to: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-        // { to: '/reportes', label: 'Reports', icon: '📈' },
         { to: '/admin/clients', label: 'Clients', icon: '👥' },
         { to: '/admin/services', label: 'Services', icon: '♻️' },
         { to: '/admin/typeServices', label: 'Type Services', icon: '📈' },
         { to: '/admin/wastes', label: 'Wastes', icon: '🗑️' },
-        { to: '/admin/locations', label: 'Locations', icon: '🚩' }, // De momento esta en admin
+        { to: '/admin/locations', label: 'Locations', icon: '🚩' },
         { to: '/admin/management', label: 'Management', icon: '💼' },
         { to: '/admin/collector', label: 'Collector', icon: '🚛' },
         { to: '/admin/certificate', label: 'Certificate', icon: '📑' },
-        // { to: '/configuracion', label: 'Configuration', icon: '⚙️' },
-    ]
+    ];
+
+    const managementLinks = [
+        { to: '/management/clients', label: 'Clients', icon: '👥' },
+        { to: '/management/reports', label: 'Reports', icon: '📃' },
+        { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
+        { to: '/management/collector', label: 'Collectors', icon: '🚛' },
+        { to: '/management/services', label: 'Services', icon: '♻️' },
+        { to: '/management/type-services', label: 'Type Services', icon: '📚' },
+        { to: '/management/certificate', label: 'Certificate', icon: '📜' },
+    ];
+
+    const clientLinks = [
+        { to: '/client/dashboard', label: 'Dashboard', icon: '📊' },
+        { to: '/client/services', label: 'My Services', icon: '♻️' },
+        { to: '/client/certificate', label: 'Certificates', icon: '📑' },
+    ];
+
+    const collectorLinks = [
+        { to: '/collector/dashboard', label: 'Dashboard', icon: '📊' },
+        { to: '/collector/services', label: 'Assigned Services', icon: '🚛' },
+    ];
+
+    // Selección de menú según rol
+    let navLinks = [] as INavLink[];
+    switch (user?.role) {
+        case 'admin':
+            navLinks = adminLinks;
+            break;
+        case 'managment':
+            navLinks = managementLinks;
+            break;
+        case 'client':
+            navLinks = clientLinks;
+            break;
+        case 'collector':
+            navLinks = collectorLinks;
+            break;
+        default:
+            navLinks = [];
+    }
 
 
     return (
@@ -72,13 +117,6 @@ export const SidebarECO = () => {
             >
                 <span className="ml-3">🚪Cerrar sesión</span>
             </button>
-            {/* <NavLink
-                onClick={handleLogout}
-                className="flex items-center px-4 py-3 text-red-200 hover:text-white hover:bg-red-600 rounded-lg transition-colors duration-200 mx-2 mb-3"
-            >
-                <span className="mr-3">🚪</span>
-                Cerrar sesión
-            </NavLink> */}
 
             {/* Footer del sidebar */}
             <div className="p-4 border-t border-green-700 mt-auto">
@@ -87,7 +125,7 @@ export const SidebarECO = () => {
                     <span>🌱</span>
                 </div>
                 <div className="mt-2 text-xs text-green-400">
-                    Sesión activa: usuario@ecotrash.com
+                    Sesión activa: {user?.name || 'Invitado'}
                 </div>
             </div>
         </div>

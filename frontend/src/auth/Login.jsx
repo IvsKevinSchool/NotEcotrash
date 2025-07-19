@@ -75,7 +75,7 @@ const Login = () => {
             case 'admin':
                 return '/admin/dashboard';
             case 'managment':
-                return '/admin/dashboard';
+                return '/management/';
             case 'collector':
                 return '/collector/routes';
             case 'client':

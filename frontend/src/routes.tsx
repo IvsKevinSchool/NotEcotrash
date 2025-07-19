@@ -12,6 +12,7 @@ import Register from './auth/Register';
 import AdminRoutes from './routes/admin/AdminRoutes';
 import { LayoutECO } from './layout/LayoutECO';
 import NotFound from './layout/NotFound';
+import { ManagementRoutes } from './routes/management/ManagementRoutes';
 
 const AppRoutes = () => (
     <Router>
@@ -25,6 +26,11 @@ const AppRoutes = () => (
             {/* Protected routes */}
             <Route element={<LayoutECO />}>
                 <Route path="/admin/*" element={<AdminRoutes />} />
+            </Route>
+
+            {/* management Routes */}
+            <Route element={<LayoutECO />}>
+                <Route path="/management/*" element={<ManagementRoutes />} />
             </Route>
 
             <Route path='*' element={<NotFound />} />
