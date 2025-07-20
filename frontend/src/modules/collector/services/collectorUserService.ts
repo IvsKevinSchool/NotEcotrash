@@ -19,7 +19,7 @@ export const createCollectorUser = async (data: CollectorUserFormData, managemen
 };
 
 export const updateCollectorUser = async (id: number, data: EditCollectorFormData) => {
-    const response = await api.put(`${API_URL}${id}/`, {
+    const response = await api.patch(`management/collectors/${id}/`, {
         name: data.name,
         last_name: data.last_name,
         phone_number: data.phone_number || null, // Convierte string vacío a null

@@ -59,3 +59,14 @@ class CollectorUserSerializer(serializers.ModelSerializer):
             )
             return collector
         raise serializers.ValidationError(user_serializer.errors)
+
+# Actualizar Collector User By ID
+class CollectorUserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollectorUsers
+        fields = ['name', 'last_name', 'phone_number']  # Solo campos editables
+        extra_kwargs = {
+            'name': {'required': False},  # Hace que los campos sean opcionales
+            'last_name': {'required': False},
+            'phone_number': {'required': False},
+        }

@@ -42,7 +42,7 @@ const EditCollector = () => {
                     phone_number: collector.phone_number || "",
                 });
             } catch (error) {
-                toast.error("Error fetching collector data");
+                handleApiError(error, "Error fetching collector data");
                 navigate("/collectors");
             } finally {
                 setIsLoading(false);
@@ -53,18 +53,16 @@ const EditCollector = () => {
     }, [id, reset, navigate]);
 
     const onSubmit = async (data: EditCollectorFormData) => {
-        console.log("Form data to submit:", data);
         try {
             if (!id) return;
 
             setIsLoading(true);
             await updateCollectorUser(parseInt(id), data);
             toast.success("Collector updated successfully");
-            navigate("/collectors");
+            navigate("/management/collector");
         } catch (error) {
             console.error("Error updating collector:", error);
             handleApiError(error, "Error updating collector");
-            // toast.error("Error updating collector");
         } finally {
             setIsLoading(false);
         }

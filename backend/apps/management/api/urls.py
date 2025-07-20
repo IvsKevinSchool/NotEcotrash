@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from apps.management.api.views import ManagementViewSet, ManagementLocationsViewSet, ManagementUserViewSet, ManagementWasteViewSet, CollectorUsersViewSet, CertificateViewSet, CreateCollectorByManagementAPIView
+from apps.management.api.views import ManagementViewSet, ManagementLocationsViewSet, ManagementUserViewSet, ManagementWasteViewSet, CollectorUsersViewSet, CertificateViewSet, CreateCollectorByManagementAPIView, CollectorUserUpdateAPIView
 from apps.waste.api.views import CreateWasteForManagementAPIView, UpdateWasteForManagementAPIView, WasteByManagementAPIView
 from django.urls import path
 
@@ -32,6 +32,11 @@ urlpatterns = [
     'management/<int:management_id>/create-collector/',
     CreateCollectorByManagementAPIView.as_view(),
     name='create-collector'
+    ),
+    path(
+    'collectors/<int:pk>/',
+    CollectorUserUpdateAPIView.as_view(),
+    name='collector-update'
     ),
 ]
 

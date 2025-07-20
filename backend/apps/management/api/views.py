@@ -1,11 +1,13 @@
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
-from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer, CollectorUserSerializer
+from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer, CollectorUserSerializer, CollectorUserUpdateSerializer
 from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
 # Register user, collector, management
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+#Update collector user by ID
+from rest_framework.generics import RetrieveUpdateAPIView
 
 class ManagementViewSet(viewsets.ModelViewSet):
     queryset = Management.objects.all()
@@ -40,3 +42,9 @@ class CreateCollectorByManagementAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Actualizar Collector User By ID
+class CollectorUserUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = CollectorUsers.objects.all()
+    serializer_class = CollectorUserUpdateSerializer
+    http_method_names = ['get', 'patch']  # Solo permite GET y PATCH
