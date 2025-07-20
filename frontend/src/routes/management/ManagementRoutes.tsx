@@ -8,6 +8,7 @@ import TypeServicesIndex from '../../modules/typeServices/components/TypeService
 import CertificateIndex from '../../modules/certificate/pages/CertificateIndex'
 import { ListLocations } from '../../modules/locations/pages/ListLocations'
 import { AddLocation } from '../../modules/locations/pages/AddLocation'
+import EditCollector from '../../modules/collector/pages/EditCollector'
 
 export const ManagementRoutes = () => {
     return (
@@ -30,6 +31,7 @@ export const ManagementRoutes = () => {
 
             {/* Collector Module */}
             <Route path="/collector" element={<CollectorUsers />} />
+            <Route path="/collector/edit/:id" element={<EditCollector />} />
 
             {/* Services Module */}
             <Route path="/services" element={<ServicesIndex />} />

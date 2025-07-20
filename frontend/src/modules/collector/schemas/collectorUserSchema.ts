@@ -35,3 +35,22 @@ export interface ICollector {
     fk_management: number;
     fk_user: IUser;
 }
+
+export const editCollectorSchema = z.object({
+    name: z.string()
+        .min(1, "Name is required")
+        .max(100, "Name too long (max 100 characters)"),
+    last_name: z.string()
+        .min(1, "Last name is required")
+        .max(100, "Last name too long (max 100 characters)"),
+    phone_number: z.string()
+        .max(20, "Phone number too long (max 20 characters)")
+        .regex(
+            /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/,
+            "Invalid phone number format (only numbers, +, -, (, ) and spaces allowed)"
+        )
+        .optional()
+        .or(z.literal("")), // Permite string vacío
+});
+
+export type EditCollectorFormData = z.infer<typeof editCollectorSchema>;

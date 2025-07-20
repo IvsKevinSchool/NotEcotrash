@@ -11,6 +11,7 @@ import {
     deleteCollectorUser,
 } from "../services/collectorUserService";
 import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const CollectorUsers = () => {
     const [collectorUsers, setCollectorUsers] = useState<ICollector[]>([]);
@@ -18,6 +19,7 @@ const CollectorUsers = () => {
     const [currentId, setCurrentId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     const {
         register,
@@ -42,7 +44,6 @@ const CollectorUsers = () => {
         setIsLoading(true);
         try {
             const data = await getCollectorUsers();
-            console.log("Fetched collector users:", data);
             setCollectorUsers(data);
         } catch (error) {
             toast.error("Error fetching collector users");
@@ -69,15 +70,8 @@ const CollectorUsers = () => {
         }
     };
 
-    const handleEdit = async (id: number) => {
-        try {
-            const collectorUser = await getCollectorUser(id);
-            reset(collectorUser);
-            setIsEditing(true);
-            setCurrentId(id);
-        } catch (error) {
-            toast.error("Error fetching collector user for edit");
-        }
+    const handleEdit = (id: number) => {
+        navigate(`/management/collector/edit/${id}`);
     };
 
     const handleDelete = async (id: number) => {

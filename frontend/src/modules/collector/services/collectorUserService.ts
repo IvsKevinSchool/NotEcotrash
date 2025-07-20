@@ -1,5 +1,5 @@
 import api from "../../../api";
-import { CollectorUserFormData } from "../schemas/collectorUserSchema";
+import { CollectorUserFormData, EditCollectorFormData } from "../schemas/collectorUserSchema";
 
 const API_URL = "management/collector/";
 
@@ -18,8 +18,12 @@ export const createCollectorUser = async (data: CollectorUserFormData, managemen
     return response.data;
 };
 
-export const updateCollectorUser = async (id: number, data: CollectorUserFormData) => {
-    const response = await api.put(`${API_URL}${id}/`, data);
+export const updateCollectorUser = async (id: number, data: EditCollectorFormData) => {
+    const response = await api.put(`${API_URL}${id}/`, {
+        name: data.name,
+        last_name: data.last_name,
+        phone_number: data.phone_number || null, // Convierte string vacío a null
+    });
     return response.data;
 };
 
