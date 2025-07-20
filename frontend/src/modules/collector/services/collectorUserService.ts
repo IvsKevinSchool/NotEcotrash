@@ -13,8 +13,8 @@ export const getCollectorUser = async (id: number) => {
     return response.data;
 };
 
-export const createCollectorUser = async (data: CollectorUserFormData) => {
-    const response = await api.post(API_URL, data);
+export const createCollectorUser = async (data: CollectorUserFormData, managementId: number) => {
+    const response = await api.post(`management/management/${managementId}/create-collector/`, data);
     return response.data;
 };
 

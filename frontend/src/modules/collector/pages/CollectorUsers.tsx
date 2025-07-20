@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
-import { CollectorUserFormData, collectorUserSchema } from "../schemas/collectorUserSchema";
+import { CollectorUserFormData, collectorUserSchema, ICollector } from "../schemas/collectorUserSchema";
 import {
     getCollectorUsers,
     getCollectorUser,
@@ -10,36 +10,39 @@ import {
     updateCollectorUser,
     deleteCollectorUser,
 } from "../services/collectorUserService";
+import { useAuth } from "../../../context/AuthContext";
 
 const CollectorUsers = () => {
-    const [collectorUsers, setCollectorUsers] = useState<any[]>([]);
-    const [managements, setManagements] = useState<any[]>([]);
-    const [users, setUsers] = useState<any[]>([]);
+    const [collectorUsers, setCollectorUsers] = useState<ICollector[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { user } = useAuth();
 
     const {
         register,
         handleSubmit,
         reset,
+        watch,
         formState: { errors },
     } = useForm<CollectorUserFormData>({
         resolver: zodResolver(collectorUserSchema),
     });
 
+    // Watch password fields to compare them
+    const password = watch("fk_user.password", "");
+    const password2 = watch("fk_user.password2", "");
+
     // Fetch initial data
     useEffect(() => {
         fetchData();
-        // In a real app, you would fetch managements and users from their respective APIs
-        setManagements([{ pk_management: 2, name: "Management 1" }]);
-        setUsers([{ pk_user: 1, username: "user1" }]);
     }, []);
 
     const fetchData = async () => {
         setIsLoading(true);
         try {
             const data = await getCollectorUsers();
+            console.log("Fetched collector users:", data);
             setCollectorUsers(data);
         } catch (error) {
             toast.error("Error fetching collector users");
@@ -54,7 +57,8 @@ const CollectorUsers = () => {
                 await updateCollectorUser(currentId, data);
                 toast.success("Collector user updated successfully");
             } else {
-                await createCollectorUser(data);
+                // Incluir el management_id del usuario autenticado en la URL
+                await createCollectorUser(data, user.id);
                 toast.success("Collector user created successfully");
             }
             fetchData();
@@ -96,52 +100,19 @@ const CollectorUsers = () => {
 
     return (
         <div className="min-h-screen bg-green-50 p-6">
-            <div className="max-w-6xl mx-auto">
-                <h1 className="text-3xl font-bold text-green-800 mb-8">Collector Users Management</h1>
+            <div className="mx-auto">
+                <h1 className="text-3xl font-bold text-green-800 mb-8">Collector Registration</h1>
 
                 {/* Form */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-green-200">
                     <h2 className="text-xl font-semibold text-green-700 mb-4">
-                        {isEditing ? "Edit Collector User" : "Add New Collector User"}
+                        {isEditing ? "Edit Collector" : "Register New Collector"}
                     </h2>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Management Select */}
-                            <div>
-                                <label className="block text-green-700 mb-1">Management</label>
-                                <select
-                                    {...register("fk_management", { valueAsNumber: true })}
-                                    className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                >
-                                    <option value="">Select Management</option>
-                                    {managements.map((mgmt) => (
-                                        <option key={mgmt.pk_management} value={mgmt.pk_management}>
-                                            {mgmt.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.fk_management && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.fk_management.message}</p>
-                                )}
-                            </div>
-
-                            {/* User Select */}
-                            <div>
-                                <label className="block text-green-700 mb-1">User</label>
-                                <select
-                                    {...register("fk_user", { valueAsNumber: true })}
-                                    className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                >
-                                    <option value="">Select User</option>
-                                    {users.map((user) => (
-                                        <option key={user.pk_user} value={user.pk_user}>
-                                            {user.username}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.fk_user && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.fk_user.message}</p>
-                                )}
+                            {/* Collector Information */}
+                            <div className="md:col-span-2">
+                                <h3 className="text-lg font-medium text-green-700 mb-2">Collector Information</h3>
                             </div>
 
                             {/* Name */}
@@ -183,6 +154,98 @@ const CollectorUsers = () => {
                                     <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>
                                 )}
                             </div>
+
+                            {/* User Information */}
+                            <div className="md:col-span-2 mt-4">
+                                <h3 className="text-lg font-medium text-green-700 mb-2">User Account</h3>
+                            </div>
+
+                            {/* Username */}
+                            <div>
+                                <label className="block text-green-700 mb-1">Username</label>
+                                <input
+                                    type="text"
+                                    {...register("fk_user.username")}
+                                    className={`w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${isEditing ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}`}
+                                    disabled={isEditing}
+                                />
+                                {errors.fk_user?.username && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.fk_user.username.message}</p>
+                                )}
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                                <label className="block text-green-700 mb-1">Email</label>
+                                <input
+                                    type="email"
+                                    {...register("fk_user.email")}
+                                    className={`w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${isEditing ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}`}
+                                    disabled={isEditing}
+                                />
+                                {errors.fk_user?.email && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.fk_user.email.message}</p>
+                                )}
+                            </div>
+
+                            {/* First Name */}
+                            <div>
+                                <label className="block text-green-700 mb-1">First Name</label>
+                                <input
+                                    type="text"
+                                    {...register("fk_user.first_name")}
+                                    className={`w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${isEditing ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}`}
+                                    disabled={isEditing}
+                                />
+                                {errors.fk_user?.first_name && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.fk_user.first_name.message}</p>
+                                )}
+                            </div>
+
+                            {/* Last Name */}
+                            <div>
+                                <label className="block text-green-700 mb-1">Last Name</label>
+                                <input
+                                    type="text"
+                                    {...register("fk_user.last_name")}
+                                    className={`w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${isEditing ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}`}
+                                    disabled={isEditing}
+                                />
+                                {errors.fk_user?.last_name && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.fk_user.last_name.message}</p>
+                                )}
+                            </div>
+
+                            {/* Password */}
+                            <div>
+                                <label className="block text-green-700 mb-1">Password</label>
+                                <input
+                                    type="password"
+                                    {...register("fk_user.password")}
+                                    className={`w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${isEditing ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}`}
+                                    disabled={isEditing}
+                                />
+                                {errors.fk_user?.password && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.fk_user.password.message}</p>
+                                )}
+                            </div>
+
+                            {/* Confirm Password */}
+                            <div>
+                                <label className="block text-green-700 mb-1">Confirm Password</label>
+                                <input
+                                    type="password"
+                                    {...register("fk_user.password2")}
+                                    className={`w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${isEditing ? "bg-gray-100 text-gray-400 cursor-not-allowed" : ""}`}
+                                    disabled={isEditing}
+                                />
+                                {errors.fk_user?.password2 && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.fk_user.password2.message}</p>
+                                )}
+                                {password && password2 && password !== password2 && (
+                                    <p className="text-red-500 text-sm mt-1">Passwords do not match</p>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex space-x-4 pt-4">
@@ -190,7 +253,7 @@ const CollectorUsers = () => {
                                 type="submit"
                                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
                             >
-                                {isEditing ? "Update" : "Save"}
+                                {isEditing ? "Update" : "Register"}
                             </button>
                             <button
                                 type="button"
@@ -205,7 +268,7 @@ const CollectorUsers = () => {
 
                 {/* Table */}
                 <div className="bg-white rounded-lg shadow-md p-6 border border-green-200">
-                    <h2 className="text-xl font-semibold text-green-700 mb-4">Collector Users List</h2>
+                    <h2 className="text-xl font-semibold text-green-700 mb-4">Registered Collectors</h2>
                     {isLoading ? (
                         <div className="flex justify-center items-center h-32">
                             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
@@ -219,33 +282,33 @@ const CollectorUsers = () => {
                                         <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Name</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Last Name</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Phone</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Management</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">User</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Username</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Email</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-green-200">
-                                    {collectorUsers.map((user) => (
-                                        <tr key={user.pk_collector_user} className="hover:bg-green-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{user.pk_collector_user}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{user.name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{user.last_name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{user.phone_number || "-"}</td>
+                                    {collectorUsers.map((collector) => (
+                                        <tr key={collector.pk_collector_user} className="hover:bg-green-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{collector.pk_collector_user}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{collector.name}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{collector.last_name}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{collector.phone_number || "-"}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">
-                                                {managements.find(m => m.pk_management === user.fk_management)?.name || user.fk_management}
+                                                {collector.fk_user?.username || "-"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">
-                                                {users.find(u => u.pk_user === user.fk_user)?.username || user.fk_user}
+                                                {collector.fk_user?.email || "-"}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                 <button
-                                                    onClick={() => handleEdit(user.pk_collector_user)}
+                                                    onClick={() => handleEdit(collector.pk_collector_user)}
                                                     className="text-green-600 hover:text-green-900 mr-3"
                                                 >
                                                     Edit
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(user.pk_collector_user)}
+                                                    onClick={() => handleDelete(collector.pk_collector_user)}
                                                     className="text-red-600 hover:text-red-900"
                                                 >
                                                     Delete

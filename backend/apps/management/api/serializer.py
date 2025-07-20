@@ -40,7 +40,7 @@ class CollectorUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CollectorUsers
-        fields = ['name', 'last_name', 'phone_number', 'fk_management', 'fk_user']
+        fields = ['name', 'last_name', 'phone_number', 'fk_management', 'fk_user', 'pk_collector_user']
 
     def create(self, validated_data):
         # Extrae los datos del User
