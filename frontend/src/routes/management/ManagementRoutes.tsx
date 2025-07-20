@@ -28,6 +28,7 @@ export const ManagementRoutes = () => {
 
             {/* Waste Module */}
             <Route path="/waste" element={<WasteListPage />} />
+            <Route path="/sub-waste" element={<div>Sub Waste Index</div>} />
 
             {/* Collector Module */}
             <Route path="/collector" element={<CollectorUsers />} />

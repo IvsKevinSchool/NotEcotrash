@@ -41,12 +41,14 @@ export const SidebarECO = () => {
     ];
 
     const managementLinks = [
-        { to: '/management/clients', label: 'Clients', icon: '👥' },
         { to: '/management/reports', label: 'Reports', icon: '📃' },
-        { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
-        { to: '/management/collector', label: 'Collectors', icon: '🚛' },
+        { to: '/management/clients', label: 'Clients', icon: '👥' },
         { to: '/management/services', label: 'Services', icon: '♻️' },
         { to: '/management/type-services', label: 'Type Services', icon: '📚' },
+        { to: '/management/locations', label: 'Locations', icon: '🚩' },
+        { to: '/management/collector', label: 'Collectors', icon: '🚛' },
+        { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
+        { to: '/management/sub-waste', label: 'Sub Category Wastes', icon: '🏷️' },
         { to: '/management/certificate', label: 'Certificate', icon: '📜' },
     ];
 
