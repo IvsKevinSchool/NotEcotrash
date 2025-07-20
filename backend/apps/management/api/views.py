@@ -1,7 +1,11 @@
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
-from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer, CollectorUsersSerializer
+from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer, CollectorUserSerializer
 from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
+# Register user, collector, management
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 class ManagementViewSet(viewsets.ModelViewSet):
     queryset = Management.objects.all()
@@ -26,4 +30,13 @@ class CertificateViewSet(viewsets.ModelViewSet):
 
 class CollectorUsersViewSet(viewsets.ModelViewSet):
     queryset = CollectorUsers.objects.all()
-    serializer_class = CollectorUsersSerializer
+    serializer_class = CollectorUserSerializer
+
+class CreateCollectorByManagementAPIView(APIView):
+    def post(self, request, management_id):
+        request.data['fk_management'] = management_id  # Inyecta el ID desde la URL
+        serializer = CollectorUserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

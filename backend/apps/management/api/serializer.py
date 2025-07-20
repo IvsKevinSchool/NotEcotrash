@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
 from apps.accounts.models import User
+from apps.accounts.api.serializers import UserRegisterSerializer
 
 class ManagementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,9 +34,28 @@ class CertificateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         #read_only_fields = ['pk_certificate', 'fk_management', 'created_at', 'updated_at', 'is_active']   
 
-class CollectorUsersSerializer(serializers.ModelSerializer):
-    #fk_management = serializers.PrimaryKeyRelatedField(queryset=Management.objects.all(), required=False, allow_null=True)
-    #fk_user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False, allow_null=True)
+class CollectorUserSerializer(serializers.ModelSerializer):
+    # ¡Clave! Usa 'fk_user' (nombre del campo en el modelo)
+    fk_user = UserRegisterSerializer()
+
     class Meta:
         model = CollectorUsers
-        fields = '__all__'
+        fields = ['name', 'last_name', 'phone_number', 'fk_management', 'fk_user']
+
+    def create(self, validated_data):
+        # Extrae los datos del User
+        user_data = validated_data.pop('fk_user')
+        user_data['role'] = 'collector'  # Asigna el rol automáticamente
+        
+        # Crea el User primero
+        user_serializer = UserRegisterSerializer(data=user_data)
+        if user_serializer.is_valid():
+            user = user_serializer.save()
+            
+            # Crea el CollectorUsers con la FK correcta
+            collector = CollectorUsers.objects.create(
+                fk_user=user,  # Usa el nombre exacto del campo (fk_user)
+                **validated_data
+            )
+            return collector
+        raise serializers.ValidationError(user_serializer.errors)
