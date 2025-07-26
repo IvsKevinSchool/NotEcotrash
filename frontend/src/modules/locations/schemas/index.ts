@@ -59,3 +59,10 @@ export const transformLocationData = (data: LocationApiData): LocationFormData =
     exterior_number: String(data.exterior_number),
     interior_number: data.interior_number ? String(data.interior_number) : undefined
 });
+
+export const managementLocationSchema = z.object({
+    is_main: z.boolean(),
+    fk_location: locationSchema
+});
+
+export type ManagementLocationFormData = z.infer<typeof managementLocationSchema>;
