@@ -10,6 +10,7 @@ import {
     updateTypeService,
     deleteTypeService,
 } from "../services/typeServiceService";
+import { useAuth } from "../../../context/AuthContext";
 
 const TypeServicesIndex = () => {
     const [typeServices, setTypeServices] = useState<any[]>([]);
@@ -17,6 +18,7 @@ const TypeServicesIndex = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const { user } = useAuth();
 
     const {
         register,
@@ -51,11 +53,12 @@ const TypeServicesIndex = () => {
 
     const onSubmit = async (data: TypeServiceFormData) => {
         try {
+            const newData = { ...data, fk_management: user?.id || data.fk_management };
             if (isEditing && currentId) {
-                await updateTypeService(currentId, data);
+                await updateTypeService(currentId, newData);
                 toast.success("Type service updated successfully");
             } else {
-                await createTypeService(data);
+                await createTypeService(newData);
                 toast.success("Type service created successfully");
             }
             fetchData();
@@ -107,7 +110,7 @@ const TypeServicesIndex = () => {
                     </h2>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Management Select */}
+                            {/* Management Select
                             <div>
                                 <label className="block text-green-700 mb-1">Management</label>
                                 <select
@@ -124,7 +127,7 @@ const TypeServicesIndex = () => {
                                 {errors.fk_management && (
                                     <p className="text-red-500 text-sm mt-1">{errors.fk_management.message}</p>
                                 )}
-                            </div>
+                            </div> */}
 
                             {/* Name */}
                             <div>
