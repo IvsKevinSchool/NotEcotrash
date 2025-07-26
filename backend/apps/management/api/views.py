@@ -48,3 +48,13 @@ class CollectorUserUpdateAPIView(RetrieveUpdateAPIView):
     queryset = CollectorUsers.objects.all()
     serializer_class = CollectorUserUpdateSerializer
     http_method_names = ['get', 'patch']  # Solo permite GET y PATCH
+
+# Create Location for ManagementLocations
+class CreateManagementLocationAPIView(APIView):
+    def post(self, request, management_id):
+        request.data['fk_manageement'] = management_id
+        serializer = ManagementLocationsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

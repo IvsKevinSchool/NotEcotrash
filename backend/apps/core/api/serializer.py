@@ -10,4 +10,4 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = '__all__'  # Include all fields from the Location model
-        read_only_fields = ['pk_location', 'created_at', 'updated_at', 'is_active']  # Make these fields read-only
+        #read_only_fields = ['pk_location', 'created_at', 'updated_at', 'is_active']  # Make these fields read-only
