@@ -17,13 +17,14 @@ export const ListLocations = () => {
     fetchData();
   }, []);
 
-  const filteredLocations = locations.filter(
-    (location) =>
-      location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.street_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (location.phone_number &&
-        location.phone_number.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredLocations = (locations || []).filter(({ fk_location }) => {
+    const { name, street_name, phone_number } = fk_location;
+    return (
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      street_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (phone_number && phone_number.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  });
 
   const handleDelete = (id: string) => {
     toast(
