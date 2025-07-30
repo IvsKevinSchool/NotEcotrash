@@ -23,29 +23,9 @@ const AdminRoutes = () => {
     return (
         <Routes>
             <Route path="/" />
-            <Route path="add-user" element={<AddUser />} />
-            <Route path="eco-form" element={<EcoForm />} />
-
             <Route path="/dashboard" element={<Panel />} />
             <Route path="/clients" element={<ClientsIndex />} />
             <Route path="/clients/:id" element={<ClientsItems />} />
-            {/* Location Module */}
-            <Route path="/locations" element={<ListLocations />} />
-            <Route path="/locations/add" element={<AddLocation />} />
-            <Route path="/locations/edit/:pk" element={<AddLocation />} />
-            {/* Waste Module */}
-            <Route path="/wastes" element={<WasteListPage />} />
-            <Route path="/wastes/add" element={<CreateWastePage />} />
-            <Route path="/wastes/edit/:pk" element={<CreateWastePage />} />
-            {/* Management Module */}
-            <Route path="/management" element={<ManagementList />} />
-            {/* Collector Module */}
-            <Route path="/collector" element={<CollectorUsers />} />
-            {/* Services Module */}
-            <Route path="/services" element={<ServicesIndex />} />
-            <Route path="/typeServices" element={<TypeServicesIndex />} />
-            {/* Certificate Module */}
-            <Route path="/certificate" element={<CertificateIndex />} />
         </Routes>
     );
 };

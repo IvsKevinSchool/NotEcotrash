@@ -21,6 +21,7 @@ export interface IUserData {
     email: string;
     role: string;
     token: string;
+    id_admin: number;
 }
 
 export interface IAuthContext {
