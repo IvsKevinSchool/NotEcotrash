@@ -14,6 +14,8 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from apps.accounts.models import User
 from apps.accounts.utils import send_normal_email
+from apps.management.models import Management
+from apps.management.models import ManagementUser
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -55,10 +57,27 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             username=validated_data["username"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
-            role=validated_data.get("role", "managment"),
+            role=validated_data.get("role", "management"),
         )
         user.set_password(validated_data["password"])
         user.save()
+
+        # Si el usuario es de tipo management, crear automáticamente el registro en Management
+        if user.role == 'management':
+            # Crear el Management primero
+            management = Management.objects.create(
+                name=f"{user.first_name} {user.last_name}".strip() or user.username,
+                email=user.email,
+                phone_number=None,
+                phone_number_2=None,
+                rfc=None,
+            )
+            
+            # Crear la relación ManagementUser
+            ManagementUser.objects.create(
+                fk_management=management,
+                fk_user=user
+            )
         return user
 
 

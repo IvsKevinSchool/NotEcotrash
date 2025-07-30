@@ -69,7 +69,7 @@ export const SidebarECO = () => {
         case 'admin':
             navLinks = adminLinks;
             break;
-        case 'managment':
+        case 'management':
             navLinks = managementLinks;
             break;
         case 'client':

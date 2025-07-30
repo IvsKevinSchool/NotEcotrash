@@ -23,7 +23,7 @@ class ManagementLocationsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ManagementLocations
-        fields = ['fk_manageement', 'fk_location', 'is_main', 'pk_management_locations']
+        fields = ['fk_management', 'fk_location', 'is_main', 'pk_management_locations']
         # read_only_fields = ['pk_management_locations', 'created_at', 'updated_at', 'is_active']
 
     def create(self, validated_data):

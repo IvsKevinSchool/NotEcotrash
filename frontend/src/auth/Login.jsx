@@ -30,6 +30,7 @@ const Login = () => {
                 };
 
                 console.log('Datos del usuario:', userData);
+                console.log('Rol específico:', userData.role, typeof userData.role);
 
                 // 3. Guardar usuario en el contexto de autenticación
                 login(userData);
@@ -71,16 +72,23 @@ const Login = () => {
 
     // Función para determinar la ruta según el rol
     const getDashboardPath = (role) => {
+        console.log('Rol del usuario:', role, typeof role);
+        console.log('Comparación con management:', role === 'management');
         switch (role) {
             case 'admin':
+                console.log('Redirigiendo a admin dashboard');
                 return '/admin/dashboard';
-            case 'managment':
+            case 'management':
+                console.log('Redirigiendo a management');
                 return '/management/';
             case 'collector':
+                console.log('Redirigiendo a collector routes');
                 return '/collector/routes';
             case 'client':
+                console.log('Redirigiendo a client requests');
                 return '/client/requests';
             default:
+                console.log('Redirigiendo a dashboard por defecto');
                 return '/dashboard';
         }
     };
