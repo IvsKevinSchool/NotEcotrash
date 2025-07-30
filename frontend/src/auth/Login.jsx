@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 import LoginForm from './LoginForm';
 import { toast } from 'react-toastify';
+import logo from "../assets/Logo.png";
 import api from '../api'; // Asegúrate de importar tu configuración de axios
 
 const Login = () => {
@@ -137,7 +138,7 @@ const Login = () => {
             <div className="w-full md:w-1/2 bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center p-8">
                 <div className="text-center p-4 md:p-8">
                     <img
-                        src="/logo.png"
+                        src={logo}
                         alt="Logo EcoTrash"
                         className="mx-auto h-32 md:h-48 w-auto mb-6"
                     />
