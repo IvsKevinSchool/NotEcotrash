@@ -81,33 +81,33 @@ class Services(models.Model):
 
     
 
-class ServiceLog(models.Model):
-    pk_service_log = models.AutoField(primary_key=True)
-    completed_date = models.DateTimeField()
-    waste_amount = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        validators=[MinValueValidator(0)]
-    )
-    document = models.FileField(upload_to='service_logs/', blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-    fk_user = models.ForeignKey(
-        User,  # Asume que hay un modelo Collector
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-    fk_services = models.ForeignKey(
-        'Services',  # Asume que hay un modelo Service
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
+    class ServiceLog(models.Model):
+        pk_service_log = models.AutoField(primary_key=True)
+        completed_date = models.DateTimeField()
+        waste_amount = models.DecimalField(
+            max_digits=10, 
+            decimal_places=2,
+            validators=[MinValueValidator(0)]
+        )
+        document = models.FileField(upload_to='service_logs/', blank=True, null=True)
+        notes = models.TextField(blank=True, null=True)
+        fk_user = models.ForeignKey(
+            User,  # Asume que hay un modelo Collector
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True
+        )
+        fk_services = models.ForeignKey(
+            'Services',  # Asume que hay un modelo Service
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True
+        )
 
-    class Meta:
-        db_table = 'ServiceLog'
-        verbose_name = 'Service Log'
-        verbose_name_plural = 'Service Logs'
+        class Meta:
+            db_table = 'ServiceLog'
+            verbose_name = 'Service Log'
+            verbose_name_plural = 'Service Logs'
 
-    def __str__(self):
-        return f"ServiceLog {self.pk_record} - {self.completed_date}"
+        def __str__(self):
+            return f"ServiceLog {self.pk_service_log} - {self.completed_date}"
