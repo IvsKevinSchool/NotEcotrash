@@ -3,7 +3,7 @@ from apps.management.models import Management
 from apps.core.models import Location
 from apps.client.models import Client
 from apps.waste.models import Waste, WasteSubCategory
-
+from apps.accounts.models import User
 from django.core.validators import MinValueValidator
 from datetime import date  # Para validar fechas
 
@@ -78,3 +78,36 @@ class Services(models.Model):
     
     def __str__(self):
         return f"Servicio #{self.service_number} - {self.fk_clients}"
+
+    
+
+    class ServiceLog(models.Model):
+    pk_record = models.AutoField(primary_key=True)
+    completed_date = models.DateTimeField()
+    waste_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
+    document = models.FileField(upload_to='service_logs/', blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    fk_user = models.ForeignKey(
+        'User',  # Asume que hay un modelo Collector
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    fk_services = models.ForeignKey(
+        'Services',  # Asume que hay un modelo Service
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        db_table = 'ServiceLog'
+        verbose_name = 'Service Log'
+        verbose_name_plural = 'Service Logs'
+
+    def __str__(self):
+        return f"ServiceLog {self.pk_record} - {self.completed_date}"
