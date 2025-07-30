@@ -29,7 +29,7 @@ const Login = () => {
                     token: response.data.data.access_token, // access_token en lugar de access
                     //refreshToken: response.data.data.refresh_token, // refresh_token en lugar de refresh
                     role: response.data.data.user.role,
-                    //id_management: response.data.data.management.pk_management || 0, // Asegúrate de que este campo exista
+                    id_admin: response.data.data.user.pk || 0, // Asegúrate de que este campo exista
                 };
 
                 console.log('Datos del usuario:', userData);
@@ -121,7 +121,7 @@ const Login = () => {
                     <p className="text-gray-600 mb-8">Ingresa para gestionar tus residuos</p>
 
                     <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
-
+                    {/* 
                     <div className="mt-6 text-center text-sm text-gray-600">
                         ¿No tienes una cuenta?{' '}
                         <Link
@@ -130,7 +130,7 @@ const Login = () => {
                         >
                             Regístrate ahora
                         </Link>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
