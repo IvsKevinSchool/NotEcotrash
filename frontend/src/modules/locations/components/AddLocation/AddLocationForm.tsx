@@ -2,14 +2,15 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
-import { BuildingOfficeIcon, MapPinIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import { useEffect, useState } from "react";
+import { BuildingOfficeIcon, MapPinIcon, PhoneIcon, UserIcon } from "@heroicons/react/24/outline";
 import { FormInput } from "./FormInput";
 import { FormSection } from "./FormSection";
 import api from "../../../../api";
-import { managementLocationSchema, ManagementLocationFormData, transformLocationData } from "../../schemas";
+import { clientLocationSchema, ClientLocationFormData, transformLocationData } from "../../schemas";
 import { useAuth } from "../../../../context/AuthContext";
 import { handleApiError } from "../../../../components/handleApiError";
+import { Client } from "../../types";
 
 export const AddLocationForm = () => {
     const { pk } = useParams();
@@ -17,11 +18,14 @@ export const AddLocationForm = () => {
     const isEditing = Boolean(id);
     const navigate = useNavigate();
     const { user } = useAuth();
-    const URL = `management/management/${user.id}/locations/`;
 
-    const methods = useForm<ManagementLocationFormData>({
-        resolver: zodResolver(managementLocationSchema),
+    const [clients, setClients] = useState<Client[]>([]);
+    const [isLoadingClients, setIsLoadingClients] = useState(true);
+
+    const methods = useForm<ClientLocationFormData>({
+        resolver: zodResolver(clientLocationSchema),
         defaultValues: {
+            fk_client: 0,
             is_main: false,
             fk_location: {
                 name: "",
@@ -43,16 +47,37 @@ export const AddLocationForm = () => {
         handleSubmit,
         formState: { isSubmitting },
         reset,
-        setError
+        setError,
+        register
     } = methods;
+
+    // Cargar lista de clientes
+    useEffect(() => {
+        const fetchClients = async () => {
+            try {
+                setIsLoadingClients(true);
+                const response = await api.get(`client/by-management/${user.id}/`);
+                setClients(response.data);
+            } catch (error) {
+                console.error("Error al cargar clientes:", error);
+                toast.error("Error al cargar la lista de clientes");
+            } finally {
+                setIsLoadingClients(false);
+            }
+        };
+        
+        fetchClients();
+    }, [user.id]);
 
     // Cargar datos si estamos editando
     useEffect(() => {
         if (isEditing) {
             const fetchLocationData = async () => {
                 try {
-                    const response = await api.get(`management/management/${user.id}/locations/${id}/`);
+                    // Necesitamos obtener los datos de ClientsLocations, no ManagementLocations
+                    const response = await api.get(`client/locations/${id}/`);
                     const data = {
+                        fk_client: response.data.fk_client || 0,
                         is_main: response.data.is_main,
                         fk_location: transformLocationData(response.data.fk_location)
                     };
@@ -65,17 +90,27 @@ export const AddLocationForm = () => {
             };
             fetchLocationData();
         }
-    }, [id, isEditing, reset, navigate, user.id]);
+    }, [id, isEditing, reset, navigate]);
 
-    const onSubmit: SubmitHandler<ManagementLocationFormData> = async (data) => {
+    const onSubmit: SubmitHandler<ClientLocationFormData> = async (data) => {
         try {
             console.log("Datos validados:", data);
 
+            // Procesar los datos para el backend
+            const processedData = {
+                ...data,
+                fk_location: {
+                    ...data.fk_location,
+                    interior_number: data.fk_location.interior_number === "" ? null : data.fk_location.interior_number,
+                    postcode: data.fk_location.postcode === "" ? null : data.fk_location.postcode,
+                }
+            };
+
             if (isEditing) {
-                await api.patch(`management/management/${user.id}/locations/${id}/`, data);
+                await api.patch(`client/${processedData.fk_client}/locations/${id}/`, processedData);
                 toast.success("Ubicación actualizada exitosamente");
             } else {
-                await api.post(URL, data);
+                await api.post(`client/${processedData.fk_client}/locations/`, processedData);
                 toast.success("Ubicación creada exitosamente");
             }
 
@@ -92,6 +127,40 @@ export const AddLocationForm = () => {
                 <h1 className="text-2xl font-bold text-green-800">
                     {isEditing ? 'Editar Ubicación' : 'Agregar Nueva Ubicación'}
                 </h1>
+
+                {/* Sección Selección de Cliente */}
+                <FormSection
+                    title="Seleccionar Cliente"
+                    icon={UserIcon}
+                >
+                    <div>
+                        <label className="block text-green-700 mb-2 font-medium">
+                            Cliente *
+                        </label>
+                        {isLoadingClients ? (
+                            <div className="w-full p-2 border border-green-300 rounded bg-gray-50 text-gray-500">
+                                Cargando clientes...
+                            </div>
+                        ) : (
+                            <select
+                                {...register("fk_client", { valueAsNumber: true })}
+                                className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            >
+                                <option value={0}>Seleccionar Cliente</option>
+                                {clients.map((client) => (
+                                    <option key={client.pk_client} value={client.pk_client}>
+                                        {client.name} - {client.legal_name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        {methods.formState.errors.fk_client && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {methods.formState.errors.fk_client.message}
+                            </p>
+                        )}
+                    </div>
+                </FormSection>
 
                 {/* Checkbox para is_main */}
                 <div className="flex items-center">

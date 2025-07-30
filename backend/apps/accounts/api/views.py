@@ -2,12 +2,13 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from django.utils import timezone
 
 
 from apps.accounts.models import User, OneTimePassword
 from apps.accounts.api.serializers import UserRegisterSerializer, VerifyEmailSerializer, LoginSerializer, ResetPasswordSerializer, SetNewPasswordSerializer
-from apps.accounts.api.serializers import LogoutUserSerializer
+from apps.accounts.api.serializers import LogoutUserSerializer, UserListSerializer
 from apps.accounts.utils import send_otp_email
 
 from django.utils.http import urlsafe_base64_decode
@@ -208,3 +209,25 @@ class LogoutUserView(GenericAPIView):
 #         Returns a success message if the user is authenticated.
 #         """
 #         return Response({"message": "You are authenticated!"}, status=status.HTTP_200_OK)
+
+
+class UserViewSet(ReadOnlyModelViewSet):
+    """
+    ViewSet for listing users with filtering capabilities.
+    """
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = UserListSerializer
+    # Removemos la autenticación requerida para permitir acceso a los filtros
+    # permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """
+        Filter users by role if specified in query parameters.
+        """
+        queryset = super().get_queryset()
+        role = self.request.query_params.get('role', None)
+        
+        if role:
+            queryset = queryset.filter(role=role)
+            
+        return queryset.order_by('first_name', 'last_name')

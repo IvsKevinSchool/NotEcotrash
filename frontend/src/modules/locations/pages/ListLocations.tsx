@@ -17,7 +17,8 @@ export const ListLocations = () => {
     fetchData();
   }, []);
 
-  const filteredLocations = (locations || []).filter(({ fk_location }) => {
+  const filteredLocations = (locations || []).filter((clientLocation) => {
+    const { fk_location } = clientLocation;
     const { name, street_name, phone_number } = fk_location;
     return (
       name.toLowerCase().includes(searchTerm.toLowerCase()) ||

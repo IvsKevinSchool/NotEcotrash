@@ -48,7 +48,7 @@ export const SidebarECO = () => {
         { to: '/management/locations', label: 'Locations', icon: '🚩' },
         { to: '/management/collector', label: 'Collectors', icon: '🚛' },
         { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
-        { to: '/management/sub-waste', label: 'Sub Category Wastes', icon: '🏷️' },
+        { to: '/waste/subcategories', label: 'Sub Category Wastes', icon: '🏷️' },
         { to: '/management/certificate', label: 'Certificate', icon: '📜' },
     ];
 

@@ -13,6 +13,7 @@ class Waste(models.Model):
 class WasteSubCategory(models.Model):
     pk_waste_subcategory = models.AutoField(primary_key=True)
     fk_waste = models.ForeignKey(Waste, on_delete=models.CASCADE, related_name='waste')
+    name = models.CharField(max_length=100, help_text="Nombre corto de la subcategoría")
     description = models.CharField(max_length=255, unique=True)
 
     is_active = models.BooleanField(default=True)

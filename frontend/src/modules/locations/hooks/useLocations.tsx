@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { Location, LocationAPI, ManagementLocation } from "../types";
+import { Location, LocationAPI, ManagementLocation, ClientLocation, ClientLocationsResponse } from "../types";
 import api from "../../../api";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../context/AuthContext";
 
 export const useLocations = () => {
-    const [locations, setLocations] = useState<ManagementLocation[]>([]);
-    const [data, setData] = useState<{ locations: ManagementLocation[] }>({ locations: [] });
+    const [locations, setLocations] = useState<ClientLocation[]>([]);
+    const [data, setData] = useState<{ locations: ClientLocation[] }>({ locations: [] });
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const response = await api.get(`management/management/list/${user.id}/locations/`);
+            // Usar el nuevo endpoint que obtiene todas las ubicaciones de clientes del management
+            const response = await api.get<ClientLocationsResponse>(`client/management/${user.id}/all-locations/`);
             setData(response.data); // Guardamos el objeto completo
         } catch (error) {
             console.error("Error fetching locations:", error);
@@ -25,7 +26,8 @@ export const useLocations = () => {
 
     const deleteLocation = async (id: string) => {
         try {
-            const response = await api.delete(`core/locations/${id}/`);
+            // Eliminar de ClientsLocations en lugar de Location directamente
+            const response = await api.delete(`client/locations/${id}/`);
             if (response.status === 204) {
                 toast.success("Ubicación eliminada correctamente");
                 await fetchData();
