@@ -39,19 +39,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
             </h2>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Service Number */}
-                    <div>
-                        <label className="block text-green-700 mb-1">Número de Servicio</label>
-                        <input
-                            type="text"
-                            {...register("service_number")}
-                            className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                        {errors.service_number && (
-                            <p className="text-red-500 text-sm mt-1">{errors.service_number.message}</p>
-                        )}
-                    </div>
-
+                    {/* Número de servicio se genera automáticamente - no mostrar en el formulario */}
+                    
                     {/* Scheduled Date */}
                     <div>
                         <label className="block text-green-700 mb-1">Fecha Programada</label>
@@ -103,20 +92,21 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         )}
                     </div>
 
-                    {/* Status */}
+                    {/* Status - Opcional, por defecto será "Pendiente" */}
                     <div>
-                        <label className="block text-green-700 mb-1">Estado</label>
+                        <label className="block text-green-700 mb-1">Estado (Opcional)</label>
                         <select
                             {...register("fk_status", { valueAsNumber: true })}
                             className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
                         >
-                            <option value="">Seleccionar Estado</option>
+                            <option value="">Automático: Estado por defecto</option>
                             {statuses.map((status) => (
                                 <option key={status.pk_status} value={status.pk_status}>
                                     {status.name}
                                 </option>
                             ))}
                         </select>
+                        <p className="text-xs text-gray-500 mt-1">Si no seleccionas, se asignará el estado por defecto</p>
                         {errors.fk_status && (
                             <p className="text-red-500 text-sm mt-1">{errors.fk_status.message}</p>
                         )}

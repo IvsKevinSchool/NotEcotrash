@@ -237,3 +237,23 @@ class LogoutUserSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.default_error_messages["token_not_found"])
         
         return {"message": "Logout successful."}
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing users with basic information.
+    """
+    get_full_name = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'get_full_name',
+            'role',
+            'email',
+            'is_active'
+        ]

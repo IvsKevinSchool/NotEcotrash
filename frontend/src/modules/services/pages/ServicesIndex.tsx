@@ -10,20 +10,30 @@ import {
   updateService,
   deleteService,
 } from "../api/serviceServices";
+import { 
+  getServiceFormData,
+  Client, 
+  Location, 
+  Status, 
+  TypeService, 
+  Waste, 
+  WasteSubcategory 
+} from "../api/serviceFormServices";
 import ServiceForm from "../components/ServiceForm";
 import ServicesTable from "../components/ServiceTable";
 
 const ServicesIndex = () => {
   const [services, setServices] = useState<any[]>([]);
-  const [clients, setClients] = useState<any[]>([]);
-  const [locations, setLocations] = useState<any[]>([]);
-  const [statuses, setStatuses] = useState<any[]>([]);
-  const [typeServices, setTypeServices] = useState<any[]>([]);
-  const [wastes, setWastes] = useState<any[]>([]);
-  const [wasteSubcategories, setWasteSubcategories] = useState<any[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [statuses, setStatuses] = useState<Status[]>([]);
+  const [typeServices, setTypeServices] = useState<TypeService[]>([]);
+  const [wastes, setWastes] = useState<Waste[]>([]);
+  const [wasteSubcategories, setWasteSubcategories] = useState<WasteSubcategory[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [defaultStatusId, setDefaultStatusId] = useState<number | null>(null);
 
   const form = useForm<ServiceFormData>({
     resolver: zodResolver(serviceSchema),
@@ -33,26 +43,44 @@ const ServicesIndex = () => {
 
   useEffect(() => {
     fetchData();
-    // In a real app, you would fetch these from their respective APIs
-    setClients([
-      { pk_client: 8, name: "Cliente Ejemplo", legal_name: "Cliente S.A. de C.V." },
-    ]);
-    setLocations([
-      { pk_location: 3, name: "Zona Rio", city: "Tijuana" },
-    ]);
-    setStatuses([
-      { pk_status: 1, name: "Completed", description: "Service completed successfully" },
-    ]);
-    setTypeServices([
-      { pk_type_services: 2, name: "Recoleccion", description: "Recolección de basura" },
-    ]);
-    setWastes([
-      { pk_waste: 2, name: "Caja Bachoco", description: "Esta mojadita" },
-    ]);
-    setWasteSubcategories([
-      { pk_waste_subcategory: 1, description: "subcategory 1", fk_waste: 2 },
-    ]);
+    fetchFormData();
   }, []);
+
+  const fetchFormData = async () => {
+    try {
+      const data = await getServiceFormData();
+      setClients(data.clients);
+      setLocations(data.locations);
+      setStatuses(data.statuses);
+      setTypeServices(data.typeServices);
+      setWastes(data.wastes);
+      setWasteSubcategories(data.wasteSubcategories);
+
+      // Buscar el estado "Pendiente" para establecerlo como default (opcional)
+      const pendingStatus = data.statuses.find(status => 
+        status.name.toLowerCase().includes('pendiente') || 
+        status.name.toLowerCase().includes('pending')
+      );
+      if (pendingStatus) {
+        setDefaultStatusId(pendingStatus.pk_status);
+      } else {
+        // Si no hay estado "Pendiente", usar el primer estado disponible o null
+        setDefaultStatusId(data.statuses.length > 0 ? data.statuses[0].pk_status : null);
+      }
+
+      console.log('Datos del formulario cargados:', {
+        clients: data.clients.length,
+        locations: data.locations.length,
+        statuses: data.statuses.length,
+        typeServices: data.typeServices.length,
+        wastes: data.wastes.length,
+        wasteSubcategories: data.wasteSubcategories.length
+      });
+    } catch (error) {
+      console.error("Error fetching form data:", error);
+      showErrorToast("Error al cargar datos del formulario");
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -94,18 +122,24 @@ const ServicesIndex = () => {
 
   const onSubmit = async (data: ServiceFormData) => {
     try {
+      // Si no se especifica un estado y hay un estado por defecto, usarlo
+      const serviceData = {
+        ...data,
+        fk_status: data.fk_status || (defaultStatusId ?? undefined)
+      };
+
       if (isEditing && currentId) {
-        await updateService(currentId, data);
-        showSuccessToast("Service updated successfully");
+        await updateService(currentId, serviceData);
+        showSuccessToast("Servicio actualizado exitosamente");
       } else {
-        await createService(data);
-        showSuccessToast("Service created successfully");
+        await createService(serviceData);
+        showSuccessToast("Servicio creado exitosamente");
       }
       fetchData();
       resetForm();
     } catch (error) {
       console.error("Error saving service:", error);
-      showErrorToast("Error saving service");
+      showErrorToast("Error al guardar servicio");
     }
   };
 

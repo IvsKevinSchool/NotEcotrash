@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import RegisterUserView, VerifyUserEmail, LoginUserView
-from .views import PasswordResetView, PasswordResetConfirmView, SetNewPasswordView, LogoutUserView
+from .views import PasswordResetView, PasswordResetConfirmView, SetNewPasswordView, LogoutUserView, UserViewSet
 # Rutas para vistas basadas en clases
 urlpatterns = [
     path('register/', RegisterUserView.as_view(), name='user-register'),
@@ -17,7 +17,7 @@ urlpatterns = [
 
 # Rutas para ViewSets usando DefaultRouter
 router = DefaultRouter()
-# router.register(r'papers', PaperViewSet, basename='paper')
+router.register(r'users', UserViewSet, basename='user')
 
 # Combinar ambas
 urlpatterns += [
