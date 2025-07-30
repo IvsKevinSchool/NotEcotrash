@@ -26,6 +26,12 @@ export const deleteClient = async (id: number) => {
 };
 
 export const toggleClientStatus = async (id: number) => {
-    const response = await api.patch(`/client/client/${id}/toggle-status/`);
+    // Primero obtener el cliente actual para conocer su estado
+    const client = await getClient(id);
+    // Cambiar el estado y actualizar
+    const response = await api.put(`/client/client/${id}/`, {
+        ...client,
+        is_active: !client.is_active
+    });
     return response.data;
 };
