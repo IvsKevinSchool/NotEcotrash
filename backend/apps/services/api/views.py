@@ -1,6 +1,7 @@
 from rest_framework import viewsets
-from apps.services.models import Status, TypeServices, Services
-from apps.services.api.serializer import StatusSerializer, TypeServicesSerializer, ServicesSerializer
+from apps.services.models import Status, TypeServices, Services, ServiceLog
+from apps.management.models import Management
+from apps.services.api.serializer import StatusSerializer, TypeServicesSerializer, ServicesSerializer, ServiceLogSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -8,6 +9,7 @@ from django.conf import settings
 import subprocess
 import os
 import datetime
+from rest_framework.views import APIView
 
 @api_view(['POST'])
 def backup_database(request):
@@ -64,3 +66,46 @@ class ServicesViewSet(viewsets.ModelViewSet):
     queryset = Services.objects.all()
     serializer_class = ServicesSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class ServiceLogViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing ServiceLog instances.
+    Provides automatic CRUD operations for ServiceLog.
+    """
+    queryset = ServiceLog.objects.all()
+    serializer_class = ServiceLogSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    
+    def get_queryset(self):
+        """
+        Optionally filters ServiceLogs by service_id or user_id from query params
+        """
+        queryset = ServiceLog.objects.all()
+        service_id = self.request.query_params.get('service_id', None)
+        user_id = self.request.query_params.get('user_id', None)
+        
+        if service_id is not None:
+            queryset = queryset.filter(fk_services__pk_services=service_id)
+        if user_id is not None:
+            queryset = queryset.filter(fk_user__id=user_id)
+            
+        return queryset.order_by('-completed_date')
+
+class CreateTypeServiceView(APIView):
+    def post(self, request, management_id):
+        try:
+            management = Management.objects.get(pk=management_id)
+        except Management.DoesNotExist:
+            return Response(
+                {"error": "Management no encontrado"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        data = request.data.copy()
+        data['fk_management'] = management_id
+        
+        serializer = TypeServicesSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

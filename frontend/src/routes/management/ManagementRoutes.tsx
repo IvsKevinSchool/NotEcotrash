@@ -9,7 +9,7 @@ import CertificateIndex from '../../modules/certificate/pages/CertificateIndex'
 import { ListLocations } from '../../modules/locations/pages/ListLocations'
 import { AddLocation } from '../../modules/locations/pages/AddLocation'
 import EditCollector from '../../modules/collector/pages/EditCollector'
-import BackupPage from '../../modules/admin/pages/BackupPage';
+import ReportsIndex from '../../modules/reports/pages/ReportsIndex'
 
 export const ManagementRoutes = () => {
     return (
@@ -20,7 +20,7 @@ export const ManagementRoutes = () => {
             <Route path="/clients" element={<ClientsIndex />} />
 
             {/* Reports Module */}
-            <Route path="/reports" element={<div>Bitacoras Index</div>} /> {/* Pending Bitacoras Index Component */}
+            <Route path="/reports" element={<ReportsIndex />} />
 
             {/* Location Module */}
             <Route path="/locations" element={<ListLocations />} />

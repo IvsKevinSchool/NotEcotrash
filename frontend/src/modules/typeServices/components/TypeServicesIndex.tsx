@@ -14,7 +14,6 @@ import { useAuth } from "../../../context/AuthContext";
 
 const TypeServicesIndex = () => {
     const [typeServices, setTypeServices] = useState<any[]>([]);
-    const [managements, setManagements] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentId, setCurrentId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -32,11 +31,6 @@ const TypeServicesIndex = () => {
     // Fetch initial data
     useEffect(() => {
         fetchData();
-        // In a real app, you would fetch managements from API
-        setManagements([
-            { pk_management: 1, name: "Management 1" },
-            { pk_management: 2, name: "Management 2" },
-        ]);
     }, []);
 
     const fetchData = async () => {
@@ -58,7 +52,7 @@ const TypeServicesIndex = () => {
                 await updateTypeService(currentId, newData);
                 toast.success("Type service updated successfully");
             } else {
-                await createTypeService(newData);
+                await createTypeService(newData, user?.id);
                 toast.success("Type service created successfully");
             }
             fetchData();
@@ -110,25 +104,6 @@ const TypeServicesIndex = () => {
                     </h2>
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Management Select
-                            <div>
-                                <label className="block text-green-700 mb-1">Management</label>
-                                <select
-                                    {...register("fk_management", { valueAsNumber: true })}
-                                    className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                >
-                                    <option value="">Select Management</option>
-                                    {managements.map((mgmt) => (
-                                        <option key={mgmt.pk_management} value={mgmt.pk_management}>
-                                            {mgmt.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.fk_management && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.fk_management.message}</p>
-                                )}
-                            </div> */}
-
                             {/* Name */}
                             <div>
                                 <label className="block text-green-700 mb-1">Name</label>
@@ -196,7 +171,7 @@ const TypeServicesIndex = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{service.pk_type_services}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{service.name}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">
-                                                {managements.find(m => m.pk_management === service.fk_management)?.name || service.fk_management}
+                                                {service.fk_management}
                                             </td>
                                             <td className="px-6 py-4 text-sm text-green-900">
                                                 {service.description || "-"}

@@ -20,16 +20,19 @@ const Login = () => {
             // 2. Verificar si la respuesta fue exitosa
             if (response.status >= 200 && response.status < 300) {
                 const userData = {
-                    id: response.data.data.user.pk, // Accede a través de data.user
+                    id: response.data.data.management.pk_management, // Accede a través de data.user
+                    // id: response.data.data.user.pk, // Accede a través de data.user
                     username: response.data.data.user.username,
                     name: response.data.data.user.full_name, // Usa full_name en lugar de combinar first y last
                     email: response.data.data.user.email,
                     token: response.data.data.access_token, // access_token en lugar de access
                     //refreshToken: response.data.data.refresh_token, // refresh_token en lugar de refresh
-                    role: response.data.data.user.role
+                    role: response.data.data.user.role,
+                    //id_management: response.data.data.management.pk_management || 0, // Asegúrate de que este campo exista
                 };
 
                 console.log('Datos del usuario:', userData);
+                console.log('Rol específico:', userData.role, typeof userData.role);
 
                 // 3. Guardar usuario en el contexto de autenticación
                 login(userData);
@@ -71,10 +74,11 @@ const Login = () => {
 
     // Función para determinar la ruta según el rol
     const getDashboardPath = (role) => {
+        console.log('Rol del usuario:', role);
         switch (role) {
             case 'admin':
                 return '/admin/dashboard';
-            case 'managment':
+            case 'management':
                 return '/management/';
             case 'collector':
                 return '/collector/routes';

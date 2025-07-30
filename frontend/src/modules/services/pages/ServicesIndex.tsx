@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../context/AuthContext";
 import { ServiceFormData, serviceSchema } from "../schemas/serviceSchema";
 import {
   getServices,
@@ -10,49 +11,134 @@ import {
   updateService,
   deleteService,
 } from "../api/serviceServices";
+import { 
+  getServiceFormData,
+  Client, 
+  Location, 
+  Status, 
+  TypeService, 
+  Waste, 
+  WasteSubcategory 
+} from "../api/serviceFormServices";
 import ServiceForm from "../components/ServiceForm";
 import ServicesTable from "../components/ServiceTable";
 
 const ServicesIndex = () => {
   const [services, setServices] = useState<any[]>([]);
-  const [clients, setClients] = useState<any[]>([]);
-  const [locations, setLocations] = useState<any[]>([]);
-  const [statuses, setStatuses] = useState<any[]>([]);
-  const [typeServices, setTypeServices] = useState<any[]>([]);
-  const [wastes, setWastes] = useState<any[]>([]);
-  const [wasteSubcategories, setWasteSubcategories] = useState<any[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [statuses, setStatuses] = useState<Status[]>([]);
+  const [typeServices, setTypeServices] = useState<TypeService[]>([]);
+  const [wastes, setWastes] = useState<Waste[]>([]);
+  const [wasteSubcategories, setWasteSubcategories] = useState<WasteSubcategory[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [defaultStatusId, setDefaultStatusId] = useState<number | null>(null);
+
+  const { user } = useAuth();
 
   const form = useForm<ServiceFormData>({
     resolver: zodResolver(serviceSchema),
   });
 
   const selectedWaste = form.watch("fk_waste");
+  const selectedTypeService = form.watch("fk_type_services");
+
+  // Determinar si el tipo de servicio seleccionado es "Recolección de residuos"
+  const isWasteCollectionService = () => {
+    if (!selectedTypeService || typeServices.length === 0) return false;
+    
+    const selectedService = typeServices.find(service => service.pk_type_services === selectedTypeService);
+    if (!selectedService) return false;
+    
+    // Buscar si el nombre del servicio contiene palabras relacionadas con recolección de residuos
+    const serviceName = selectedService.name.toLowerCase();
+    return serviceName.includes('recolección') || 
+           serviceName.includes('recoleccion') || 
+           serviceName.includes('residuo') ||
+           serviceName.includes('waste') ||
+           serviceName.includes('collection');
+  };
 
   useEffect(() => {
     fetchData();
-    // In a real app, you would fetch these from their respective APIs
-    setClients([
-      { pk_client: 8, name: "Cliente Ejemplo", legal_name: "Cliente S.A. de C.V." },
-    ]);
-    setLocations([
-      { pk_location: 3, name: "Zona Rio", city: "Tijuana" },
-    ]);
-    setStatuses([
-      { pk_status: 1, name: "Completed", description: "Service completed successfully" },
-    ]);
-    setTypeServices([
-      { pk_type_services: 2, name: "Recoleccion", description: "Recolección de basura" },
-    ]);
-    setWastes([
-      { pk_waste: 2, name: "Caja Bachoco", description: "Esta mojadita" },
-    ]);
-    setWasteSubcategories([
-      { pk_waste_subcategory: 1, description: "subcategory 1", fk_waste: 2 },
-    ]);
+    fetchFormData();
   }, []);
+
+  // Resetear subcategoría cuando cambia el residuo seleccionado
+  useEffect(() => {
+    if (selectedWaste) {
+      // Filtrar subcategorías que pertenecen al residuo seleccionado
+      const filteredSubcategories = wasteSubcategories.filter(sub => {
+        const wasteId = typeof sub.fk_waste === 'object' ? sub.fk_waste.pk_waste : sub.fk_waste;
+        return wasteId === selectedWaste;
+      });
+      
+      // Solo resetear si ya había una subcategoría seleccionada
+      const currentSubcategory = form.getValues("fk_waste_subcategory");
+      if (currentSubcategory) {
+        // Verificar si la subcategoría actual pertenece al nuevo residuo seleccionado
+        const subcategoryBelongsToWaste = filteredSubcategories.find(
+          sub => sub.pk_waste_subcategory === currentSubcategory
+        );
+        
+        // Si no pertenece, resetear la subcategoría
+        if (!subcategoryBelongsToWaste) {
+          form.setValue("fk_waste_subcategory", undefined);
+        }
+      }
+    } else {
+      // Si no hay residuo seleccionado, limpiar subcategoría
+      form.setValue("fk_waste_subcategory", undefined);
+    }
+  }, [selectedWaste, wasteSubcategories, form]);
+
+  // Limpiar campos de residuo cuando el tipo de servicio no sea recolección de residuos
+  useEffect(() => {
+    if (!isWasteCollectionService()) {
+      // Si no es servicio de recolección, limpiar campos de residuo
+      form.resetField("fk_waste");
+      form.resetField("fk_waste_subcategory");
+    }
+  }, [selectedTypeService, typeServices, form]);
+
+  const fetchFormData = async () => {
+    try {
+      const data = await getServiceFormData(user?.id);
+      setClients(data.clients);
+      setLocations(data.locations);
+      setStatuses(data.statuses);
+      setTypeServices(data.typeServices);
+      setWastes(data.wastes);
+      setWasteSubcategories(data.wasteSubcategories);
+
+      // Buscar el estado "En progreso" para establecerlo como default
+      const inProgressStatus = data.statuses.find(status => 
+        status.name.toLowerCase().includes('en progreso') || 
+        status.name.toLowerCase().includes('progreso') ||
+        status.name.toLowerCase().includes('in progress')
+      );
+      if (inProgressStatus) {
+        setDefaultStatusId(inProgressStatus.pk_status);
+      } else {
+        // Si no hay estado "En progreso", usar el primer estado disponible o null
+        setDefaultStatusId(data.statuses.length > 0 ? data.statuses[0].pk_status : null);
+      }
+
+      console.log('Datos del formulario cargados:', {
+        clients: data.clients.length,
+        locations: data.locations.length,
+        statuses: data.statuses.length,
+        typeServices: data.typeServices.length,
+        wastes: data.wastes.length,
+        wasteSubcategories: data.wasteSubcategories.length
+      });
+    } catch (error) {
+      console.error("Error fetching form data:", error);
+      showErrorToast("Error al cargar datos del formulario");
+    }
+  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -94,18 +180,39 @@ const ServicesIndex = () => {
 
   const onSubmit = async (data: ServiceFormData) => {
     try {
+      // Validación adicional para servicios de recolección
+      if (isWasteCollectionService()) {
+        if (!data.fk_waste) {
+          showErrorToast("Para servicios de recolección, debe seleccionar un residuo");
+          return;
+        }
+      }
+
+      // Limpiar campos de residuo si no es servicio de recolección
+      let serviceData = { ...data };
+      if (!isWasteCollectionService()) {
+        delete serviceData.fk_waste;
+        delete serviceData.fk_waste_subcategory;
+      }
+
+      // Asignar automáticamente el estado "En progreso" si no se especifica uno
+      serviceData = {
+        ...serviceData,
+        fk_status: defaultStatusId || serviceData.fk_status
+      };
+
       if (isEditing && currentId) {
-        await updateService(currentId, data);
-        showSuccessToast("Service updated successfully");
+        await updateService(currentId, serviceData);
+        showSuccessToast("Servicio actualizado exitosamente");
       } else {
-        await createService(data);
-        showSuccessToast("Service created successfully");
+        await createService(serviceData);
+        showSuccessToast("Servicio creado exitosamente");
       }
       fetchData();
       resetForm();
     } catch (error) {
       console.error("Error saving service:", error);
-      showErrorToast("Error saving service");
+      showErrorToast("Error al guardar servicio");
     }
   };
 
@@ -196,6 +303,7 @@ const ServicesIndex = () => {
           onSubmit={onSubmit}
           onReset={resetForm}
           selectedWaste={selectedWaste}
+          isWasteCollectionService={isWasteCollectionService()}
         />
 
         <ServicesTable

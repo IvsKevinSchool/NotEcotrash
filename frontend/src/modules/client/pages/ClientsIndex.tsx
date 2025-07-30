@@ -32,17 +32,28 @@ const ClientsIndex = () => {
     });
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        // Solo ejecutar fetchData cuando el usuario esté disponible
+        if (user?.id) {
+            fetchData();
+        }
+    }, [user?.id]);
 
     const fetchData = async () => {
+        if (!user?.id) {
+            console.error("User ID no disponible");
+            toast.error("Usuario no identificado. Por favor, inicia sesión nuevamente.");
+            return;
+        }
+
         setIsLoading(true);
         try {
-            console.log(user)
-            const data = await getClients(user?.id || 0);
+            console.log("Fetching clients for management ID:", user.id);
+            const data = await getClients(user.id);
+            console.log("Clients data received:", data);
             setClients(data);
         } catch (error) {
-            toast.error("Error fetching clients");
+            console.error("Error fetching clients:", error);
+            toast.error("Error al cargar clientes. Verifica tu conexión.");
         } finally {
             setIsLoading(false);
         }

@@ -1,168 +1,160 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { wasteSubcategorySchema, WasteSubcategoryFormValues } from "../schemas/wasteSchema";
-import { useEffect, useState } from "react";
-import { wasteService } from "../hooks/useWastes";
-import { toast } from "react-toastify";
-import { ArrowPathIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { wasteSubcategorySchema, WasteSubcategoryFormData } from '../schemas/wasteSubcategorySchema';
+import { Waste } from '../services/wasteSubcategoryService';
 
-interface WasteSubcategoryFormProps {
-    onSubmit: (data: WasteSubcategoryFormValues) => Promise<void> | void;
-    isSubmitting: boolean;
+interface WasteSubcategoryFormInitialData {
+  name?: string;
+  description: string;
+  fk_waste: number;
+  is_active: boolean;
 }
 
-export const WasteSubcategoryForm = ({ onSubmit, isSubmitting }: WasteSubcategoryFormProps) => {
-    const [wastes, setWastes] = useState<{ pk_waste: string; name: string }[]>([]);
+interface WasteSubcategoryFormProps {
+  wastes: Waste[];
+  onSubmit: (data: WasteSubcategoryFormData) => void;
+  onCancel: () => void;
+  isEditing?: boolean;
+  initialData?: WasteSubcategoryFormInitialData;
+}
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isValid },
-    } = useForm<WasteSubcategoryFormValues>({
-        resolver: zodResolver(wasteSubcategorySchema) as any,
-        defaultValues: {
-            is_active: true,
-            fk_waste: "",
-            name: "",
-            description: "",
-        },
-        mode: "onChange",
-    });
+const WasteSubcategoryForm: React.FC<WasteSubcategoryFormProps> = ({
+  wastes,
+  onSubmit,
+  onCancel,
+  isEditing = false,
+  initialData
+}) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<WasteSubcategoryFormData>({
+    resolver: zodResolver(wasteSubcategorySchema),
+    defaultValues: initialData || {
+      name: '',
+      description: '',
+      fk_waste: 0,
+      is_active: true,
+    },
+  });
 
-    useEffect(() => {
-        const fetchWastes = async () => {
-            try {
-                const data = await wasteService.getWastes();
-                setWastes(data);
-            } catch (error) {
-                toast.error("Error al cargar los residuos");
-                console.error("Error fetching wastes:", error);
-            }
-        };
-        fetchWastes();
-    }, []);
+  return (
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-2">
+        <h2 className="text-xl sm:text-2xl font-bold text-green-800">
+          {isEditing ? 'Editar Subcategoría' : 'Nueva Subcategoría'}
+        </h2>
+      </div>
 
-    const handleFormSubmit = async (data: WasteSubcategoryFormValues) => {
-        try {
-            await onSubmit(data);
-        } catch (error) {
-            toast.error("Error al enviar el formulario");
-            console.error("Submission error:", error);
-        }
-    };
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          {/* Campo de Nombre */}
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              Nombre de la Subcategoría <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              {...register('name')}
+              className={`block w-full px-3 py-2 border ${
+                errors.name 
+                  ? "border-red-300 focus:ring-red-500 focus:border-red-500" 
+                  : "border-gray-300 focus:ring-green-500 focus:border-green-500"
+              } rounded-lg shadow-sm focus:outline-none focus:ring-2`}
+              placeholder="Ej: Botellas PET, Bolsas de plástico, etc."
+            />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+            )}
+          </div>
 
-    return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 bg-green-50 p-6 rounded-lg shadow-md">
-            <div className="flex items-center gap-2 mb-4">
-                <ArrowPathIcon className="h-8 w-8 text-green-600" />
-                <h2 className="text-xl font-bold text-green-700">Nueva Subcategoría de Residuo</h2>
-            </div>
+          {/* Campo de Residuo */}
+          <div>
+            <label htmlFor="fk_waste" className="block text-sm font-medium text-gray-700 mb-2">
+              Residuo <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="fk_waste"
+              {...register('fk_waste', { valueAsNumber: true })}
+              className={`block w-full px-3 py-2 border ${
+                errors.fk_waste 
+                  ? "border-red-300 focus:ring-red-500 focus:border-red-500" 
+                  : "border-gray-300 focus:ring-green-500 focus:border-green-500"
+              } rounded-lg shadow-sm focus:outline-none focus:ring-2`}
+            >
+              <option value={0}>Seleccione un residuo</option>
+              {wastes.map((waste) => (
+                <option key={waste.pk_waste} value={waste.pk_waste}>
+                  {waste.name}
+                </option>
+              ))}
+            </select>
+            {errors.fk_waste && (
+              <p className="mt-1 text-sm text-red-600">{errors.fk_waste.message}</p>
+            )}
+          </div>
+        </div>
 
-            {/* Campo Residuo */}
-            <div className="space-y-2">
-                <label htmlFor="fk_waste" className="block text-sm font-medium text-green-700">
-                    Residuo Principal *
-                </label>
-                <div className="relative">
-                    <select
-                        id="fk_waste"
-                        {...register("fk_waste")}
-                        disabled={isSubmitting}
-                        className={`block w-full pl-3 pr-10 py-2 text-base border ${errors.fk_waste ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                            : "border-green-300 focus:ring-green-500 focus:border-green-500"
-                            } rounded-lg shadow-sm`}
-                    >
-                        <option value="">Seleccione un residuo</option>
-                        {wastes.map((waste) => (
-                            <option key={waste.pk_waste} value={waste.pk_waste}>
-                                {waste.name}
-                            </option>
-                        ))}
-                    </select>
-                    <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-400 pointer-events-none" />
-                </div>
-                {errors.fk_waste && (
-                    <p className="mt-1 text-sm text-red-600">{errors.fk_waste.message}</p>
-                )}
-            </div>
+        {/* Campo de Descripción - Ancho completo */}
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            Descripción Detallada <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            id="description"
+            rows={3}
+            {...register('description')}
+            className={`block w-full px-3 py-2 border ${
+              errors.description 
+                ? "border-red-300 focus:ring-red-500 focus:border-red-500" 
+                : "border-gray-300 focus:ring-green-500 focus:border-green-500"
+            } rounded-lg shadow-sm focus:outline-none focus:ring-2 resize-none`}
+            placeholder="Descripción más detallada de la subcategoría"
+          />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+          )}
+        </div>
 
-            {/* Campo Nombre */}
-            <div className="space-y-2">
-                <label htmlFor="name" className="block text-sm font-medium text-green-700">
-                    Nombre de la Subcategoría *
-                </label>
-                <input
-                    id="name"
-                    type="text"
-                    {...register("name")}
-                    disabled={isSubmitting}
-                    className={`block w-full px-3 py-2 border ${errors.name ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-green-300 focus:ring-green-500 focus:border-green-500"
-                        } rounded-lg shadow-sm`}
-                    placeholder="Ej: Botellas PET"
-                />
-                {errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                )}
-            </div>
+        {/* Campo de Estado Activo */}
+        <div>
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              {...register('is_active')}
+              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+            />
+            <span className="ml-2 text-sm text-gray-700">Subcategoría activa</span>
+          </label>
+        </div>
 
-            {/* Campo Descripción */}
-            <div className="space-y-2">
-                <label htmlFor="description" className="block text-sm font-medium text-green-700">
-                    Descripción
-                </label>
-                <textarea
-                    id="description"
-                    rows={3}
-                    {...register("description")}
-                    disabled={isSubmitting}
-                    className={`block w-full px-3 py-2 border ${errors.description ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-                        : "border-green-300 focus:ring-green-500 focus:border-green-500"
-                        } rounded-lg shadow-sm`}
-                    placeholder="Descripción detallada de la subcategoría"
-                />
-                {errors.description && (
-                    <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-                )}
-            </div>
-
-            {/* Campo Activo */}
-            <div className="flex items-center">
-                <input
-                    type="checkbox"
-                    id="is_active"
-                    {...register("is_active")}
-                    disabled={isSubmitting}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-                />
-                <label htmlFor="is_active" className="ml-2 block text-sm text-green-700">
-                    Subcategoría activa (disponible para selección)
-                </label>
-            </div>
-
-            {/* Botón de envío */}
-            <div className="pt-4">
-                <button
-                    type="submit"
-                    disabled={isSubmitting || !isValid}
-                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isSubmitting || !isValid
-                        ? "bg-green-300 cursor-not-allowed"
-                        : "bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        }`}
-                >
-                    {isSubmitting ? (
-                        <span className="flex items-center">
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Procesando...
-                        </span>
-                    ) : (
-                        "Registrar Subcategoría"
-                    )}
-                </button>
-            </div>
-        </form>
-    );
+        {/* Botones */}
+        <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 sm:pt-6">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 order-2 sm:order-1"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting || !isValid}
+            className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white order-1 sm:order-2 ${
+              isSubmitting || !isValid
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            }`}
+          >
+            {isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear')}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 };
+
+export default WasteSubcategoryForm;

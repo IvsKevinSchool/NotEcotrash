@@ -8,7 +8,9 @@ export const locationSchema = z.object({
 
     postcode: z.string()
         .min(4, "El código postal debe tener al menos 4 caracteres")
-        .max(10, "El código postal no puede exceder 10 caracteres"),
+        .max(10, "El código postal no puede exceder 10 caracteres")
+        .optional()
+        .or(z.literal("")),
 
     exterior_number: z.string()
         .min(1, "El número exterior es requerido")
@@ -16,7 +18,8 @@ export const locationSchema = z.object({
 
     interior_number: z.string()
         .max(20, "El número interior no puede exceder 20 caracteres")
-        .optional(),
+        .optional()
+        .or(z.literal("")),
 
     street_name: z.string()
         .min(3, "El nombre de la calle debe tener al menos 3 caracteres")
@@ -61,8 +64,16 @@ export const transformLocationData = (data: LocationApiData): LocationFormData =
 });
 
 export const managementLocationSchema = z.object({
+    fk_client: z.number().min(1, "Debe seleccionar un cliente"),
+    is_main: z.boolean(),
+    fk_location: locationSchema
+});
+
+export const clientLocationSchema = z.object({
+    fk_client: z.number().min(1, "Debe seleccionar un cliente"),
     is_main: z.boolean(),
     fk_location: locationSchema
 });
 
 export type ManagementLocationFormData = z.infer<typeof managementLocationSchema>;
+export type ClientLocationFormData = z.infer<typeof clientLocationSchema>;

@@ -14,6 +14,8 @@ from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from apps.accounts.models import User
 from apps.accounts.utils import send_normal_email
+from apps.management.models import Management
+from apps.management.models import ManagementUser
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -55,10 +57,27 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             username=validated_data["username"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
-            role=validated_data.get("role", "managment"),
+            role=validated_data.get("role", "management"),
         )
         user.set_password(validated_data["password"])
         user.save()
+
+        # Si el usuario es de tipo management, crear automáticamente el registro en Management
+        if user.role == 'management':
+            # Crear el Management primero
+            management = Management.objects.create(
+                name=f"{user.first_name} {user.last_name}".strip() or user.username,
+                email=user.email,
+                phone_number=None,
+                phone_number_2=None,
+                rfc=None,
+            )
+            
+            # Crear la relación ManagementUser
+            ManagementUser.objects.create(
+                fk_management=management,
+                fk_user=user
+            )
         return user
 
 
@@ -104,6 +123,23 @@ class LoginSerializer(serializers.Serializer):
         if not tokens:
             raise AuthenticationFailed("Token generation failed, try again.")
 
+        # Obtener información del Management asociado al usuario
+        management_info = {}
+        try:
+            management_user = ManagementUser.objects.get(fk_user=user)
+            management = management_user.fk_management
+            management_info = {
+                "pk_management": management.pk_management,
+                "name": management.name,
+                "email": management.email,
+                "phone_number": management.phone_number,
+                "phone_number_2": management.phone_number_2,
+                "rfc": management.rfc
+            }
+        except ManagementUser.DoesNotExist:
+            # El usuario no está asociado a un Management
+            pass
+
         return {
             "access_token": tokens["access"],
             "refresh_token": tokens["refresh"],
@@ -114,6 +150,7 @@ class LoginSerializer(serializers.Serializer):
                 "full_name": user.get_full_name,
                 "role": user.role,
             },
+            "management": management_info
         }
 
 
@@ -218,3 +255,23 @@ class LogoutUserSerializer(serializers.Serializer):
             raise serializers.ValidationError(self.default_error_messages["token_not_found"])
         
         return {"message": "Logout successful."}
+
+
+class UserListSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing users with basic information.
+    """
+    get_full_name = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'get_full_name',
+            'role',
+            'email',
+            'is_active'
+        ]
