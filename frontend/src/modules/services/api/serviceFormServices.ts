@@ -34,8 +34,13 @@ export interface Waste {
 
 export interface WasteSubcategory {
   pk_waste_subcategory: number;
+  name?: string; // Campo opcional agregado para compatibilidad
   description: string;
-  fk_waste: number;
+  fk_waste: number | {
+    pk_waste: number;
+    name: string;
+    description?: string;
+  };
 }
 
 // Servicios para obtener datos para el formulario de servicios

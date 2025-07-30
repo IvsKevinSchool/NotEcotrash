@@ -14,20 +14,44 @@ export interface Location {
     is_active: boolean;
 }
 
+export interface Client {
+    pk_client: number;
+    name: string;
+    legal_name: string;
+    rfc: string;
+    email: string;
+    phone_number?: string;
+    phone_number_2?: string;
+    is_active: boolean;
+}
+
+export interface ClientLocation {
+    pk_client_location: number;
+    fk_client: number;
+    fk_location: LocationAPI;
+    is_main: boolean;
+    client_name?: string; // Para mostrar el nombre del cliente en la tabla
+}
+
+export interface ClientLocationsResponse {
+    management_id: number;
+    locations: ClientLocation[];
+}
+
 export type LocationActionHandler = (id: string) => void;
 
-// Add Location
+// Interfaz para el formulario de ubicaciones que coincide con el modelo del backend
 export interface LocationFormData {
-    companyName: string;
-    address: string;
-    contactPerson: string;
-    phone: string;
-    email: string;
-    wasteType: string;
-    collectionFrequency: string;
-    nextCollection: string;
-    coordinates: string;
-    notes: string;
+    name: string;
+    postcode: string;
+    interior_number?: string;
+    exterior_number: string;
+    street_name: string;
+    neighborhood?: string;
+    country: string;
+    city: string;
+    state: string;
+    phone_number?: string;
 }
 
 export type HandleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
@@ -62,4 +86,28 @@ export interface LocationAPI {
     created_at: string;
     updated_at: string;
     is_active: boolean;
+}
+
+export interface Client {
+    pk_client: number;
+    name: string;
+    legal_name: string;
+    rfc: string;
+    email: string;
+    phone_number?: string;
+    phone_number_2?: string;
+    is_active: boolean;
+}
+
+export interface ClientLocation {
+    pk_client_location: number;
+    fk_client: number;
+    fk_location: LocationAPI;
+    is_main: boolean;
+    client_name?: string; // Para mostrar el nombre del cliente en la tabla
+}
+
+export interface ClientLocationsResponse {
+    management_id: number;
+    locations: ClientLocation[];
 }

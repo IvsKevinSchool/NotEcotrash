@@ -40,11 +40,65 @@ const ServicesIndex = () => {
   });
 
   const selectedWaste = form.watch("fk_waste");
+  const selectedTypeService = form.watch("fk_type_services");
+
+  // Determinar si el tipo de servicio seleccionado es "Recolección de residuos"
+  const isWasteCollectionService = () => {
+    if (!selectedTypeService || typeServices.length === 0) return false;
+    
+    const selectedService = typeServices.find(service => service.pk_type_services === selectedTypeService);
+    if (!selectedService) return false;
+    
+    // Buscar si el nombre del servicio contiene palabras relacionadas con recolección de residuos
+    const serviceName = selectedService.name.toLowerCase();
+    return serviceName.includes('recolección') || 
+           serviceName.includes('recoleccion') || 
+           serviceName.includes('residuo') ||
+           serviceName.includes('waste') ||
+           serviceName.includes('collection');
+  };
 
   useEffect(() => {
     fetchData();
     fetchFormData();
   }, []);
+
+  // Resetear subcategoría cuando cambia el residuo seleccionado
+  useEffect(() => {
+    if (selectedWaste) {
+      // Filtrar subcategorías que pertenecen al residuo seleccionado
+      const filteredSubcategories = wasteSubcategories.filter(sub => {
+        const wasteId = typeof sub.fk_waste === 'object' ? sub.fk_waste.pk_waste : sub.fk_waste;
+        return wasteId === selectedWaste;
+      });
+      
+      // Solo resetear si ya había una subcategoría seleccionada
+      const currentSubcategory = form.getValues("fk_waste_subcategory");
+      if (currentSubcategory) {
+        // Verificar si la subcategoría actual pertenece al nuevo residuo seleccionado
+        const subcategoryBelongsToWaste = filteredSubcategories.find(
+          sub => sub.pk_waste_subcategory === currentSubcategory
+        );
+        
+        // Si no pertenece, resetear la subcategoría
+        if (!subcategoryBelongsToWaste) {
+          form.setValue("fk_waste_subcategory", undefined);
+        }
+      }
+    } else {
+      // Si no hay residuo seleccionado, limpiar subcategoría
+      form.setValue("fk_waste_subcategory", undefined);
+    }
+  }, [selectedWaste, wasteSubcategories, form]);
+
+  // Limpiar campos de residuo cuando el tipo de servicio no sea recolección de residuos
+  useEffect(() => {
+    if (!isWasteCollectionService()) {
+      // Si no es servicio de recolección, limpiar campos de residuo
+      form.resetField("fk_waste");
+      form.resetField("fk_waste_subcategory");
+    }
+  }, [selectedTypeService, typeServices, form]);
 
   const fetchFormData = async () => {
     try {
@@ -122,10 +176,25 @@ const ServicesIndex = () => {
 
   const onSubmit = async (data: ServiceFormData) => {
     try {
+      // Validación adicional para servicios de recolección
+      if (isWasteCollectionService()) {
+        if (!data.fk_waste) {
+          showErrorToast("Para servicios de recolección, debe seleccionar un residuo");
+          return;
+        }
+      }
+
+      // Limpiar campos de residuo si no es servicio de recolección
+      let serviceData = { ...data };
+      if (!isWasteCollectionService()) {
+        delete serviceData.fk_waste;
+        delete serviceData.fk_waste_subcategory;
+      }
+
       // Si no se especifica un estado y hay un estado por defecto, usarlo
-      const serviceData = {
-        ...data,
-        fk_status: data.fk_status || (defaultStatusId ?? undefined)
+      serviceData = {
+        ...serviceData,
+        fk_status: serviceData.fk_status || (defaultStatusId ?? undefined)
       };
 
       if (isEditing && currentId) {
@@ -230,6 +299,7 @@ const ServicesIndex = () => {
           onSubmit={onSubmit}
           onReset={resetForm}
           selectedWaste={selectedWaste}
+          isWasteCollectionService={isWasteCollectionService()}
         />
 
         <ServicesTable

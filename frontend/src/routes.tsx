@@ -13,6 +13,7 @@ import AdminRoutes from './routes/admin/AdminRoutes';
 import { LayoutECO } from './layout/LayoutECO';
 import NotFound from './layout/NotFound';
 import { ManagementRoutes } from './routes/management/ManagementRoutes';
+import WasteRoutes from './modules/waste/routes/WasteRoutes';
 
 const AppRoutes = () => (
     <Router>
@@ -31,6 +32,11 @@ const AppRoutes = () => (
             {/* management Routes */}
             <Route element={<LayoutECO />}>
                 <Route path="/management/*" element={<ManagementRoutes />} />
+            </Route>
+
+            {/* waste Routes */}
+            <Route element={<LayoutECO />}>
+                <Route path="/waste/*" element={<WasteRoutes />} />
             </Route>
 
             <Route path='*' element={<NotFound />} />

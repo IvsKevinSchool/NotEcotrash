@@ -8,8 +8,8 @@ export const serviceSchema = z.object({
     fk_locations: z.number().min(1, "Ubicación es requerida"),
     fk_status: z.number().optional(), // Será establecido automáticamente como "Pendiente"
     fk_type_services: z.number().min(1, "Tipo de servicio es requerido"),
-    fk_waste: z.number().min(1, "Residuo es requerido"),
-    fk_waste_subcategory: z.number().min(1, "Subcategoría es requerida"),
+    fk_waste: z.number().optional(),
+    fk_waste_subcategory: z.number().optional(),
 });
 
 export type ServiceFormData = z.infer<typeof serviceSchema>;

@@ -1,8 +1,8 @@
-import { Location, LocationAPI, ManagementLocation } from "../../types";
+import { Location, LocationAPI, ManagementLocation, ClientLocation } from "../../types";
 import { LocationRow } from "./LocationRow";
 
 interface LocationTableProps {
-    locations: ManagementLocation[];
+    locations: ClientLocation[];
     onDelete: (id: string) => void;
 }
 
@@ -11,6 +11,9 @@ export const LocationTable = ({ locations, onDelete }: LocationTableProps) => (
         <table className="min-w-full divide-y divide-green-200">
             <thead className="bg-green-600">
                 <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        Cliente
+                    </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                         Nombre
                     </th>
@@ -27,13 +30,20 @@ export const LocationTable = ({ locations, onDelete }: LocationTableProps) => (
                         Contacto
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        Principal
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                         Acciones
                     </th>
                 </tr>
             </thead>
             <tbody className="bg-white divide-y divide-green-200">
-                {locations.map((location) => (
-                    <LocationRow key={location.fk_location.pk_location} location={location.fk_location} onDelete={onDelete} />
+                {locations.map((clientLocation) => (
+                    <LocationRow 
+                        key={clientLocation.fk_location.pk_location} 
+                        clientLocation={clientLocation}
+                        onDelete={onDelete} 
+                    />
                 ))}
             </tbody>
         </table>

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from apps.client.models import Client, ClientsLocations, ClientsUsers
+from apps.core.models import Location
+from apps.core.api.serializer import LocationSerializer
 
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,6 +14,44 @@ class ClientsLocationsSerializer(serializers.ModelSerializer):
         model = ClientsLocations
         fields= '__all__'
         read_only_fields = ['pk_client_location', 'fk_client', 'fk_location']
+
+class ClientLocationCreateSerializer(serializers.ModelSerializer):
+    fk_location = LocationSerializer()
+    
+    class Meta:
+        model = ClientsLocations
+        fields = ['fk_client', 'fk_location', 'is_main', 'pk_client_location']
+        read_only_fields = ['pk_client_location']
+
+    def create(self, validated_data):
+        # Extraer los datos de ubicación anidados
+        location_data = validated_data.pop('fk_location')
+        
+        # Crear la ubicación primero
+        location_serializer = LocationSerializer(data=location_data)
+        location_serializer.is_valid(raise_exception=True)
+        location = location_serializer.save()
+        
+        # Crear la relación ClientsLocations con la ubicación creada
+        client_location = ClientsLocations.objects.create(
+            fk_location=location,
+            **validated_data
+        )
+        return client_location
+
+    def update(self, instance, validated_data):
+        # Manejar actualización de ubicación si se proporciona
+        if 'fk_location' in validated_data:
+            location_data = validated_data.pop('fk_location')
+            location_serializer = LocationSerializer(instance.fk_location, data=location_data, partial=True)
+            location_serializer.is_valid(raise_exception=True)
+            location_serializer.save()
+        
+        # Actualizar la instancia ClientsLocations
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 class ClientsUsersSerializer(serializers.ModelSerializer):
     class Meta:

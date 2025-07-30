@@ -15,6 +15,7 @@ interface ServiceFormProps {
     onSubmit: (data: ServiceFormData) => void;
     onReset: () => void;
     selectedWaste?: number;
+    isWasteCollectionService?: boolean;
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -29,6 +30,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     onSubmit,
     onReset,
     selectedWaste,
+    isWasteCollectionService = false,
 }) => {
     const { register, handleSubmit, formState: { errors } } = form;
 
@@ -131,46 +133,56 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         )}
                     </div>
 
-                    {/* Waste */}
-                    <div>
-                        <label className="block text-green-700 mb-1">Residuo</label>
-                        <select
-                            {...register("fk_waste", { valueAsNumber: true })}
-                            className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        >
-                            <option value="">Seleccionar Residuo</option>
-                            {wastes.map((waste) => (
-                                <option key={waste.pk_waste} value={waste.pk_waste}>
-                                    {waste.name}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.fk_waste && (
-                            <p className="text-red-500 text-sm mt-1">{errors.fk_waste.message}</p>
-                        )}
-                    </div>
-
-                    {/* Waste Subcategory */}
-                    <div>
-                        <label className="block text-green-700 mb-1">Subcategoría de Residuo</label>
-                        <select
-                            {...register("fk_waste_subcategory", { valueAsNumber: true })}
-                            className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                            disabled={!selectedWaste}
-                        >
-                            <option value="">Seleccionar Subcategoría</option>
-                            {wasteSubcategories
-                                .filter(sub => sub.fk_waste === selectedWaste)
-                                .map((subcategory) => (
-                                    <option key={subcategory.pk_waste_subcategory} value={subcategory.pk_waste_subcategory}>
-                                        {subcategory.description}
+                    {/* Waste - Solo mostrar si es servicio de recolección */}
+                    {isWasteCollectionService && (
+                        <div>
+                            <label className="block text-green-700 mb-1">Residuo</label>
+                            <select
+                                {...register("fk_waste", { valueAsNumber: true })}
+                                className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            >
+                                <option value="">Seleccionar Residuo</option>
+                                {wastes.map((waste) => (
+                                    <option key={waste.pk_waste} value={waste.pk_waste}>
+                                        {waste.name}
                                     </option>
                                 ))}
-                        </select>
-                        {errors.fk_waste_subcategory && (
-                            <p className="text-red-500 text-sm mt-1">{errors.fk_waste_subcategory.message}</p>
-                        )}
-                    </div>
+                            </select>
+                            {errors.fk_waste && (
+                                <p className="text-red-500 text-sm mt-1">{errors.fk_waste.message}</p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Waste Subcategory - Solo mostrar si es servicio de recolección */}
+                    {isWasteCollectionService && (
+                        <div>
+                            <label className="block text-green-700 mb-1">Subcategoría de Residuo</label>
+                            <select
+                                {...register("fk_waste_subcategory", { valueAsNumber: true })}
+                                className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                disabled={!selectedWaste}
+                            >
+                                <option value="">Seleccionar Subcategoría</option>
+                                {wasteSubcategories
+                                    .filter(sub => {
+                                        // Manejar tanto el caso donde fk_waste es número como objeto
+                                        const wasteId = typeof sub.fk_waste === 'object' 
+                                            ? sub.fk_waste.pk_waste 
+                                            : sub.fk_waste;
+                                        return wasteId === selectedWaste;
+                                    })
+                                    .map((subcategory) => (
+                                        <option key={subcategory.pk_waste_subcategory} value={subcategory.pk_waste_subcategory}>
+                                            {subcategory.name || subcategory.description?.split(' ').slice(0, 4).join(' ') || `Subcategoría #${subcategory.pk_waste_subcategory}`}
+                                        </option>
+                                    ))}
+                            </select>
+                            {errors.fk_waste_subcategory && (
+                                <p className="text-red-500 text-sm mt-1">{errors.fk_waste_subcategory.message}</p>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex space-x-4 pt-4">

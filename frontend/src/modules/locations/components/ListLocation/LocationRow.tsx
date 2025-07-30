@@ -1,14 +1,15 @@
 import { Link, useNavigate } from "react-router-dom";
 import { TrashIcon, PencilIcon, MapPinIcon, BuildingOfficeIcon } from "@heroicons/react/24/outline";
-import { Location, LocationActionHandler, LocationAPI } from "../../types";
+import { Location, LocationActionHandler, LocationAPI, ClientLocation } from "../../types";
 
 interface LocationRowProps {
-    location: LocationAPI;
+    clientLocation: ClientLocation;
     onDelete: LocationActionHandler;
 }
 
-export const LocationRow = ({ location, onDelete }: LocationRowProps) => {
+export const LocationRow = ({ clientLocation, onDelete }: LocationRowProps) => {
     const navigate = useNavigate();
+    const { fk_location: location } = clientLocation;
 
     // Construir la dirección completa
     const fullAddress = `${location.street_name} ${location.exterior_number}${location.interior_number ? ` Int. ${location.interior_number}` : ''
@@ -19,13 +20,19 @@ export const LocationRow = ({ location, onDelete }: LocationRowProps) => {
 
     // Manejar la edición con navigate (opcional)
     const handleEdit = () => {
-        navigate(`/admin/locations/edit/${location.pk_location}`, {
+        navigate(`/admin/locations/edit/${clientLocation.pk_client_location}`, {
             state: { from: window.location.pathname } // Para poder volver atrás
         });
     };
 
     return (
         <tr key={location.pk_location} className="hover:bg-green-50">
+            {/* Nueva columna para el cliente */}
+            <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm font-medium text-gray-900">
+                    Cliente #{clientLocation.fk_client}
+                </div>
+            </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -53,6 +60,15 @@ export const LocationRow = ({ location, onDelete }: LocationRowProps) => {
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
                 <div className="text-sm text-green-500">{location.phone_number}</div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    clientLocation.is_main
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                }`}>
+                    {clientLocation.is_main ? 'Principal' : 'Secundaria'}
+                </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div className="flex space-x-2">
