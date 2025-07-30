@@ -50,6 +50,7 @@ export const SidebarECO = () => {
         { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
         { to: '/management/sub-waste', label: 'Sub Category Wastes', icon: '🏷️' },
         { to: '/management/certificate', label: 'Certificate', icon: '📜' },
+        { to: '/management/backups', label: 'Backups', icon: '🐒' },
     ];
 
     const clientLinks = [
