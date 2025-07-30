@@ -81,8 +81,8 @@ class Services(models.Model):
 
     
 
-    class ServiceLog(models.Model):
-    pk_record = models.AutoField(primary_key=True)
+class ServiceLog(models.Model):
+    pk_service_log = models.AutoField(primary_key=True)
     completed_date = models.DateTimeField()
     waste_amount = models.DecimalField(
         max_digits=10, 
@@ -92,7 +92,7 @@ class Services(models.Model):
     document = models.FileField(upload_to='service_logs/', blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     fk_user = models.ForeignKey(
-        'User',  # Asume que hay un modelo Collector
+        User,  # Asume que hay un modelo Collector
         on_delete=models.SET_NULL,
         null=True,
         blank=True
