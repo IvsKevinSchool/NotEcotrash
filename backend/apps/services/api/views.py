@@ -133,6 +133,90 @@ def destroy_and_restore_last_backup(request):
 
 
 @api_view(['POST'])
+def destroy_and_restore_base(request):
+    db = settings.DATABASES['default']
+    db_name = db['NAME']
+    db_user = db['USER']
+    db_password = db['PASSWORD']
+    db_host = db.get('HOST', 'localhost')
+    db_port = db.get('PORT', '5432')
+
+    backup_dir = os.path.join(settings.BASE_DIR, 'backups/CompleteDB')
+    initial_backup = os.path.join(backup_dir, 'BDInitial.backup')
+
+    if not os.path.exists(initial_backup):
+        return Response({'error': 'El archivo BDInitial.backup no existe.'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        # 1. Cerrar conexiones activas a la base de datos
+        subprocess.run(
+            [
+                'psql',
+                '-h', db_host,
+                '-p', str(db_port),
+                '-U', db_user,
+                '-d', 'postgres',
+                '-c',
+                f"""
+                SELECT pg_terminate_backend(pid)
+                FROM pg_stat_activity
+                WHERE datname = '{db_name}' AND pid <> pg_backend_pid();
+                """
+            ],
+            env={**os.environ, 'PGPASSWORD': db_password},
+            check=True
+        )
+
+        # 2. Eliminar la base de datos actual
+        subprocess.run(
+            [
+                'psql',
+                '-h', db_host,
+                '-p', str(db_port),
+                '-U', db_user,
+                '-d', 'postgres',
+                '-c', f'DROP DATABASE IF EXISTS "{db_name}";'
+            ],
+            env={**os.environ, 'PGPASSWORD': db_password},
+            check=True
+        )
+
+        # 3. Crear la base de datos vacía
+        subprocess.run(
+            [
+                'psql',
+                '-h', db_host,
+                '-p', str(db_port),
+                '-U', db_user,
+                '-d', 'postgres',
+                '-c', f'CREATE DATABASE "{db_name}";'
+            ],
+            env={**os.environ, 'PGPASSWORD': db_password},
+            check=True
+        )
+
+        # 4. Restaurar desde el archivo BDInitial.backup
+        subprocess.run(
+            [
+                'pg_restore',
+                '-h', db_host,
+                '-p', str(db_port),
+                '-U', db_user,
+                '-d', db_name,
+                '--no-owner',
+                initial_backup
+            ],
+            env={**os.environ, 'PGPASSWORD': db_password},
+            check=True
+        )
+
+        return Response({'message': f'DB restaurada desde: {initial_backup}'}, status=status.HTTP_200_OK)
+
+    except subprocess.CalledProcessError as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
 def export_table_to_csv(request):
     table_name = request.data.get('table')
     if not table_name:

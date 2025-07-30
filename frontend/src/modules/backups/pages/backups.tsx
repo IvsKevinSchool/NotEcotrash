@@ -21,6 +21,10 @@ const BackupsIndex = () => {
     }
   };
 
+  
+
+  
+
   const handleExportCsv = () => {
     const tableName = prompt("Enter the name of the table to export:");
     if (!tableName) {
@@ -42,7 +46,9 @@ const BackupsIndex = () => {
   const handleRestoreDB = () => {
     callApi(`${apiBase}/restoreCompleteDB/`, { method: "POST" }, "Restore DB");
   };
-
+  const restoreStructure = () => {
+    callApi(`${apiBase}/restoreCompleteDBStruckture/`, { method: "POST" }, "Restore DB 0");
+  };
   const handleBackupDB = () => {
     callApi(`${apiBase}/backupCompleteDB/`, { method: "POST" }, "Backup DB");
   };
@@ -77,6 +83,15 @@ const BackupsIndex = () => {
         }`}
       >
         {loading === "Backup DB" ? "Backing up DB..." : "Backup Complete DB"}
+      </button>
+      <button
+        onClick={restoreStructure}
+        disabled={loading !== null}
+        className={`w-full py-2 px-4 rounded text-white font-semibold transition-colors ${
+          loading === "Restore DB 0" ? "bg-red-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+        }`}
+      >
+        {loading === "Restore DB 0" ? "Restoring DB..." : "Restore Complete DB 0"}
       </button>
     </div>
   );
