@@ -74,8 +74,8 @@ const Login = () => {
         switch (role) {
             case 'admin':
                 return '/admin/dashboard';
-            case 'management':
-                return '/admin/dashboard';
+            case 'managment':
+                return '/management/';
             case 'collector':
                 return '/collector/routes';
             case 'client':

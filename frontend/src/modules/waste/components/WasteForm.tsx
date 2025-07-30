@@ -5,6 +5,8 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { wasteSchema, WasteFormValues } from "../schemas/wasteSchema";
 import { useWastes } from "../hooks/useWastes";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import { handleApiError } from "../../../components/handleApiError";
 
 export const WasteForm = () => {
     const { pk } = useParams();
@@ -15,16 +17,20 @@ export const WasteForm = () => {
     const [loadingFetch, setLoadingFetch] = useState(false);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
 
+    const { user } = useAuth()
+
     const {
         register,
         handleSubmit,
         formState: { errors, isValid },
         reset,
-    } = useForm<Omit<WasteFormValues, 'is_active'>>({
+        watch,
+    } = useForm<WasteFormValues>({
         resolver: zodResolver(wasteSchema) as any,
         defaultValues: {
             name: '',
-            description: ''
+            description: '',
+            is_active: true // Valor por defecto
         },
         mode: "onChange",
     });
@@ -38,7 +44,8 @@ export const WasteForm = () => {
                     if (waste) {
                         reset({
                             name: waste.name || '',
-                            description: waste.description || ''
+                            description: waste.description || '',
+                            is_active: waste.is_active // Asignamos el valor del backend
                         });
                     }
                 } catch (error) {
@@ -51,22 +58,24 @@ export const WasteForm = () => {
         fetchData();
     }, [isEditing, pk]); // ❌ Quitamos "reset" del array de dependencias
 
-    const onSubmit = async (data: Omit<WasteFormValues, 'is_active'>) => {
+    const onSubmit = async (data: WasteFormValues) => {
         try {
             setLoadingSubmit(true);
             if (isEditing && pk) {
-                await updateWaste(pk, data);
+                await updateWaste(user.id, pk, data);
             } else {
-                await createWaste(data);
+                await createWaste(data, user.id);
                 reset();
             }
             navigate("/admin/wastes");
         } catch (error) {
-            console.error("Error al guardar:", error);
+            handleApiError(error, "Error al guardar el residuo");
         } finally {
             setLoadingSubmit(false);
         }
     };
+
+    const isActive = watch("is_active"); // Para observar el valor del campo
 
     return (
         <form
@@ -117,6 +126,27 @@ export const WasteForm = () => {
                 />
                 {errors.description && (
                     <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+                )}
+            </div>
+
+            {/* Campo is_active (Activo) */}
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-green-700">
+                    Estado
+                </label>
+                <div className="flex items-center">
+                    <input
+                        id="is_active"
+                        type="checkbox"
+                        {...register("is_active")}
+                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
+                    />
+                    <label htmlFor="is_active" className="ml-2 block text-sm text-gray-700">
+                        {isActive ? "Activo" : "Inactivo"}
+                    </label>
+                </div>
+                {errors.is_active && (
+                    <p className="mt-1 text-sm text-red-600">{errors.is_active.message}</p>
                 )}
             </div>
 

@@ -7,27 +7,34 @@ import { BuildingOfficeIcon, MapPinIcon, PhoneIcon } from "@heroicons/react/24/o
 import { FormInput } from "./FormInput";
 import { FormSection } from "./FormSection";
 import api from "../../../../api";
-import { locationSchema, LocationFormData, transformLocationData } from "../../schemas";
+import { managementLocationSchema, ManagementLocationFormData, transformLocationData } from "../../schemas";
+import { useAuth } from "../../../../context/AuthContext";
+import { handleApiError } from "../../../../components/handleApiError";
 
 export const AddLocationForm = () => {
     const { pk } = useParams();
     const id = Number(pk);
     const isEditing = Boolean(id);
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const URL = `management/management/${user.id}/locations/`;
 
-    const methods = useForm<LocationFormData>({
-        resolver: zodResolver(locationSchema),
+    const methods = useForm<ManagementLocationFormData>({
+        resolver: zodResolver(managementLocationSchema),
         defaultValues: {
-            name: "",
-            postcode: "",
-            exterior_number: "",
-            interior_number: "",
-            street_name: "",
-            neighborhood: "",
-            city: "",
-            state: "",
-            country: "Mexico",
-            phone_number: "",
+            is_main: false,
+            fk_location: {
+                name: "",
+                postcode: "",
+                exterior_number: "",
+                interior_number: "",
+                street_name: "",
+                neighborhood: "",
+                city: "",
+                state: "",
+                country: "Mexico",
+                phone_number: "",
+            }
         },
         mode: "onTouched"
     });
@@ -44,8 +51,12 @@ export const AddLocationForm = () => {
         if (isEditing) {
             const fetchLocationData = async () => {
                 try {
-                    const response = await api.get(`core/locations/${id}/`);
-                    reset(transformLocationData(response.data));
+                    const response = await api.get(`management/management/${user.id}/locations/${id}/`);
+                    const data = {
+                        is_main: response.data.is_main,
+                        fk_location: transformLocationData(response.data.fk_location)
+                    };
+                    reset(data);
                 } catch (error) {
                     console.error("Error al cargar la ubicación:", error);
                     toast.error("No se pudo cargar la ubicación para editar");
@@ -54,33 +65,24 @@ export const AddLocationForm = () => {
             };
             fetchLocationData();
         }
-    }, [id, isEditing, reset, navigate]);
+    }, [id, isEditing, reset, navigate, user.id]);
 
-    const onSubmit: SubmitHandler<LocationFormData> = async (data) => {
+    const onSubmit: SubmitHandler<ManagementLocationFormData> = async (data) => {
         try {
             console.log("Datos validados:", data);
 
             if (isEditing) {
-                await api.patch(`core/locations/${id}/`, data);
+                await api.patch(`management/management/${user.id}/locations/${id}/`, data);
                 toast.success("Ubicación actualizada exitosamente");
             } else {
-                await api.post("core/locations/", data);
+                await api.post(URL, data);
                 toast.success("Ubicación creada exitosamente");
             }
 
             setTimeout(() => navigate("/admin/locations"), 1000);
         } catch (error) {
-            console.error(`Error al ${isEditing ? 'actualizar' : 'crear'} ubicación:`, error);
-            toast.error(`Error al ${isEditing ? 'actualizar' : 'guardar'} la ubicación`);
-
-            // if (axios.isAxiosError(error) && error.response?.data?.errors) {
-            //     Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-            //         setError(field as keyof LocationFormData, {
-            //             type: "server",
-            //             message: Array.isArray(messages) ? messages.join(", ") : String(messages)
-            //         });
-            //     });
-            // }
+            console.error(error);
+            handleApiError(error, `Error al ${isEditing ? 'actualizar' : 'crear'} ubicación:`,)
         }
     };
 
@@ -91,30 +93,43 @@ export const AddLocationForm = () => {
                     {isEditing ? 'Editar Ubicación' : 'Agregar Nueva Ubicación'}
                 </h1>
 
+                {/* Checkbox para is_main */}
+                <div className="flex items-center">
+                    <input
+                        id="is_main"
+                        type="checkbox"
+                        className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                        {...methods.register("is_main")}
+                    />
+                    <label htmlFor="is_main" className="ml-2 block text-sm text-gray-900">
+                        ¿Es la ubicación principal?
+                    </label>
+                </div>
+
                 {/* Sección Información Básica */}
                 <FormSection
                     title="Información de la Ubicación"
                     icon={BuildingOfficeIcon}
                 >
                     <FormInput
-                        name="name"
+                        name="fk_location.name"
                         label="Nombre *"
                         placeholder="Ej: Oficina Principal"
                     />
                     <FormInput
-                        name="postcode"
+                        name="fk_location.postcode"
                         label="Código Postal *"
                         placeholder="Ej: 11520"
                         inputMode="numeric"
                     />
                     <FormInput
-                        name="exterior_number"
+                        name="fk_location.exterior_number"
                         label="Número Exterior *"
                         placeholder="Ej: 123"
                         inputMode="numeric"
                     />
                     <FormInput
-                        name="interior_number"
+                        name="fk_location.interior_number"
                         label="Número Interior"
                         placeholder="Ej: 4B"
                         optional
@@ -128,27 +143,27 @@ export const AddLocationForm = () => {
                     icon={MapPinIcon}
                 >
                     <FormInput
-                        name="street_name"
+                        name="fk_location.street_name"
                         label="Calle *"
                         placeholder="Ej: Av. Reforma"
                     />
                     <FormInput
-                        name="neighborhood"
+                        name="fk_location.neighborhood"
                         label="Colonia/Barrio *"
                         placeholder="Ej: Polanco"
                     />
                     <FormInput
-                        name="city"
+                        name="fk_location.city"
                         label="Ciudad *"
                         placeholder="Ej: Ciudad de México"
                     />
                     <FormInput
-                        name="state"
+                        name="fk_location.state"
                         label="Estado *"
                         placeholder="Ej: CDMX"
                     />
                     <FormInput
-                        name="country"
+                        name="fk_location.country"
                         label="País *"
                         placeholder="Ej: México"
                     />
@@ -160,7 +175,7 @@ export const AddLocationForm = () => {
                     icon={PhoneIcon}
                 >
                     <FormInput
-                        name="phone_number"
+                        name="fk_location.phone_number"
                         label="Teléfono *"
                         type="tel"
                         placeholder="Ej: +525512345678"

@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { Location } from "../types";
+import { Location, LocationAPI, ManagementLocation } from "../types";
 import api from "../../../api";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../context/AuthContext";
 
 export const useLocations = () => {
-    const [locations, setLocations] = useState<Location[]>([]);
+    const [locations, setLocations] = useState<ManagementLocation[]>([]);
+    const [data, setData] = useState<{ locations: ManagementLocation[] }>({ locations: [] });
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const response = await api("core/locations/");
-            setLocations(response.data);
+            const response = await api.get(`management/management/list/${user.id}/locations/`);
+            setData(response.data); // Guardamos el objeto completo
         } catch (error) {
             console.error("Error fetching locations:", error);
             toast.error("Error al cargar las ubicaciones");
@@ -34,7 +37,7 @@ export const useLocations = () => {
     };
 
     return {
-        locations,
+        locations: data.locations,
         loading,
         fetchData,
         deleteLocation,

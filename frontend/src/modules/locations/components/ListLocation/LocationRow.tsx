@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { TrashIcon, PencilIcon, MapPinIcon, BuildingOfficeIcon } from "@heroicons/react/24/outline";
-import { Location, LocationActionHandler } from "../../types";
+import { Location, LocationActionHandler, LocationAPI } from "../../types";
 
 interface LocationRowProps {
-    location: Location;
+    location: LocationAPI;
     onDelete: LocationActionHandler;
 }
 
@@ -76,7 +76,7 @@ export const LocationRow = ({ location, onDelete }: LocationRowProps) => {
 
 
                     <button
-                        onClick={() => onDelete(location.pk_location)}
+                        onClick={() => onDelete(location.pk_location.toString())}
                         className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-100"
                         title="Eliminar"
                     >

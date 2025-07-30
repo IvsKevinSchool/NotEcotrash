@@ -1,8 +1,8 @@
-import { Location } from "../../types";
+import { Location, LocationAPI, ManagementLocation } from "../../types";
 import { LocationRow } from "./LocationRow";
 
 interface LocationTableProps {
-    locations: Location[];
+    locations: ManagementLocation[];
     onDelete: (id: string) => void;
 }
 
@@ -33,7 +33,7 @@ export const LocationTable = ({ locations, onDelete }: LocationTableProps) => (
             </thead>
             <tbody className="bg-white divide-y divide-green-200">
                 {locations.map((location) => (
-                    <LocationRow key={location.pk_location} location={location} onDelete={onDelete} />
+                    <LocationRow key={location.fk_location.pk_location} location={location.fk_location} onDelete={onDelete} />
                 ))}
             </tbody>
         </table>

@@ -31,3 +31,35 @@ export interface LocationFormData {
 }
 
 export type HandleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+
+export interface ManagementLocationsResponse {
+    management_id: number;
+    locations: ManagementLocation[];
+}
+
+export interface ManagementLocation {
+    fk_manageement: number;
+    fk_location: LocationAPI;
+    is_main: boolean;
+    pk_management_locations: number;
+    created_at?: string;  // Opcional si está en el modelo pero no en el JSON
+    updated_at?: string;  // Opcional si está en el modelo pero no en el JSON
+    is_active?: boolean;  // Opcional si está en el modelo pero no en el JSON
+}
+
+export interface LocationAPI {
+    pk_location: number;
+    name: string;
+    postcode: string;
+    interior_number: string | null;
+    exterior_number: number;
+    street_name: string;
+    neighborhood: string;
+    country: string;
+    state: string;
+    city: string;
+    phone_number: string;
+    created_at: string;
+    updated_at: string;
+    is_active: boolean;
+}

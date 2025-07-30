@@ -47,7 +47,7 @@ Inicializar carpeta env: ```python -m venv env```
 
 4. **Iniciar el servidor**:
    ```
-   python manage.py runserver
+   python manage.py runserver (Tener .env listo)
    ```
    Esto iniciará el backend, normalmente en `http://127.0.0.1:8000`.
 
