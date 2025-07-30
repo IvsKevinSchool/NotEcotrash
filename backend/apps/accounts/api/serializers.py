@@ -123,6 +123,23 @@ class LoginSerializer(serializers.Serializer):
         if not tokens:
             raise AuthenticationFailed("Token generation failed, try again.")
 
+        # Obtener información del Management asociado al usuario
+        management_info = {}
+        try:
+            management_user = ManagementUser.objects.get(fk_user=user)
+            management = management_user.fk_management
+            management_info = {
+                "pk_management": management.pk_management,
+                "name": management.name,
+                "email": management.email,
+                "phone_number": management.phone_number,
+                "phone_number_2": management.phone_number_2,
+                "rfc": management.rfc
+            }
+        except ManagementUser.DoesNotExist:
+            # El usuario no está asociado a un Management
+            pass
+
         return {
             "access_token": tokens["access"],
             "refresh_token": tokens["refresh"],
@@ -133,6 +150,7 @@ class LoginSerializer(serializers.Serializer):
                 "full_name": user.get_full_name,
                 "role": user.role,
             },
+            "management": management_info
         }
 
 
