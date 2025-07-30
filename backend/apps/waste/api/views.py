@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from apps.waste.api.serializer import WasteSerializer, WasteSubCategorySerializer, WasteUpdateSerializer
+from apps.waste.api.serializer import WasteSerializer, WasteSubCategorySerializer, WasteSubCategoryCreateUpdateSerializer, WasteUpdateSerializer
 from apps.waste.models import Waste, WasteSubCategory
 # Create Waste for Mnagement
 from rest_framework.views import APIView
@@ -17,8 +17,13 @@ class WasteViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
 
 class WasteSubCategoryViewSet(viewsets.ModelViewSet):
-    queryset = WasteSubCategory.objects.all()
-    serializer_class = WasteSubCategorySerializer
+    queryset = WasteSubCategory.objects.select_related('fk_waste').all()
+    
+    def get_serializer_class(self):
+        """Usar diferentes serializers para diferentes acciones"""
+        if self.action in ['create', 'update', 'partial_update']:
+            return WasteSubCategoryCreateUpdateSerializer
+        return WasteSubCategorySerializer
 
 class CreateWasteForManagementAPIView(APIView):
     def post(self, request, management_id):

@@ -8,14 +8,7 @@ import { useAuth } from "../../../context/AuthContext";
 export const WasteListPage = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const {
-        wastes,
-        loading,
-        error,
-        fetchAllWastes,
-        toggleWasteStatus,
-        deleteWaste
-    } = useWastes();
+    const { wastes, loading, error, fetchAllWastes, toggleWasteStatus, deleteWaste } = useWastes();
 
     useEffect(() => {
         fetchAllWastes(user.id);
