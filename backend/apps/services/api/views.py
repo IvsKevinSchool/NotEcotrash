@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from apps.services.models import Status, TypeServices, Services
+from apps.management.models import Management
 from apps.services.api.serializer import StatusSerializer, TypeServicesSerializer, ServicesSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -8,6 +9,7 @@ from django.conf import settings
 import subprocess
 import os
 import datetime
+from rest_framework.views import APIView
 
 @api_view(['POST'])
 def backup_database(request):
@@ -64,3 +66,22 @@ class ServicesViewSet(viewsets.ModelViewSet):
     queryset = Services.objects.all()
     serializer_class = ServicesSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class CreateTypeServiceView(APIView):
+    def post(self, request, management_id):
+        try:
+            management = Management.objects.get(pk=management_id)
+        except Management.DoesNotExist:
+            return Response(
+                {"error": "Management no encontrado"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        data = request.data.copy()
+        data['fk_management'] = management_id
+        
+        serializer = TypeServicesSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

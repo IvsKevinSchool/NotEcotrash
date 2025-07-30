@@ -13,8 +13,8 @@ export const getTypeService = async (id: number) => {
     return response.data;
 };
 
-export const createTypeService = async (data: TypeServiceFormData) => {
-    const response = await api.post(API_URL, data);
+export const createTypeService = async (data: TypeServiceFormData, userId: number) => {
+    const response = await api.post(`services/management/${userId}/type-services/`, data);
     return response.data;
 };
 
