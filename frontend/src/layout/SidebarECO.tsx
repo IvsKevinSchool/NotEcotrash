@@ -38,6 +38,7 @@ export const SidebarECO = () => {
         { to: '/admin/management', label: 'Management', icon: '💼' },
         { to: '/admin/collector', label: 'Collector', icon: '🚛' },
         { to: '/admin/certificate', label: 'Certificate', icon: '📑' },
+        { to: '/admin/backups', label: 'Backups', icon: '🔄' },
     ];
 
     const managementLinks = [
@@ -50,6 +51,7 @@ export const SidebarECO = () => {
         { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
         { to: '/management/sub-waste', label: 'Sub Category Wastes', icon: '🏷️' },
         { to: '/management/certificate', label: 'Certificate', icon: '📜' },
+        { to: '/management/backups', label: 'Backups', icon: '🔄' },
     ];
 
     const clientLinks = [

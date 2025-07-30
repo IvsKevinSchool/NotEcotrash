@@ -9,6 +9,7 @@ import { Panel } from '../../modules/admin/pages/Panel';
 import ClientsList from '../../modules/client/ClientsList';
 import ClientsItems from '../../modules/client/ClientsItem';
 import { ListLocations } from '../../modules/locations/pages/ListLocations';
+import BackupPage from '../../modules/admin/pages/BackupPage';
 import { AddLocation } from '../../modules/locations/pages/AddLocation';
 import { CreateWastePage } from '../../modules/waste/pages/CreateWastePage';
 import { WasteListPage } from '../../modules/waste/components/WasteListPage';
@@ -46,6 +47,8 @@ const AdminRoutes = () => {
             <Route path="/typeServices" element={<TypeServicesIndex />} />
             {/* Certificate Module */}
             <Route path="/certificate" element={<CertificateIndex />} />
+            {/* Backup Module */}
+            <Route path="/backups" element={<BackupPage />} />
         </Routes>
     );
 };

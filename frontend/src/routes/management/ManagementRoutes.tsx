@@ -9,6 +9,7 @@ import CertificateIndex from '../../modules/certificate/pages/CertificateIndex'
 import { ListLocations } from '../../modules/locations/pages/ListLocations'
 import { AddLocation } from '../../modules/locations/pages/AddLocation'
 import EditCollector from '../../modules/collector/pages/EditCollector'
+import BackupPage from '../../modules/admin/pages/BackupPage';
 
 export const ManagementRoutes = () => {
     return (
@@ -40,6 +41,8 @@ export const ManagementRoutes = () => {
 
             {/* Certificate Module */}
             <Route path="/certificate" element={<CertificateIndex />} />
+            {/* Backup Module */}
+            <Route path="/backups" element={<BackupPage />} />
 
         </Routes>
     )
