@@ -8,31 +8,31 @@ interface LocationTableProps {
 
 export const LocationTable = ({ locations, onDelete }: LocationTableProps) => (
     <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-        <table className="min-w-full divide-y divide-green-200">
+        <table className="w-full table-fixed divide-y divide-green-200">
             <thead className="bg-green-600">
                 <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-24">
                         Cliente
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-32">
                         Nombre
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-40">
                         Dirección
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                        Código Postal
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-16">
+                        C.P.
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-28">
                         Ciudad/Estado
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-24">
                         Contacto
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-20">
                         Principal
                     </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    <th className="px-3 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-24">
                         Acciones
                     </th>
                 </tr>

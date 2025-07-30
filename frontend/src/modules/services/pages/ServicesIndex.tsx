@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
+import { useAuth } from "../../../context/AuthContext";
 import { ServiceFormData, serviceSchema } from "../schemas/serviceSchema";
 import {
   getServices,
@@ -34,6 +35,8 @@ const ServicesIndex = () => {
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [defaultStatusId, setDefaultStatusId] = useState<number | null>(null);
+
+  const { user } = useAuth();
 
   const form = useForm<ServiceFormData>({
     resolver: zodResolver(serviceSchema),
@@ -102,7 +105,7 @@ const ServicesIndex = () => {
 
   const fetchFormData = async () => {
     try {
-      const data = await getServiceFormData();
+      const data = await getServiceFormData(user?.id);
       setClients(data.clients);
       setLocations(data.locations);
       setStatuses(data.statuses);
@@ -110,15 +113,16 @@ const ServicesIndex = () => {
       setWastes(data.wastes);
       setWasteSubcategories(data.wasteSubcategories);
 
-      // Buscar el estado "Pendiente" para establecerlo como default (opcional)
-      const pendingStatus = data.statuses.find(status => 
-        status.name.toLowerCase().includes('pendiente') || 
-        status.name.toLowerCase().includes('pending')
+      // Buscar el estado "En progreso" para establecerlo como default
+      const inProgressStatus = data.statuses.find(status => 
+        status.name.toLowerCase().includes('en progreso') || 
+        status.name.toLowerCase().includes('progreso') ||
+        status.name.toLowerCase().includes('in progress')
       );
-      if (pendingStatus) {
-        setDefaultStatusId(pendingStatus.pk_status);
+      if (inProgressStatus) {
+        setDefaultStatusId(inProgressStatus.pk_status);
       } else {
-        // Si no hay estado "Pendiente", usar el primer estado disponible o null
+        // Si no hay estado "En progreso", usar el primer estado disponible o null
         setDefaultStatusId(data.statuses.length > 0 ? data.statuses[0].pk_status : null);
       }
 
@@ -191,10 +195,10 @@ const ServicesIndex = () => {
         delete serviceData.fk_waste_subcategory;
       }
 
-      // Si no se especifica un estado y hay un estado por defecto, usarlo
+      // Asignar automáticamente el estado "En progreso" si no se especifica uno
       serviceData = {
         ...serviceData,
-        fk_status: serviceData.fk_status || (defaultStatusId ?? undefined)
+        fk_status: defaultStatusId || serviceData.fk_status
       };
 
       if (isEditing && currentId) {

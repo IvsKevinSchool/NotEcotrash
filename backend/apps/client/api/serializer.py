@@ -17,11 +17,12 @@ class ClientsLocationsSerializer(serializers.ModelSerializer):
 
 class ClientLocationCreateSerializer(serializers.ModelSerializer):
     fk_location = LocationSerializer()
+    client_name = serializers.CharField(source='fk_client.name', read_only=True)
     
     class Meta:
         model = ClientsLocations
-        fields = ['fk_client', 'fk_location', 'is_main', 'pk_client_location']
-        read_only_fields = ['pk_client_location']
+        fields = ['fk_client', 'fk_location', 'is_main', 'pk_client_location', 'client_name']
+        read_only_fields = ['pk_client_location', 'client_name']
 
     def create(self, validated_data):
         # Extraer los datos de ubicación anidados

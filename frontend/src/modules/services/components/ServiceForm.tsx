@@ -1,5 +1,5 @@
 // src/components/Services/ServiceForm.tsx
-import React from "react";
+import React, { useMemo, useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { ServiceFormData } from "../schemas/serviceSchema";
 
@@ -32,7 +32,45 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     selectedWaste,
     isWasteCollectionService = false,
 }) => {
-    const { register, handleSubmit, formState: { errors } } = form;
+    const { register, handleSubmit, formState: { errors }, watch, setValue } = form;
+
+    // Observar el cliente seleccionado
+    const selectedClient = watch("fk_clients");
+
+    // Filtrar ubicaciones basándose en el cliente seleccionado
+    const filteredLocations = useMemo(() => {
+        if (!selectedClient || !locations) return [];
+        
+        // Filtrar ubicaciones que pertenecen al cliente seleccionado
+        // Asumimos que las ubicaciones tienen una propiedad client_ids o similar
+        return locations.filter((location) => {
+            // Si la ubicación tiene client_ids (array de IDs de clientes)
+            if (location.client_ids && Array.isArray(location.client_ids)) {
+                return location.client_ids.includes(selectedClient);
+            }
+            // Fallback: si no hay client_ids, mostrar todas (comportamiento anterior)
+            return true;
+        });
+    }, [selectedClient, locations]);
+
+    // Limpiar ubicación seleccionada cuando cambie el cliente
+    useEffect(() => {
+        const currentLocation = form.getValues("fk_locations");
+        if (currentLocation && selectedClient) {
+            // Verificar si la ubicación actual pertenece al nuevo cliente seleccionado
+            const locationBelongsToClient = filteredLocations.find(
+                loc => loc.pk_location === currentLocation
+            );
+            
+            // Si no pertenece, resetear la ubicación
+            if (!locationBelongsToClient) {
+                setValue("fk_locations", "" as any);
+            }
+        } else if (!selectedClient) {
+            // Si no hay cliente seleccionado, limpiar ubicación
+            setValue("fk_locations", "" as any);
+        }
+    }, [selectedClient, filteredLocations, form, setValue]);
 
     return (
         <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-green-200">
@@ -81,36 +119,24 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         <select
                             {...register("fk_locations", { valueAsNumber: true })}
                             className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                            disabled={!selectedClient}
                         >
-                            <option value="">Seleccionar Ubicación</option>
-                            {locations.map((location) => (
+                            <option value="">
+                                {!selectedClient ? "Primero selecciona un cliente" : "Seleccionar Ubicación"}
+                            </option>
+                            {filteredLocations.map((location) => (
                                 <option key={location.pk_location} value={location.pk_location}>
                                     {location.name} - {location.city}
                                 </option>
                             ))}
                         </select>
+                        {!selectedClient && (
+                            <p className="text-xs text-gray-500 mt-1">
+                                Las ubicaciones se mostrarán después de seleccionar un cliente
+                            </p>
+                        )}
                         {errors.fk_locations && (
                             <p className="text-red-500 text-sm mt-1">{errors.fk_locations.message}</p>
-                        )}
-                    </div>
-
-                    {/* Status - Opcional, por defecto será "Pendiente" */}
-                    <div>
-                        <label className="block text-green-700 mb-1">Estado (Opcional)</label>
-                        <select
-                            {...register("fk_status", { valueAsNumber: true })}
-                            className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        >
-                            <option value="">Automático: Estado por defecto</option>
-                            {statuses.map((status) => (
-                                <option key={status.pk_status} value={status.pk_status}>
-                                    {status.name}
-                                </option>
-                            ))}
-                        </select>
-                        <p className="text-xs text-gray-500 mt-1">Si no seleccionas, se asignará el estado por defecto</p>
-                        {errors.fk_status && (
-                            <p className="text-red-500 text-sm mt-1">{errors.fk_status.message}</p>
                         )}
                     </div>
 
