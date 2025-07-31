@@ -21,7 +21,24 @@ const BackupsIndex = () => {
     }
   };
 
-  
+    const handleImportCsv = () => {
+    const tableName = prompt("Enter the name of the table to import:");
+    if (!tableName) {
+      toast.info("Export cancelled: No table name provided.");
+      return;
+    }
+    
+
+    callApi(
+      `${apiBase}/restore_csv/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ table: tableName }),
+      },
+      "Import CSV"
+    );
+  };
 
   
 
@@ -31,6 +48,7 @@ const BackupsIndex = () => {
       toast.info("Export cancelled: No table name provided.");
       return;
     }
+    
 
     callApi(
       `${apiBase}/export-csv/`,
@@ -64,6 +82,15 @@ const BackupsIndex = () => {
       >
         {loading === "Export CSV" ? "Exporting CSV..." : "Export CSV"}
       </button>
+      <button
+        onClick={handleImportCsv}
+        disabled={loading !== null}
+        className={`w-full py-2 px-4 rounded text-white font-semibold transition-colors ${
+          loading === "Export CSV" ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+        }`}
+      >
+        {loading === "Import CSV" ? "Importing CSV..." : "Import CSV"}
+      </button>
 
       <button
         onClick={handleRestoreDB}
@@ -93,6 +120,7 @@ const BackupsIndex = () => {
       >
         {loading === "Restore DB 0" ? "Restoring DB..." : "Restore Complete DB 0"}
       </button>
+      
     </div>
   );
 };

@@ -1,0 +1,4 @@
+id,password,email,first_name,last_name,username,date_joined,last_login,is_staff,is_superuser,is_verified,is_active,role
+1,pbkdf2_sha256$1000000$oWw7jQHykDp1iptaXqlXba$HigpkSw6P+XCcELA5Dmj49LL9B1YgORhubRfFcmiYiY=,admin@gmail.com,admin,admin,admin,2025-07-30 17:00:01.207691-07:00,2025-07-30 17:00:01.207691-07:00,False,False,False,True,admin
+2,pbkdf2_sha256$1000000$EnqeJwFMDxxZXGCp88dIC4$MX7edaRP2MoU3V72kqHDDdiYrKWrxXiLZJtUv6RVGT4=,admin2@gmail.com,admin2,admin2,admin2,2025-07-30 17:02:35.874283-07:00,2025-07-30 17:02:35.875280-07:00,False,False,False,True,management
+3,Negus123,Negus@gmail.coom,asd,asd,asd,2025-07-30 17:00:01.207691-07:00,2025-07-30 17:00:01.207691-07:00,True,True,True,True,admin

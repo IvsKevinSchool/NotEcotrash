@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from apps.services.api.views import StatusViewSet, TypeServicesViewSet,ServiceLogViewSet, ServicesViewSet, backup_database, destroy_and_restore_last_backup, export_table_to_csv, destroy_and_restore_base, CreateTypeServiceView
+from apps.services.api.views import StatusViewSet, TypeServicesViewSet,ServiceLogViewSet, ServicesViewSet, backup_database, destroy_and_restore_last_backup, export_table_to_csv, destroy_and_restore_base, restore_table_from_latest_csv,CreateTypeServiceView
 router = DefaultRouter()
 router.register(r'status', StatusViewSet, basename='status')
 router.register(r'typeServices', TypeServicesViewSet, basename='typeServices')
@@ -12,6 +12,7 @@ urlpatterns = router.urls + [
     path('backupCompleteDB/', backup_database, name='backup-database'),
     path('restoreCompleteDB/', destroy_and_restore_last_backup, name='restore-database'),
     path('restoreCompleteDBStruckture/', destroy_and_restore_base, name='restore-database'),
+    path('restore_csv/', restore_table_from_latest_csv, name='restore-database'),
     path(
         'management/<int:management_id>/type-services/',
         CreateTypeServiceView.as_view(),
