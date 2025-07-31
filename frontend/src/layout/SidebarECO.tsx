@@ -30,7 +30,7 @@ export const SidebarECO = () => {
 
     const adminLinks = [
         { to: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-        { to: '/admin/clients', label: 'Clients', icon: '👥' },
+        { to: '/admin/clients', label: 'Management Companies', icon: '🏢' },
     ];
 
     const managementLinks = [
