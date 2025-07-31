@@ -11,6 +11,7 @@ import {
     deleteClient,
     toggleClientStatus,
 } from "../services/clientService";
+import { createManagment } from "../services/managmentService";
 import { useAuth } from "../../../context/AuthContext";
 import { handleApiError } from "../../../components/handleApiError";
 
@@ -34,13 +35,13 @@ const ClientsIndex = () => {
 
     useEffect(() => {
         // Solo ejecutar fetchData cuando el usuario esté disponible
-        if (user?.id) {
+        if (user?.id_admin) {
             fetchData();
         }
-    }, [user?.id]);
+    }, [user?.id_admin]);
 
     const fetchData = async () => {
-        if (!user?.id) {
+        if (!user?.id_admin) {
             console.error("User ID no disponible");
             toast.error("Usuario no identificado. Por favor, inicia sesión nuevamente.");
             return;
@@ -49,7 +50,7 @@ const ClientsIndex = () => {
         setIsLoading(true);
         try {
             console.log("Fetching clients for management ID:", user.id);
-            const data = await getClients(user.id);
+            const data = await getClients(user.id_admin);
             console.log("Clients data received:", data);
             setClients(data);
         } catch (error) {
@@ -64,18 +65,13 @@ const ClientsIndex = () => {
         try {
             const payload = {
                 ...data,
-                fk_management: user?.id,
                 phone_number_2: data.phone_number_2 ?? ""
             };
-            if (!payload.fk_management) {
-                toast.error("Management ID is required");
-                return;
-            }
             if (isEditing && currentId) {
                 await updateClient(currentId, payload);
                 toast.success("Client updated successfully");
             } else {
-                await createClient(payload);
+                await createManagment(payload);
                 toast.success("Client created successfully");
             }
             fetchData();
