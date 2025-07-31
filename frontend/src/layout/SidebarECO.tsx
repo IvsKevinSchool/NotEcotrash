@@ -1,6 +1,6 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logo from "../assets/Logo.png";
+import "../assets/Logo.png";
 
 export const SidebarECO = () => {
     const navigate = useNavigate();
@@ -83,7 +83,7 @@ export const SidebarECO = () => {
             {/* Logo */}
             <div className="text-center py-5 mb-8 border-b border-green-700 flex flex-col items-center">
                 <img
-                    src={logo}
+                    src={'Logo.png'}
                     alt="Logo EcoTrash"
                     className="h-12 w-auto mb-2"
                 />
