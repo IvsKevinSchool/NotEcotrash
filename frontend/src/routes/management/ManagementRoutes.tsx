@@ -10,6 +10,7 @@ import { ListLocations } from '../../modules/locations/pages/ListLocations'
 import { AddLocation } from '../../modules/locations/pages/AddLocation'
 import EditCollector from '../../modules/collector/pages/EditCollector'
 import ReportsIndex from '../../modules/reports/pages/ReportsIndex'
+import BackupsIndex from '../../modules/backups/pages/backups'
 
 export const ManagementRoutes = () => {
     return (
@@ -41,6 +42,7 @@ export const ManagementRoutes = () => {
 
             {/* Certificate Module */}
             <Route path="/certificate" element={<CertificateIndex />} />
+            <Route path="/backups" element={<BackupsIndex />} />
 
         </Routes>
     )

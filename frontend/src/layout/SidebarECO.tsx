@@ -1,5 +1,6 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import {logo} from '../assets/logo.png';
 
 export const SidebarECO = () => {
     const navigate = useNavigate();
@@ -43,6 +44,7 @@ export const SidebarECO = () => {
         { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
         { to: '/waste/subcategories', label: 'Sub Category Wastes', icon: '🏷️' },
         { to: '/management/certificate', label: 'Certificate', icon: '📜' },
+        { to: '/management/backups', label: 'Backups', icon: '💩' },
     ];
 
     const clientLinks = [
@@ -81,7 +83,7 @@ export const SidebarECO = () => {
             {/* Logo */}
             <div className="text-center py-5 mb-8 border-b border-green-700 flex flex-col items-center">
                 <img
-                    src="/logo.png"
+                    src={logo}
                     alt="Logo EcoTrash"
                     className="h-12 w-auto mb-2"
                 />

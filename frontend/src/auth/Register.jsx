@@ -78,7 +78,7 @@ const Register = () => {
       <div className="w-1/2 bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center">
         <div className="text-center p-8">
           <img
-            src="/logo.png"
+            src={logo}
             alt="Logo EcoTrash"
             className="mx-auto h-48 w-auto mb-6"
           />
