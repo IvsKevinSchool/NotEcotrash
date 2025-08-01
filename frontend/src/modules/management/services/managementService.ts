@@ -15,7 +15,7 @@ export const ManagementService = {
     },
 
     async create(data: ManagementFormValues): Promise<Management> {
-        const response = await api.post('management/management/', data);
+        const response = await api.post('accounts/auth/register/', data);
         return response.data;
     },
 

@@ -16,6 +16,8 @@ from apps.accounts.models import User
 from apps.accounts.utils import send_normal_email
 from apps.management.models import Management
 from apps.management.models import ManagementUser
+from apps.client.models import Client
+from apps.client.models import ClientsUsers
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -76,6 +78,23 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             # Crear la relación ManagementUser
             ManagementUser.objects.create(
                 fk_management=management,
+                fk_user=user
+            )
+
+        # Si el usuario es de tipo client, crear automáticamente el registro en Client
+        if user.role == 'client':
+            # Crear el Client primero
+            client = Client.objects.create(
+                name=f"{user.first_name} {user.last_name}".strip() or user.username,
+                email=user.email,
+                phone_number=None,
+                phone_number_2=None,
+                rfc=None,
+            )
+            
+            # Crear la relación ClientUser
+            ClientsUsers.objects.create(
+                fk_client=client,
                 fk_user=user
             )
         return user
