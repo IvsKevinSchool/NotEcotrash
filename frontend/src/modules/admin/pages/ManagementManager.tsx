@@ -8,13 +8,13 @@ import { useAuth } from "../../../context/AuthContext";
 import { handleApiError } from "../../../components/handleApiError";
 
 interface ManagementUser {
-    pk_management: number;
+    pk_management: string;
     name: string;
     email: string;
     phone_number?: string;
     phone_number_2?: string;
     rfc?: string;
-    created_at: string;
+    created_at?: string;
     is_active?: boolean;
 }
 
@@ -288,18 +288,18 @@ const ManagementManager = () => {
                                                 {management.phone_number || "N/A"}
                                             </td>
                                             <td className="px-3 py-4 text-sm text-green-700 truncate">
-                                                {new Date(management.created_at).toLocaleDateString()}
+                                                {management.created_at ? new Date(management.created_at).toLocaleDateString() : "N/A"}
                                             </td>
                                             <td className="px-3 py-4 text-sm font-medium">
                                                 <div className="flex flex-col space-y-1">
                                                     <button
-                                                        onClick={() => handleEdit(management.pk_management.toString())}
+                                                        onClick={() => handleEdit(management.pk_management)}
                                                         className="text-green-600 hover:text-green-900 font-medium hover:underline text-left"
                                                     >
                                                         Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDelete(management.pk_management.toString())}
+                                                        onClick={() => handleDelete(management.pk_management)}
                                                         className="text-red-600 hover:text-red-900 font-medium hover:underline text-left"
                                                     >
                                                         Delete
