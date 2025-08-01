@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import api from '../api'
 import { handleApiError } from '../components/handleApiError';
+import logo from '../assets/Logo.png';
+
 
 const Register = () => {
   const [isLoading, setIsLoading] = useState(false);

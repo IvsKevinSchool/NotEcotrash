@@ -4,7 +4,7 @@ import { useState } from 'react';
 import LoginForm from './LoginForm';
 import { toast } from 'react-toastify';
 import api from '../api'; // Asegúrate de importar tu configuración de axios
-import {logo} from '../assets/logo.png';
+import logo from '../assets/Logo.png';
 
 const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
