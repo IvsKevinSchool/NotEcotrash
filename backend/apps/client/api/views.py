@@ -1,8 +1,8 @@
 from rest_framework import viewsets, generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from apps.client.api.serializer import ClientSerializer, ClientsLocationsSerializer, ClientsUsersSerializer, ClientLocationCreateSerializer
-from apps.client.models import Client, ClientsLocations, ClientsUsers
+from apps.client.api.serializer import ClientSerializer, ClientsLocationsSerializer, ClientsUsersSerializer, ClientLocationCreateSerializer, CertificateSerializer
+from apps.client.models import Client, ClientsLocations, ClientsUsers, Certificate
 
 class ClientViewSet(viewsets.ModelViewSet):
     queryset = Client.objects.all()
@@ -112,3 +112,9 @@ class AllClientLocationsForManagement(generics.ListAPIView):
 class ClientsUsersViewSet(viewsets.ModelViewSet):
     queryset = ClientsUsers.objects.all()
     serializer_class = ClientsUsersSerializer
+
+from rest_framework.parsers import MultiPartParser, FormParser
+class CertificateViewSet(viewsets.ModelViewSet):
+    queryset = Certificate.objects.all()
+    serializer_class = CertificateSerializer
+    parser_classes = (MultiPartParser, FormParser) 

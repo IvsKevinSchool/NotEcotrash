@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from apps.management.api.views import ManagementViewSet, ManagementLocationsViewSet, ManagementUserViewSet, ManagementWasteViewSet, CollectorUsersViewSet, CertificateViewSet, CreateCollectorByManagementAPIView, CollectorUserUpdateAPIView, CreateManagementLocationAPIView, ManagementLocationsList
+from apps.management.api.views import ManagementViewSet, ManagementLocationsViewSet, ManagementUserViewSet, ManagementWasteViewSet, CollectorUsersViewSet, CreateCollectorByManagementAPIView, CollectorUserUpdateAPIView, CreateManagementLocationAPIView, ManagementLocationsList
 from apps.waste.api.views import CreateWasteForManagementAPIView, UpdateWasteForManagementAPIView, WasteByManagementAPIView
 from django.urls import path
 
@@ -10,7 +10,6 @@ router.register(r'management', ManagementViewSet, basename='management')
 router.register(r'locations', ManagementLocationsViewSet, basename='locations')
 router.register(r'user', ManagementUserViewSet, basename='user')
 router.register(r'waste', ManagementWasteViewSet, basename='waste')
-router.register(r'certificate', CertificateViewSet, basename='certificate')
 router.register(r'collector', CollectorUsersViewSet, basename='collector')
 
 # Create Waste for Management

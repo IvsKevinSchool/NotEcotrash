@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
+from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, CollectorUsers
 from apps.accounts.models import User
 from apps.accounts.api.serializers import UserRegisterSerializer
 from apps.core.models import Location
@@ -61,13 +61,7 @@ class ManagementWasteSerializer(serializers.ModelSerializer):
         model = ManagementWaste
         fields = '__all__'
         read_only_fields = ('created_at',)
-        #read_only_fields = ['pk_management_waste', 'created_at', 'updated_at', 'is_active']   
-
-class CertificateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Certificate
-        fields = '__all__'
-        #read_only_fields = ['pk_certificate', 'fk_management', 'created_at', 'updated_at', 'is_active']   
+        #read_only_fields = ['pk_management_waste', 'created_at', 'updated_at', 'is_active']    
 
 class CollectorUserSerializer(serializers.ModelSerializer):
     # ¡Clave! Usa 'fk_user' (nombre del campo en el modelo)

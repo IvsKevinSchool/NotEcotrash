@@ -68,16 +68,6 @@ class ManagementWaste(models.Model):
 
     def __str__(self):
         return f"Management Waste ID: {self.pk_management_waste} - Waste: {self.fk_waste.name}"
-    
-class Certificate(models.Model):
-    pk_certificate = models.AutoField(primary_key=True)
-    fk_management = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='management')
-    certificate_name = models.CharField(max_length=255, unique=True)
-    pdf = models.FileField(upload_to='certificates/', unique=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True) 
 
 class CollectorUsers(models.Model):
     """

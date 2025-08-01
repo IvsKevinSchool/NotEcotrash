@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.client.models import Client, ClientsLocations, ClientsUsers
+from apps.client.models import Client, ClientsLocations, ClientsUsers, Certificate
 from apps.core.models import Location
 from apps.core.api.serializer import LocationSerializer
 
@@ -59,3 +59,8 @@ class ClientsUsersSerializer(serializers.ModelSerializer):
         model = ClientsUsers
         fields= '__all__'
         read_only_fields = ['pk_client_user','fk_client', 'fk_user']
+
+class CertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        fields = '__all__'

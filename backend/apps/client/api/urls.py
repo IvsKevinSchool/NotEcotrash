@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from apps.client.api.views import ClientViewSet, ClientsLocationsViewSet, ClientsUsersViewSet, ClientLocationCreateAPIView, ClientLocationsList, AllClientLocationsForManagement
+from apps.client.api.views import ClientViewSet, ClientsLocationsViewSet, ClientsUsersViewSet, ClientLocationCreateAPIView, ClientLocationsList, AllClientLocationsForManagement, CertificateViewSet
 from apps.client.api.view_by_manager import ClientsByManagerAPIView
 from django.urls import path
 
@@ -9,6 +9,7 @@ router = DefaultRouter()
 router.register(r'client', ClientViewSet, basename='management')
 router.register(r'locations', ClientsLocationsViewSet, basename='locations')
 router.register(r'user', ClientsUsersViewSet, basename='user')
+router.register(r'certificate', CertificateViewSet, basename='certificate')
 
 
 # Define the URL patterns for the core app

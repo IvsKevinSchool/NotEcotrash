@@ -1,7 +1,6 @@
 from rest_framework import viewsets, generics
-from rest_framework.parsers import MultiPartParser, FormParser
-from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CertificateSerializer, CollectorUserSerializer, CollectorUserUpdateSerializer
-from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, Certificate, CollectorUsers
+from apps.management.api.serializer import ManagementSerializer, ManagementUserSerializer, ManagementLocationsSerializer, ManagementWasteSerializer, CollectorUserSerializer, CollectorUserUpdateSerializer
+from apps.management.models import Management, ManagementUser, ManagementLocations, ManagementWaste, CollectorUsers
 # Register user, collector, management
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -25,10 +24,6 @@ class ManagementWasteViewSet(viewsets.ModelViewSet):
     queryset = ManagementWaste.objects.all()
     serializer_class = ManagementWasteSerializer
 
-class CertificateViewSet(viewsets.ModelViewSet):
-    queryset = Certificate.objects.all()
-    serializer_class = CertificateSerializer
-    parser_classes = (MultiPartParser, FormParser) 
 
 class CollectorUsersViewSet(viewsets.ModelViewSet):
     queryset = CollectorUsers.objects.all()
