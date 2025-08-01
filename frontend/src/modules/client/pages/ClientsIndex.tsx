@@ -1,16 +1,9 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { ClientFormData, clientSchema } from "../schemas/clientSchema";
-import {
-    getClients,
-    getClient,
-    createClient,
-    updateClient,
-    deleteClient,
-    toggleClientStatus,
-} from "../services/clientService";
+import { getClients,getClient, createClient,  updateClient, deleteClient, toggleClientStatus } from "../services/clientService";
 import { useAuth } from "../../../context/AuthContext";
 import { handleApiError } from "../../../components/handleApiError";
 
@@ -23,12 +16,8 @@ const ClientsIndex = () => {
 
     const { user } = useAuth();
 
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm<ClientFormData>({
+    const { register, handleSubmit, reset, formState: { errors }, 
+        } = useForm<ClientFormData>({
         resolver: zodResolver(clientSchema),
     });
 
@@ -64,13 +53,9 @@ const ClientsIndex = () => {
         try {
             const payload = {
                 ...data,
-                fk_management: user?.id,
-                phone_number_2: data.phone_number_2 ?? ""
+                phone_number_2: data.phone_number_2 ?? "",
+                fk_management: user?.id // Agregar el management_id al payload
             };
-            if (!payload.fk_management) {
-                toast.error("Management ID is required");
-                return;
-            }
             if (isEditing && currentId) {
                 await updateClient(currentId, payload);
                 toast.success("Client updated successfully");
