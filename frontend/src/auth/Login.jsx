@@ -152,15 +152,6 @@ const Login = () => {
 
                     <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
 
-                    <div className="mt-6 text-center text-sm text-gray-600">
-                        ¿No tienes una cuenta?{' '}
-                        <Link
-                            to="/register"
-                            className="font-medium text-green-600 hover:text-green-500 transition-colors duration-200"
-                        >
-                            Regístrate ahora
-                        </Link>
-                    </div>
                 </div>
             </div>
 
