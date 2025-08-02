@@ -60,6 +60,11 @@ class ClientService {
         const response = await api.post('accounts/auth/register/', registrationData);
         return response.data;
     }
+
+    static async getCertificatesByClient(clientId: number) {
+        const response = await api.get(`/client/${clientId}/certificates/`);
+        return response.data;
+    }
 }
 
 export { ClientService };

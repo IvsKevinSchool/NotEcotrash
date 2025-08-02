@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from apps.client.api.views import ClientViewSet, ClientsLocationsViewSet, ClientsUsersViewSet, ClientLocationCreateAPIView, ClientLocationsList, AllClientLocationsForManagement, CertificateViewSet
+from apps.client.api.views import ClientViewSet, ClientsLocationsViewSet, ClientsUsersViewSet, ClientLocationCreateAPIView, ClientLocationsList, AllClientLocationsForManagement, CertificateViewSet, CertificatesByClientAPIView
 from apps.client.api.view_by_manager import ClientsByManagerAPIView
 from django.urls import path
 
@@ -19,6 +19,7 @@ urlpatterns = [
     path('<int:client_id>/locations/<int:location_id>/', ClientLocationCreateAPIView.as_view(), name='client-locations-update'),
     path('<int:client_id>/locations/list/', ClientLocationsList.as_view(), name='client-locations-list'),
     path('management/<int:management_id>/all-locations/', AllClientLocationsForManagement.as_view(), name='all-client-locations-for-management'),
+    path('<int:client_id>/certificates/', CertificatesByClientAPIView.as_view(), name='client-certificates-list'),
 ]
 
 # Add router URLs

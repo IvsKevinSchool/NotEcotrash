@@ -117,4 +117,25 @@ from rest_framework.parsers import MultiPartParser, FormParser
 class CertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
-    parser_classes = (MultiPartParser, FormParser) 
+    parser_classes = (MultiPartParser, FormParser)
+
+from rest_framework.generics import ListAPIView
+class CertificatesByClientAPIView(ListAPIView):
+    """
+    Endpoint para listar certificados por cliente.
+    GET /client/<int:client_id>/certificates/
+    """
+    serializer_class = CertificateSerializer
+
+    def get_queryset(self):
+        client_id = self.kwargs['client_id']
+        return Certificate.objects.filter(fk_client_id=client_id)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        response_data = {
+            'client_id': kwargs['client_id'],
+            'certificates': serializer.data
+        }
+        return Response(response_data)
