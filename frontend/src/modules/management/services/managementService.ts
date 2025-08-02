@@ -14,8 +14,12 @@ export const ManagementService = {
         return response.data;
     },
 
-    async create(data: ManagementFormValues): Promise<Management> {
-        const response = await api.post('accounts/auth/register/', data);
+    async register(data: ManagementFormValues): Promise<Management> {
+        const dataToSend = {
+            ...data,
+            phone_number_2: data.phone_number_2 || null,
+        };
+        const response = await api.post('accounts/auth/register/', dataToSend);
         return response.data;
     },
 

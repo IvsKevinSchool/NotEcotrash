@@ -6,6 +6,7 @@ import { PlusCircleIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@her
 import { ManagementService } from '../services/managementService';
 import { Management, ManagementListProps } from '../types/management';
 import { managementFormSchema, ManagementFormValues } from '../schemas/managementSchema';
+import { handleApiError } from '../../../components/handleApiError';
 
 const ManagementList: React.FC<ManagementListProps> = ({
     title = "Gestión de Contactos",
@@ -24,6 +25,9 @@ const ManagementList: React.FC<ManagementListProps> = ({
         formState: { errors, isSubmitting },
     } = useForm<ManagementFormValues>({
         resolver: zodResolver(managementFormSchema),
+        defaultValues: {
+            phone_number_2: "",
+        }
     });
 
     useEffect(() => {
@@ -41,10 +45,11 @@ const ManagementList: React.FC<ManagementListProps> = ({
         loadManagements();
     }, []);
 
+    console.log("Managements loaded:", managements);
     const filteredManagements = managements.filter(management =>
         management.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         management.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        management.rfc.toLowerCase().includes(searchTerm.toLowerCase())
+        management.rfc?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const onSubmit = async (data: ManagementFormValues) => {
@@ -56,14 +61,26 @@ const ManagementList: React.FC<ManagementListProps> = ({
                 ));
                 toast.success('Contacto actualizado correctamente');
             } else {
-                const created = await ManagementService.create(data);
-                setManagements([...managements, created]);
+                // Usamos el endpoint de registro para crear nuevos managements
+                const registrationData = {
+                    ...data,
+                    role: "management",
+                    username: data.email.split('@')[0],
+                    first_name: data.name.split(' ')[0] || data.name,
+                    last_name: data.name.split(' ')[1] || ".",
+                    password: "TempPass123",
+                    password2: "TempPass123"
+                };
+
+                await ManagementService.register(registrationData);
+                const fetchedManagements = await ManagementService.getAll();
+                setManagements(fetchedManagements);
                 toast.success('Contacto creado correctamente');
             }
             handleCloseModal();
         } catch (error) {
-            console.log(error)
-            toast.error(currentManagement ? 'Error al actualizar el contacto' : 'Error al crear el contacto');
+            console.error(error);
+            handleApiError(error, currentManagement ? 'Error al actualizar el contacto' : 'Error al crear el contacto');
         }
     };
 
@@ -73,8 +90,8 @@ const ManagementList: React.FC<ManagementListProps> = ({
             name: management.name,
             email: management.email,
             phone_number: management.phone_number,
-            phone_number_2: management.phone_number_2 || '',
-            rfc: management.rfc
+            phone_number_2: management.phone_number_2,
+            rfc: management.rfc || ''
         });
         setIsModalOpen(true);
     };
@@ -127,6 +144,7 @@ const ManagementList: React.FC<ManagementListProps> = ({
             </div>
         );
     }
+
 
     return (
         <div className={`bg-white rounded-lg shadow-sm ${className}`}>
@@ -277,14 +295,14 @@ const ManagementList: React.FC<ManagementListProps> = ({
                 </p>
             </div>
 
-            {/* Modal para agregar/editar */}
+            {/* Modal modificado */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-white/30 backdrop-blur-[2px] flex items-center justify-center p-4 z-50">
                     <div className="bg-white/95 rounded-lg shadow-xl w-full max-w-md border border-green-300">
                         <div className="p-4 border-b border-green-200 bg-green-50/80 rounded-t-lg">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-lg font-semibold text-green-800">
-                                    {currentManagement ? 'Editar Contacto' : 'Agregar Nuevo Contacto'}
+                                    {currentManagement ? 'Editar Contacto' : 'Registrar Nueva Empresa'}
                                 </h3>
                                 <button
                                     onClick={handleCloseModal}
@@ -300,75 +318,76 @@ const ManagementList: React.FC<ManagementListProps> = ({
 
                         <form onSubmit={handleSubmit(onSubmit)} className="p-6">
                             <div className="space-y-4">
+                                {/* Nombre */}
                                 <div>
-                                    <label htmlFor="name" className="block text-sm font-medium text-green-700 mb-1">
-                                        Nombre completo
-                                    </label>
+                                    <label className="block text-green-700 mb-1 font-medium">Nombre de la Empresa *</label>
                                     <input
-                                        id="name"
-                                        {...register('name')}
-                                        className={`w-full px-3 py-2 border ${errors.name ? 'border-red-300' : 'border-green-200'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300`}
+                                        type="text"
+                                        {...register("name")}
+                                        className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.name ? "border-red-500" : "border-green-300"
+                                            }`}
+                                        placeholder="Ingrese el nombre de la empresa"
                                     />
                                     {errors.name && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                                        <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
                                     )}
                                 </div>
 
-                                {/* Resto de campos del formulario */}
+                                {/* Email */}
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-green-700 mb-1">
-                                        Email
-                                    </label>
+                                    <label className="block text-green-700 mb-1 font-medium">Email *</label>
                                     <input
-                                        id="email"
                                         type="email"
-                                        {...register('email')}
-                                        className={`w-full px-3 py-2 border ${errors.email ? 'border-red-300' : 'border-green-200'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300`}
+                                        {...register("email")}
+                                        className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.email ? "border-red-500" : "border-green-300"
+                                            }`}
+                                        placeholder="Ingrese el email corporativo"
                                     />
                                     {errors.email && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                                        <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                                     )}
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label htmlFor="phone_number" className="block text-sm font-medium text-green-700 mb-1">
-                                            Teléfono principal
-                                        </label>
-                                        <input
-                                            id="phone_number"
-                                            {...register('phone_number')}
-                                            className={`w-full px-3 py-2 border ${errors.phone_number ? 'border-red-300' : 'border-green-200'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300`}
-                                        />
-                                        {errors.phone_number && (
-                                            <p className="mt-1 text-sm text-red-600">{errors.phone_number.message}</p>
-                                        )}
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="phone_number_2" className="block text-sm font-medium text-green-700 mb-1">
-                                            Teléfono secundario
-                                        </label>
-                                        <input
-                                            id="phone_number_2"
-                                            {...register('phone_number_2')}
-                                            className="w-full px-3 py-2 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300"
-                                        />
-                                    </div>
-                                </div>
-
+                                {/* RFC */}
                                 <div>
-                                    <label htmlFor="rfc" className="block text-sm font-medium text-green-700 mb-1">
-                                        RFC
-                                    </label>
+                                    <label className="block text-green-700 mb-1 font-medium">RFC *</label>
                                     <input
-                                        id="rfc"
-                                        {...register('rfc')}
-                                        className={`w-full px-3 py-2 border ${errors.rfc ? 'border-red-300' : 'border-green-200'} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300`}
+                                        type="text"
+                                        {...register("rfc")}
+                                        className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.rfc ? "border-red-500" : "border-green-300"
+                                            }`}
+                                        placeholder="Ingrese el RFC (12-13 caracteres)"
+                                        maxLength={13}
                                     />
                                     {errors.rfc && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.rfc.message}</p>
+                                        <p className="text-red-500 text-sm mt-1">{errors.rfc.message}</p>
                                     )}
+                                </div>
+
+                                {/* Teléfono principal */}
+                                <div>
+                                    <label className="block text-green-700 mb-1 font-medium">Teléfono Principal *</label>
+                                    <input
+                                        type="tel"
+                                        {...register("phone_number")}
+                                        className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.phone_number ? "border-red-500" : "border-green-300"
+                                            }`}
+                                        placeholder="Ingrese el teléfono principal"
+                                    />
+                                    {errors.phone_number && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.phone_number.message}</p>
+                                    )}
+                                </div>
+
+                                {/* Teléfono secundario (opcional) */}
+                                <div>
+                                    <label className="block text-green-700 mb-1 font-medium">Teléfono Secundario (Opcional)</label>
+                                    <input
+                                        type="tel"
+                                        {...register("phone_number_2")}
+                                        className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="Ingrese teléfono secundario"
+                                    />
                                 </div>
                             </div>
 
@@ -386,7 +405,19 @@ const ManagementList: React.FC<ManagementListProps> = ({
                                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-400"
                                     disabled={isSubmitting}
                                 >
-                                    {isSubmitting ? 'Guardando...' : currentManagement ? 'Guardar Cambios' : 'Agregar Contacto'}
+                                    {isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Procesando...
+                                        </span>
+                                    ) : currentManagement ? (
+                                        'Guardar Cambios'
+                                    ) : (
+                                        'Registrar Empresa'
+                                    )}
                                 </button>
                             </div>
                         </form>

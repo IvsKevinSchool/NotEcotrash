@@ -23,6 +23,15 @@ from apps.client.models import ClientsUsers
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, max_length=68, min_length=8)
     password2 = serializers.CharField(write_only=True, max_length=68, min_length=8)
+    
+    # Campos específicos para Management
+    phone_number = serializers.CharField(required=False, allow_null=True)
+    phone_number_2 = serializers.CharField(required=False, allow_null=True, allow_blank=True, default=None)
+    rfc = serializers.CharField(required=False, allow_null=True)
+    
+    # Campos específicos para Client
+    legal_name = serializers.CharField(required=False, allow_null=True)
+    management_id = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
         model = User
@@ -34,26 +43,35 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "role",
             "password",
             "password2",
+            "phone_number",
+            "phone_number_2",
+            "rfc",
+            "legal_name",
+            "management_id",
         ]
 
     def validate(self, attrs):
-        """
-        Validate the user registration data.
-        Ensure that passwords match and email is unique.
-        """
         if attrs["password"] != attrs["password2"]:
             raise serializers.ValidationError({"password": "Passwords do not match."})
 
         if User.objects.filter(email=attrs["email"]).exists():
             raise serializers.ValidationError({"email": "Email is already in use."})
 
+        # Validación adicional para Client
+        if attrs.get("role") == "client" and not attrs.get("management_id"):
+            raise serializers.ValidationError({"management_id": "Management ID is required for clients."})
+
         return attrs
 
     def create(self, validated_data):
-        """
-        Create a new user instance.
-        This method hashes the password before saving the user.
-        """
+        # Extraer datos específicos de Management/Client
+        phone_number = validated_data.pop('phone_number', None)
+        phone_number_2 = validated_data.pop('phone_number_2', None)
+        rfc = validated_data.pop('rfc', None)
+        legal_name = validated_data.pop('legal_name', None)
+        management_id = validated_data.pop('management_id', None)
+
+        # Crear usuario
         user = User(
             email=validated_data["email"],
             username=validated_data["username"],
@@ -64,41 +82,43 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data["password"])
         user.save()
 
-        # Si el usuario es de tipo management, crear automáticamente el registro en Management
         if user.role == 'management':
-            # Crear el Management primero
             management = Management.objects.create(
                 name=f"{user.first_name} {user.last_name}".strip() or user.username,
                 email=user.email,
-                phone_number=None,
-                phone_number_2=None,
-                rfc=None,
+                phone_number=phone_number or None,
+                phone_number_2=phone_number_2 or None if phone_number_2 else None,
+                rfc=rfc,
             )
-            
-            # Crear la relación ManagementUser
             ManagementUser.objects.create(
                 fk_management=management,
                 fk_user=user
             )
 
-        # Si el usuario es de tipo client, crear automáticamente el registro en Client
-        if user.role == 'client':
-            # Crear el Client primero
-            client = Client.objects.create(
-                name=f"{user.first_name} {user.last_name}".strip() or user.username,
-                email=user.email,
-                phone_number=None,
-                phone_number_2=None,
-                rfc=None,
-            )
+        elif user.role == 'client':
+            if not management_id:
+                raise serializers.ValidationError({"management_id": "Management ID is required for client registration."})
             
-            # Crear la relación ClientUser
+            try:
+                management = Management.objects.get(pk=management_id)
+            except Management.DoesNotExist:
+                raise serializers.ValidationError({"management_id": "Invalid Management ID."})
+                
+            client = Client.objects.create(
+                fk_management=management,
+                name=f"{user.first_name} {user.last_name}".strip() or user.username,
+                legal_name=legal_name or f"{user.first_name} {user.last_name}".strip() or user.username,
+                rfc=rfc,
+                email=user.email,
+                phone_number=phone_number,
+                phone_number_2=phone_number_2,
+            )
             ClientsUsers.objects.create(
                 fk_client=client,
                 fk_user=user
             )
-        return user
 
+        return user
 
 class VerifyEmailSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6, required=True)

@@ -35,3 +35,17 @@ export const userSchema = z.object({
 })
 
 export type UserFormType = z.infer<typeof userSchema>;
+
+// SCHEMA FOR MANAGEMENT REGISTRATION
+export const managementFormSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    phone_number: z.string().min(8, "Phone number must be at least 8 digits"),
+    phone_number_2: z.string().optional(),
+    rfc: z.string()
+        .min(12, "RFC must be 12-13 characters")
+        .max(13, "RFC must be 12-13 characters")
+    //.regex(/^[A-Z&Ñ]{3,4}\d{6}[A-V1-9][0-9A-Z]$/i, "Invalid RFC format"),
+});
+
+export type ManagementFormValues = z.infer<typeof managementFormSchema>;
