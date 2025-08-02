@@ -45,7 +45,6 @@ const ManagementList: React.FC<ManagementListProps> = ({
         loadManagements();
     }, []);
 
-    console.log("Managements loaded:", managements);
     const filteredManagements = managements.filter(management =>
         management.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         management.email.toLowerCase().includes(searchTerm.toLowerCase()) ||

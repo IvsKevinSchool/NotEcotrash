@@ -1,13 +1,14 @@
-import { z } from "zod";
+import { z } from 'zod';
 
-export const clientSchema = z.object({
-    pk_client: z.number().optional(),
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    legal_name: z.string().min(2, "Legal name must be at least 2 characters"),
-    rfc: z.string().min(12, "RFC must be 12-13 characters").max(13, "RFC must be 12-13 characters"),
-    email: z.string().email("Invalid email format"),
-    phone_number: z.string().min(1, "Phone number is required").regex(/^[0-9]*$/, "Phone number must contain only digits"),
-    phone_number_2: z.string().regex(/^[0-9]*$/, "Phone number must contain only digits").optional(),
+export const clientFormSchema = z.object({
+    name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
+    legal_name: z.string().min(3, 'La razón social debe tener al menos 3 caracteres'),
+    email: z.string().email('Ingresa un email válido'),
+    phone_number: z.string().min(10, 'El teléfono debe tener al menos 10 dígitos'),
+    phone_number_2: z.string().optional(),
+    rfc: z.string()
+        .min(12, 'El RFC debe tener al menos 12 caracteres')
+        .max(13, 'El RFC no debe exceder 13 caracteres'),
 });
 
-export type ClientFormData = z.infer<typeof clientSchema>;
+export type ClientFormValues = z.infer<typeof clientFormSchema>;
