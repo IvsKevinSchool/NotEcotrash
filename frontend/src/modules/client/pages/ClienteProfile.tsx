@@ -193,22 +193,6 @@ export const ClienteProfile = () => {
                         </div>
                     </div>
 
-                    {/* Estado */}
-                    <div className="flex items-center">
-                        <input
-                            id="is_active"
-                            type="checkbox"
-                            {...register("is_active")}
-                            className="h-4 w-4 text-green-600 focus:ring-green-500 border-green-300 rounded"
-                        />
-                        <label htmlFor="is_active" className="ml-2 block text-sm text-green-700">
-                            Cliente activo
-                        </label>
-                    </div>
-                    {errors.is_active && (
-                        <p className="mt-1 text-sm text-red-600">{errors.is_active.message}</p>
-                    )}
-
                     {/* Botones */}
                     <div className="flex justify-end space-x-4 pt-4">
                         <button

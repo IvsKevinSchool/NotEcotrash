@@ -7,5 +7,5 @@ export const clientProfileSchema = z.object({
     email: z.string().email("Ingresa un email válido"),
     phone_number: z.string().min(10, "El teléfono debe tener al menos 10 dígitos"),
     phone_number_2: z.string().optional(),
-    is_active: z.boolean(),
+    is_active: z.boolean().optional(),
 });
