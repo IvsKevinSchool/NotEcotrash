@@ -40,6 +40,12 @@ class Services(models.Model):
         verbose_name="Fecha Programada"
     )
     
+    fk_management = models.ForeignKey(
+        Management,
+        on_delete=models.CASCADE,
+        verbose_name="Management",
+        related_name="services"
+    )
     fk_clients = models.ForeignKey(
         Client,  # Asume que existe un modelo Clients
         on_delete=models.PROTECT,  # Evita borrar si hay servicios asociados

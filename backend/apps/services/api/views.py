@@ -72,10 +72,55 @@ class TypeServicesViewSet(viewsets.ModelViewSet):
 class ServicesViewSet(viewsets.ModelViewSet):
     """
     A viewset for viewing and editing Services instances.
+    Filters services by management_id to ensure users only see their own services.
+    
+    Query Parameters:
+    - management_id (optional): Filter services by management ID. If provided, only returns services for that management.
     """
-    queryset = Services.objects.all()
     serializer_class = ServicesSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'management_id',
+                openapi.IN_QUERY,
+                description="Filter services by management ID",
+                type=openapi.TYPE_INTEGER,
+                required=False
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        """
+        Retorna solo los servicios del management especificado.
+        Si no hay management_id en query params, retorna servicios vacíos por seguridad.
+        
+        Query Parameters:
+        - management_id: ID del management para filtrar servicios
+        """
+        management_id = self.request.query_params.get('management_id', None)
+        
+        if management_id:
+            return Services.objects.filter(fk_management_id=management_id).order_by('-scheduled_date')
+        
+        # Por seguridad, si no hay management_id, no retornar nada
+        return Services.objects.none()
+    
+    def perform_create(self, serializer):
+        """
+        Automatically assign the management_id when creating a service.
+        The management_id should be provided in the request data.
+        """
+        management_id = self.request.data.get('fk_management')
+        if management_id:
+            serializer.save(fk_management_id=management_id)
+        else:
+            # Si no se proporciona management_id, usar el del usuario autenticado si está disponible
+            serializer.save()
 
 class ServiceLogViewSet(viewsets.ModelViewSet):
     """

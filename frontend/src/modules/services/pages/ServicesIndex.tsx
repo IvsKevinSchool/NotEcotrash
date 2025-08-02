@@ -4,22 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { useAuth } from "../../../context/AuthContext";
 import { ServiceFormData, serviceSchema } from "../schemas/serviceSchema";
-import {
-  getServices,
-  getService,
-  createService,
-  updateService,
-  deleteService,
-} from "../api/serviceServices";
-import { 
-  getServiceFormData,
-  Client, 
-  Location, 
-  Status, 
-  TypeService, 
-  Waste, 
-  WasteSubcategory 
-} from "../api/serviceFormServices";
+import { getServices, getService, createService, updateService, deleteService, } from "../api/serviceServices";
+import {  getServiceFormData, Client,  Location,  Status,  TypeService,  Waste,  WasteSubcategory } from "../api/serviceFormServices";
 import ServiceForm from "../components/ServiceForm";
 import ServicesTable from "../components/ServiceTable";
 
@@ -33,8 +19,10 @@ const ServicesIndex = () => {
   const [wasteSubcategories, setWasteSubcategories] = useState<WasteSubcategory[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState<number | null>(null);
+  const [currentService, setCurrentService] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [defaultStatusId, setDefaultStatusId] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   const { user } = useAuth();
 
@@ -143,7 +131,7 @@ const ServicesIndex = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const data = await getServices();
+      const data = await getServices(user?.id); // Pasar management_id
       setServices(data);
     } catch (error) {
       showErrorToast("Error fetching services");
@@ -195,17 +183,18 @@ const ServicesIndex = () => {
         delete serviceData.fk_waste_subcategory;
       }
 
-      // Asignar automáticamente el estado "En progreso" si no se especifica uno
-      serviceData = {
-        ...serviceData,
-        fk_status: defaultStatusId || serviceData.fk_status
-      };
-
       if (isEditing && currentId) {
+        // Al editar, mantener el estado actual del servicio
         await updateService(currentId, serviceData);
         showSuccessToast("Servicio actualizado exitosamente");
       } else {
-        await createService(serviceData);
+        // Al crear, asignar automáticamente estado "En progreso" (ID 1) y management_id
+        const newServiceData = {
+          ...serviceData,
+          fk_status: 1, // Siempre "En progreso" al crear
+          fk_management: user?.id // Asignar management_id del usuario logueado
+        };
+        await createService(newServiceData);
         showSuccessToast("Servicio creado exitosamente");
       }
       fetchData();
@@ -219,6 +208,7 @@ const ServicesIndex = () => {
   const handleEdit = async (id: number) => {
     try {
       const service = await getService(id);
+      setCurrentService(service);
       const formData = {
         ...service,
         fk_clients: service.fk_clients.pk_client,
@@ -231,66 +221,83 @@ const ServicesIndex = () => {
       form.reset(formData);
       setIsEditing(true);
       setCurrentId(id);
+      setShowForm(true);
     } catch (error) {
-      showErrorToast("Error fetching service for edit");
+      toast.error("Error al cargar servicio para editar");
     }
   };
 
   const handleDelete = (id: number) => {
-    const toastId = toast(
-      <div className="p-4">
-        <h3 className="font-bold text-lg mb-2">¿Estás seguro?</h3>
-        <p className="mb-4">Esta acción eliminará permanentemente el servicio.</p>
-        <div className="flex justify-end space-x-2">
+    toast.success(
+      <div>
+        <p>¿Estás seguro de eliminar este servicio?</p>
+        <div className="flex justify-end gap-2 mt-2">
           <button
-            onClick={() => {
-              toast.dismiss(toastId);
-              confirmDelete(id);
+            onClick={async () => {
+              toast.dismiss();
+              try {
+                await deleteService(id);
+                toast.success("Servicio eliminado exitosamente");
+                fetchData();
+              } catch (error) {
+                toast.error("Error al eliminar servicio");
+              }
             }}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            className="px-3 py-1 bg-white text-red-600 border border-red-600 rounded hover:bg-red-50"
           >
             Eliminar
           </button>
           <button
-            onClick={() => toast.dismiss(toastId)}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+            onClick={() => toast.dismiss()}
+            className="px-3 py-1 bg-white text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
           >
             Cancelar
           </button>
         </div>
       </div>,
       {
-        position: "top-right",
         autoClose: false,
         closeButton: false,
-        closeOnClick: false,
-        draggable: false,
-        className: "w-full max-w-md",
       }
     );
   };
 
-  const confirmDelete = async (id: number) => {
-    try {
-      await deleteService(id);
-      showSuccessToast("Service deleted successfully");
-      fetchData();
-    } catch (error) {
-      showErrorToast("Error deleting service");
-    }
+  const handleAdd = () => {
+    // Limpiar el formulario y estado para agregar nuevo
+    form.reset({
+      scheduled_date: "",
+      fk_clients: "" as any,
+      fk_locations: "" as any,
+      fk_status: "" as any,
+      fk_type_services: "" as any,
+      fk_waste: "" as any,
+      fk_waste_subcategory: "" as any,
+    });
+    setCurrentService(null);
+    setIsEditing(false);
+    setCurrentId(null);
+    setShowForm(true);
   };
 
   const resetForm = () => {
-    form.reset();
+    form.reset({
+      scheduled_date: "",
+      fk_clients: "" as any,
+      fk_locations: "" as any,
+      fk_status: "" as any,
+      fk_type_services: "" as any,
+      fk_waste: "" as any,
+      fk_waste_subcategory: "" as any,
+    });
+    setCurrentService(null);
     setIsEditing(false);
     setCurrentId(null);
+    setShowForm(false);
   };
 
   return (
     <div className="min-h-screen bg-green-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-green-800 mb-8">Gestión de Servicios</h1>
-
+      <div className="max-w-6xl mx-auto space-y-6">
         <ServiceForm
           form={form}
           clients={clients}
@@ -300,10 +307,12 @@ const ServicesIndex = () => {
           wastes={wastes}
           wasteSubcategories={wasteSubcategories}
           isEditing={isEditing}
+          currentService={currentService}
           onSubmit={onSubmit}
-          onReset={resetForm}
+          onClose={resetForm}
           selectedWaste={selectedWaste}
           isWasteCollectionService={isWasteCollectionService()}
+          isModalOpen={showForm}
         />
 
         <ServicesTable
@@ -311,6 +320,7 @@ const ServicesIndex = () => {
           isLoading={isLoading}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onAdd={handleAdd}
         />
       </div>
     </div>

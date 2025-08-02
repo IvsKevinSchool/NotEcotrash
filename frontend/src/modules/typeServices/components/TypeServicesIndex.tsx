@@ -122,7 +122,10 @@ const TypeServicesIndex = () => {
     };
 
     const handleCloseModal = () => {
-        reset();
+        reset({
+            name: "",
+            description: ""
+        });
         setCurrentTypeService(null);
         setIsEditing(false);
         setCurrentId(null);
@@ -163,7 +166,10 @@ const TypeServicesIndex = () => {
                         <button
                             onClick={() => {
                                 // Limpiar el formulario y estado para agregar nuevo
-                                reset();
+                                reset({
+                                    name: "",
+                                    description: ""
+                                });
                                 setCurrentTypeService(null);
                                 setIsEditing(false);
                                 setCurrentId(null);

@@ -3,8 +3,9 @@ import api from "../../../api";
 
 const API_URL = "services/services/";
 
-export const getServices = async () => {
-    const response = await api.get(API_URL);
+export const getServices = async (managementId?: number) => {
+    const params = managementId ? { management_id: managementId } : {};
+    const response = await api.get(API_URL, { params });
     return response.data;
 };
 
@@ -13,7 +14,7 @@ export const getService = async (id: number) => {
     return response.data;
 };
 
-export const createService = async (data: ServiceFormData) => {
+export const createService = async (data: ServiceFormData & { fk_management?: number }) => {
     const response = await api.post(API_URL, data);
     return response.data;
 };

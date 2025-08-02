@@ -138,7 +138,14 @@ const ClientsIndex: React.FC<ClientListProps> = ({
     };
 
     const handleCloseModal = () => {
-        reset();
+        reset({
+            name: "",
+            legal_name: "",
+            email: "",
+            phone_number: "",
+            phone_number_2: "",
+            rfc: "",
+        });
         setCurrentClient(null);
         setIsModalOpen(false);
     };
@@ -175,7 +182,19 @@ const ClientsIndex: React.FC<ClientListProps> = ({
                         </div>
 
                         <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => {
+                                // Limpiar el formulario y estado para agregar nuevo
+                                reset({
+                                    name: "",
+                                    legal_name: "",
+                                    email: "",
+                                    phone_number: "",
+                                    phone_number_2: "",
+                                    rfc: "",
+                                });
+                                setCurrentClient(null);
+                                setIsModalOpen(true);
+                            }}
                             className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
                         >
                             <PlusCircleIcon className="h-5 w-5" />
