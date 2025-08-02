@@ -63,7 +63,7 @@ export const ListLocations = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-green-700">Ubicaciones</h1>
         <Link
-          to="/admin/locations/add"
+          to="/management/locations/add"
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
         >
           <PlusIcon className="h-5 w-5" />

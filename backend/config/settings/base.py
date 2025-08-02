@@ -90,6 +90,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Auth Application
 AUTH_USER_MODEL = "accounts.User"
 
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    "apps.accounts.backends.EmailBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",

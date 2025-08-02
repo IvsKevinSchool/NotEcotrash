@@ -5,12 +5,14 @@ import { toast } from "react-toastify";
 import { ManagementService } from "../../management/services/managementService";
 import { handleApiError } from "../../../components/handleApiError";
 import { managementFormSchema, ManagementFormValues } from "../schemas/userSchema";
+import { DEFAULT_TEMP_PASSWORD } from "../../../utils/passwordGenerator";
 
 
 
 const ManagementRegister = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [registeredUserData, setRegisteredUserData] = useState<any>(null);
 
     const {
         register,
@@ -39,8 +41,8 @@ const ManagementRegister = () => {
                 first_name: data.name.split(' ')[0] || data.name,
                 last_name: data.name.split(' ')[1] || ".",
                 role: "management",
-                password: "TempPass123", // Contraseña temporal
-                password2: "TempPass123",
+                password: DEFAULT_TEMP_PASSWORD, // Contraseña temporal predeterminada
+                password2: DEFAULT_TEMP_PASSWORD,
                 phone_number: data.phone_number,
                 phone_number_2: data.phone_number_2,
                 rfc: data.rfc,
@@ -48,6 +50,9 @@ const ManagementRegister = () => {
 
             // Llamar al servicio de registro
             await ManagementService.register(registrationData);
+            
+            // Guardar datos para mostrar en el mensaje de éxito
+            setRegisteredUserData(registrationData);
 
             toast.success("Management registered successfully!");
             setSuccess(true);
@@ -68,9 +73,21 @@ const ManagementRegister = () => {
                 <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-center">
                     <div className="text-green-500 text-6xl mb-4">✓</div>
                     <h2 className="text-2xl font-bold text-green-800 mb-2">Registration Successful!</h2>
-                    <p className="text-green-600 mb-6">
+                    <p className="text-green-600 mb-4">
                         The management company has been registered successfully.
                     </p>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                        <h3 className="font-semibold text-yellow-800 mb-2">Login Information:</h3>
+                        <p className="text-sm text-yellow-700 mb-1">
+                            <strong>Email:</strong> {registeredUserData?.email || 'N/A'}
+                        </p>
+                        <p className="text-sm text-yellow-700 mb-2">
+                            <strong>Temporary Password:</strong> {DEFAULT_TEMP_PASSWORD}
+                        </p>
+                        <p className="text-xs text-yellow-600">
+                            ⚠️ The user will be required to change this password on first login.
+                        </p>
+                    </div>
                     <button
                         onClick={() => setSuccess(false)}
                         className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"

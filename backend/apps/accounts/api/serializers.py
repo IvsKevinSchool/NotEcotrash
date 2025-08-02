@@ -178,6 +178,24 @@ class LoginSerializer(serializers.Serializer):
         except ManagementUser.DoesNotExist:
             # El usuario no está asociado a un Management
             pass
+        
+        # Obtener información del Cliente asociado al usuario
+        client_info = {}
+        try:
+            client_user = ClientsUsers.objects.get(fk_user=user)
+            client = client_user.fk_client
+            client_info = {
+                "pk_client": client.pk,
+                "name": client.name,
+                "legal_name": client.legal_name,
+                "email": client.email,
+                "phone_number": client.phone_number,
+                "phone_number_2": client.phone_number_2,
+                "rfc": client.rfc
+            }
+        except ClientsUsers.DoesNotExist:
+            # El usuario no está asociado a un Cliente
+            pass
 
         return {
             "access_token": tokens["access"],
@@ -188,8 +206,10 @@ class LoginSerializer(serializers.Serializer):
                 "username": user.username,
                 "full_name": user.get_full_name,
                 "role": user.role,
+                "is_first_login": user.is_first_login,  # Agregar campo is_first_login
             },
-            "management": management_info
+            "management": management_info,
+            "client": client_info
         }
 
 
@@ -314,3 +334,33 @@ class UserListSerializer(serializers.ModelSerializer):
             'email',
             'is_active'
         ]
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Serializer for changing password for first-time login users.
+    Only requires new password since current password is temporary and known.
+    """
+    new_password = serializers.CharField(required=True, min_length=8)
+    
+    def validate_new_password(self, value):
+        """
+        Validate the new password.
+        """
+        user = self.context['request'].user
+        
+        # Check if new password is not the temporary password
+        if value in ['TempPass123!', 'TempPass123']:
+            raise serializers.ValidationError("New password cannot be the same as the temporary password.")
+        
+        return value
+    
+    def save(self):
+        """
+        Save the new password and update first login status.
+        """
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
+        user.is_first_login = False  # Mark as no longer first login
+        user.save()
+        return user

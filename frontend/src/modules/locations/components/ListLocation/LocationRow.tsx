@@ -20,7 +20,7 @@ export const LocationRow = ({ clientLocation, onDelete }: LocationRowProps) => {
 
     // Manejar la edición con navigate (opcional)
     const handleEdit = () => {
-        navigate(`/admin/locations/edit/${clientLocation.pk_client_location}`, {
+        navigate(`/management/locations/edit/${clientLocation.pk_client_location}`, {
             state: { from: window.location.pathname } // Para poder volver atrás
         });
     };
@@ -72,11 +72,10 @@ export const LocationRow = ({ clientLocation, onDelete }: LocationRowProps) => {
             </td>
             {/* Principal con badge */}
             <td className="px-3 py-4 text-center">
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    clientLocation.is_main
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                }`}>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${clientLocation.is_main
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {clientLocation.is_main ? 'Principal' : 'Secundaria'}
                 </span>
             </td>

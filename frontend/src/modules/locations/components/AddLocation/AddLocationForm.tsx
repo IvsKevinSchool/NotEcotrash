@@ -65,7 +65,7 @@ export const AddLocationForm = () => {
                 setIsLoadingClients(false);
             }
         };
-        
+
         fetchClients();
     }, [user.id]);
 
@@ -114,7 +114,7 @@ export const AddLocationForm = () => {
                 toast.success("Ubicación creada exitosamente");
             }
 
-            setTimeout(() => navigate("/admin/locations"), 1000);
+            setTimeout(() => navigate("/management/locations"), 1000);
         } catch (error) {
             console.error(error);
             handleApiError(error, `Error al ${isEditing ? 'actualizar' : 'crear'} ubicación:`,)

@@ -63,7 +63,7 @@ export const WasteListPage = () => {
                     <h1 className="text-3xl font-bold text-green-700">Gestión de Residuos</h1>
                 </div>
                 <button
-                    onClick={() => navigate("/admin/wastes/add")}
+                    onClick={() => navigate("/management/wastes/add")}
                     className="flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                     <PlusIcon className="h-5 w-5" />
@@ -85,7 +85,7 @@ export const WasteListPage = () => {
                     <h3 className="mt-2 text-lg font-medium text-green-800">No hay residuos registrados</h3>
                     <p className="mt-1 text-sm text-green-600">Comienza agregando un nuevo residuo</p>
                     <button
-                        onClick={() => navigate("/admin/wastes/add")}
+                        onClick={() => navigate("/management/wastes/add")}
                         className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
                         <PlusIcon className="-ml-1 mr-2 h-5 w-5" />
@@ -144,19 +144,11 @@ export const WasteListPage = () => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                                         <button
-                                            onClick={() => navigate(`/admin/wastes/edit/${waste.pk_waste}`)}
+                                            onClick={() => navigate(`/management/wastes/edit/${waste.pk_waste}`)}
                                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-100"
                                             title="Editar"
                                         >
                                             <PencilIcon className="h-5 w-5" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleToggleStatus(waste.pk_waste)}
-                                            className={`p-1 rounded hover:bg-blue-100 ${waste.is_active ? 'text-blue-600 hover:text-blue-900' : 'text-green-600 hover:text-green-900'
-                                                }`}
-                                            title={waste.is_active ? 'Desactivar' : 'Activar'}
-                                        >
-                                            <ArrowPathIcon className="h-5 w-5" />
                                         </button>
                                         <button
                                             onClick={() => handleDelete(waste.pk_waste)}

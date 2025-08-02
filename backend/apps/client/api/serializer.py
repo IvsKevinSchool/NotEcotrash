@@ -10,6 +10,8 @@ class ClientSerializer(serializers.ModelSerializer):
         #read_only_fields = ['pk_client', 'fk_management', 'created_at', 'updatet_at', 'is_active']
         
 class ClientsLocationsSerializer(serializers.ModelSerializer):
+    fk_location = LocationSerializer(read_only=True)
+
     class Meta:
         model = ClientsLocations
         fields= '__all__'

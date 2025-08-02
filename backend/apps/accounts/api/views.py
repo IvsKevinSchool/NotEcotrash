@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from apps.accounts.models import User, OneTimePassword
 from apps.accounts.api.serializers import UserRegisterSerializer, VerifyEmailSerializer, LoginSerializer, ResetPasswordSerializer, SetNewPasswordSerializer
-from apps.accounts.api.serializers import LogoutUserSerializer, UserListSerializer
+from apps.accounts.api.serializers import LogoutUserSerializer, UserListSerializer, ChangePasswordSerializer
 from apps.accounts.utils import send_otp_email
 
 from django.utils.http import urlsafe_base64_decode
@@ -231,3 +231,42 @@ class UserViewSet(ReadOnlyModelViewSet):
             queryset = queryset.filter(role=role)
             
         return queryset.order_by('first_name', 'last_name')
+
+
+class ChangePasswordView(GenericAPIView):
+    """
+    View for changing user password.
+    Requires authentication and validates current password.
+    """
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, *args, **kwargs):
+        """
+        Handle password change request.
+        """
+        serializer = self.get_serializer(data=request.data, context={'request': request})
+        
+        if serializer.is_valid():
+            try:
+                user = serializer.save()
+                return Response({
+                    "message": "Password changed successfully",
+                    "data": {
+                        "user": {
+                            "username": user.username,
+                            "email": user.email,
+                            "is_first_login": user.is_first_login
+                        }
+                    }
+                }, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({
+                    "message": "Error changing password",
+                    "error": str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({
+            "message": "Invalid data",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)

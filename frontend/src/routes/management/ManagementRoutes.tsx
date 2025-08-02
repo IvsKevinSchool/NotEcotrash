@@ -11,6 +11,7 @@ import { AddLocation } from '../../modules/locations/pages/AddLocation'
 import EditCollector from '../../modules/collector/pages/EditCollector'
 import ReportsIndex from '../../modules/reports/pages/ReportsIndex'
 import BackupsIndex from '../../modules/backups/pages/backups'
+import { WasteForm } from '../../modules/waste/components/WasteForm'
 
 export const ManagementRoutes = () => {
     return (
@@ -30,6 +31,8 @@ export const ManagementRoutes = () => {
 
             {/* Waste Module */}
             <Route path="/waste" element={<WasteListPage />} />
+            <Route path="/wastes/add" element={<WasteForm />} />
+            <Route path="/wastes/edit/:pk" element={<WasteForm />} />
             <Route path="/sub-waste" element={<div>Sub Waste Index</div>} />
 
             {/* Collector Module */}

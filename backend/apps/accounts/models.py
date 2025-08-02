@@ -25,7 +25,8 @@ class User(AbstractUser, PermissionsMixin):
     is_staff = models.BooleanField(_('staff status'), default=False)
     is_superuser = models.BooleanField(_('superuser status'), default=False)
     is_verified = models.BooleanField(_('verified'), default=False)
-    is_active = models.BooleanField(_('active'), default=True) 
+    is_active = models.BooleanField(_('active'), default=True)
+    is_first_login = models.BooleanField(_('first login'), default=True) 
 
     ROLE_CHOICES = (
         ('admin', 'Admin'),
