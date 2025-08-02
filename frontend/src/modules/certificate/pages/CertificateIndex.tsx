@@ -3,21 +3,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { CertificateFormData, certificateSchema } from "../schemas/certificateSchemas";
-import {
-    getCertificates,
-    getCertificate,
-    createCertificate,
-    updateCertificate,
-    deleteCertificate,
-    downloadCertificate,
-} from "../services/certificateService";
+import { createCertificate, getClients } from "../services/certificateService";
+import { useAuth } from "../../../context/AuthContext";
 
 const CertificateIndex = () => {
-    const [certificates, setCertificates] = useState<any[]>([]);
-    const [managements, setManagements] = useState<any[]>([]);
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentId, setCurrentId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [clients, setClients] = useState<Array<{ pk_client: number, name: string, email: string }>>([]);
+    const { user } = useAuth();
 
     const {
         register,
@@ -25,90 +17,40 @@ const CertificateIndex = () => {
         reset,
         setValue,
         watch,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<CertificateFormData>({
-        resolver: zodResolver(certificateSchema),
+        resolver: zodResolver(certificateSchema)
     });
 
     const selectedFile = watch("pdf");
+    const selectedClientId = watch("fk_client");
 
-    // Fetch initial data
+    // Obtener lista de clientes
     useEffect(() => {
-        fetchData();
-        // In a real app, you would fetch managements from API
-        setManagements([
-            { pk_management: 1, name: "Management 1" },
-            { pk_management: 2, name: "Management 2" },
-        ]);
-    }, []);
+        const fetchClients = async () => {
+            setIsLoading(true);
+            try {
+                const data = await getClients(user.id || 0);
+                setClients(data);
+            } catch (error) {
+                toast.error("Error al cargar los clientes");
+                console.error("Error fetching clients:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    const fetchData = async () => {
-        setIsLoading(true);
-        try {
-            const data = await getCertificates();
-            setCertificates(data);
-        } catch (error) {
-            toast.error("Error fetching certificates");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        fetchClients();
+    }, []);
 
     const onSubmit = async (data: CertificateFormData) => {
         try {
-            if (isEditing && currentId) {
-                await updateCertificate(currentId, data);
-                toast.success("Certificate updated successfully");
-            } else {
-                await createCertificate(data);
-                toast.success("Certificate created successfully");
-            }
-            fetchData();
+            await createCertificate(data);
+            toast.success("Certificado registrado exitosamente");
             resetForm();
         } catch (error) {
-            console.error("Error saving certificate:", error);
-            toast.error("Error saving certificate");
-        }
-    };
-
-    const handleEdit = async (id: number) => {
-        try {
-            const certificate = await getCertificate(id);
-            reset({
-                ...certificate,
-                pdf: undefined, // No establecer el archivo PDF existente
-            });
-            setIsEditing(true);
-            setCurrentId(id);
-        } catch (error) {
-            toast.error("Error fetching certificate for edit");
-        }
-    };
-
-    const handleDelete = async (id: number) => {
-        if (window.confirm("Are you sure you want to delete this certificate?")) {
-            try {
-                await deleteCertificate(id);
-                toast.success("Certificate deleted successfully");
-                fetchData();
-            } catch (error) {
-                toast.error("Error deleting certificate");
-            }
-        }
-    };
-
-    const handleDownload = async (id: number, fileName: string) => {
-        try {
-            const blob = await downloadCertificate(id);
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', fileName);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            toast.error("Error downloading certificate");
+            console.error("Error al registrar certificado:", error);
+            toast.error("Error al registrar certificado");
         }
     };
 
@@ -119,160 +61,120 @@ const CertificateIndex = () => {
     };
 
     const resetForm = () => {
-        reset();
-        setIsEditing(false);
-        setCurrentId(null);
+        reset({
+            fk_client: selectedClientId,
+            certificate_name: "",
+            pdf: undefined
+        });
     };
 
     return (
-        <div className="min-h-screen bg-green-50 p-6">
-            <div className="max-w-6xl mx-auto">
-                <h1 className="text-3xl font-bold text-green-800 mb-8">Certificates Management</h1>
+        <div className="bg-white rounded-lg shadow-md p-6 border border-green-200 max-w-2xl mx-auto">
+            <h2 className="text-xl font-semibold text-green-700 mb-4">Registrar Nuevo Certificado</h2>
 
-                {/* Form */}
-                <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-green-200">
-                    <h2 className="text-xl font-semibold text-green-700 mb-4">
-                        {isEditing ? "Edit Certificate" : "Add New Certificate"}
-                    </h2>
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Management Select */}
-                            <div>
-                                <label className="block text-green-700 mb-1">Management</label>
-                                <select
-                                    {...register("fk_management", { valueAsNumber: true })}
-                                    className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                >
-                                    <option value="">Select Management</option>
-                                    {managements.map((mgmt) => (
-                                        <option key={mgmt.pk_management} value={mgmt.pk_management}>
-                                            {mgmt.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.fk_management && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.fk_management.message}</p>
-                                )}
-                            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                    {/* Selector de Cliente */}
+                    <div>
+                        <label className="block text-green-700 mb-1">Cliente *</label>
+                        <select
+                            {...register("fk_client", { valueAsNumber: true })}
+                            className={`w-full p-2 border rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_client ? "border-red-500" : "border-green-300"
+                                }`}
+                            disabled={isLoading}
+                        >
+                            <option value="">Seleccione un cliente...</option>
+                            {clients.map((client) => (
+                                <option key={client.pk_client} value={client.pk_client}>
+                                    {client.name} - {client.email}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.fk_client && (
+                            <p className="text-red-500 text-sm mt-1">{errors.fk_client.message}</p>
+                        )}
+                    </div>
 
-                            {/* Certificate Name */}
-                            <div>
-                                <label className="block text-green-700 mb-1">Certificate Name</label>
+                    {/* Nombre del Certificado */}
+                    <div>
+                        <label className="block text-green-700 mb-1">Nombre del Certificado *</label>
+                        <input
+                            type="text"
+                            {...register("certificate_name")}
+                            className={`w-full p-2 border rounded focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.certificate_name ? "border-red-500" : "border-green-300"
+                                }`}
+                            placeholder="Ej: Certificado de Disposición Final"
+                            disabled={isLoading}
+                        />
+                        {errors.certificate_name && (
+                            <p className="text-red-500 text-sm mt-1">{errors.certificate_name.message}</p>
+                        )}
+                    </div>
+
+                    {/* Selector de Archivo PDF */}
+                    <div>
+                        <label className="block text-green-700 mb-1">Documento PDF *</label>
+                        <div className="flex items-center gap-2">
+                            <label className={`flex flex-col items-center px-4 py-2 rounded-lg border cursor-pointer hover:bg-green-50 ${errors.pdf ? "border-red-500" : "border-green-300"
+                                }`}>
+                                <span className="text-sm text-green-700">
+                                    {selectedFile?.name || "Seleccionar archivo PDF"}
+                                </span>
                                 <input
-                                    type="text"
-                                    {...register("certificate_name")}
-                                    className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    type="file"
+                                    accept=".pdf"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                    disabled={isLoading}
                                 />
-                                {errors.certificate_name && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.certificate_name.message}</p>
-                                )}
-                            </div>
-
-                            {/* PDF File Upload */}
-                            <div className="md:col-span-2">
-                                <label className="block text-green-700 mb-1">PDF File</label>
-                                <div className="flex items-center">
-                                    <label className="flex flex-col items-center px-4 py-2 bg-white rounded-lg border border-green-300 cursor-pointer hover:bg-green-50">
-                                        <span className="text-sm text-green-700">
-                                            {selectedFile?.name || "Choose a PDF file"}
-                                        </span>
-                                        <input
-                                            type="file"
-                                            accept=".pdf"
-                                            onChange={handleFileChange}
-                                            className="hidden"
-                                        />
-                                    </label>
-                                    {selectedFile && (
-                                        <span className="ml-2 text-sm text-green-600">
-                                            {selectedFile.name}
-                                        </span>
-                                    )}
-                                </div>
-                                {errors.pdf && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.pdf.message}</p>
-                                )}
-                                {!isEditing && !selectedFile && (
-                                    <p className="text-red-500 text-sm mt-1">PDF file is required</p>
-                                )}
-                            </div>
+                            </label>
+                            {selectedFile && (
+                                <button
+                                    type="button"
+                                    onClick={() => setValue("pdf", undefined, { shouldValidate: true })}
+                                    className="text-red-500 hover:text-red-700"
+                                    disabled={isLoading}
+                                >
+                                    ×
+                                </button>
+                            )}
                         </div>
-
-                        <div className="flex space-x-4 pt-4">
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
-                            >
-                                {isEditing ? "Update" : "Save"}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={resetForm}
-                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+                        {errors.pdf && (
+                            <p className="text-red-500 text-sm mt-1">{errors.pdf.message}</p>
+                        )}
+                        {!selectedFile && (
+                            <p className="text-sm text-gray-500 mt-1">Formatos aceptados: .pdf</p>
+                        )}
+                    </div>
                 </div>
 
-                {/* Table */}
-                <div className="bg-white rounded-lg shadow-md p-6 border border-green-200">
-                    <h2 className="text-xl font-semibold text-green-700 mb-4">Certificates List</h2>
-                    {isLoading ? (
-                        <div className="flex justify-center items-center h-32">
-                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-green-200">
-                                <thead className="bg-green-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">ID</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Name</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Management</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">File</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-green-200">
-                                    {certificates.map((cert) => (
-                                        <tr key={cert.pk_certificate} className="hover:bg-green-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{cert.pk_certificate}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">{cert.certificate_name}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">
-                                                {managements.find(m => m.pk_management === cert.fk_management)?.name || cert.fk_management}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900">
-                                                <button
-                                                    onClick={() => handleDownload(cert.pk_certificate, cert.certificate_name + '.pdf')}
-                                                    className="text-blue-600 hover:text-blue-800"
-                                                >
-                                                    Download PDF
-                                                </button>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                <button
-                                                    onClick={() => handleEdit(cert.pk_certificate)}
-                                                    className="text-green-600 hover:text-green-900 mr-3"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(cert.pk_certificate)}
-                                                    className="text-red-600 hover:text-red-900"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                {/* Botones de acción */}
+                <div className="flex space-x-4 pt-4">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting || isLoading}
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:bg-green-400 flex items-center justify-center"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Registrando...
+                            </>
+                        ) : "Registrar Certificado"}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={resetForm}
+                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+                        disabled={isSubmitting || isLoading}
+                    >
+                        Limpiar
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     );
 };

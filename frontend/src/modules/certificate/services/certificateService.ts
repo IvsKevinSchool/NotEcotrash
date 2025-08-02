@@ -1,22 +1,23 @@
 import api from "../../../api";
 import { CertificateFormData } from "../schemas/certificateSchemas";
 
-const API_URL = "management/certificate/";
+const API_URL = "client/certificate/";
 
 export const getCertificates = async () => {
     const response = await api.get(API_URL);
     return response.data;
 };
 
-export const getCertificate = async (id: number) => {
-    const response = await api.get(`${API_URL}${id}/`);
+export const getClients = async (id: number) => {
+    const response = await api.get(`client/by-management/${id}/`);
     return response.data;
 };
 
 export const createCertificate = async (data: CertificateFormData) => {
     const formData = new FormData();
-    formData.append('fk_management', data.fk_management.toString());
+    formData.append('fk_client', data.fk_client.toString());
     formData.append('certificate_name', data.certificate_name);
+    formData.append('is_active', "true");
     if (data.pdf) {
         formData.append('pdf', data.pdf);
     }
@@ -31,7 +32,7 @@ export const createCertificate = async (data: CertificateFormData) => {
 
 export const updateCertificate = async (id: number, data: CertificateFormData) => {
     const formData = new FormData();
-    formData.append('fk_management', data.fk_management.toString());
+    formData.append('fk_management', data.fk_client.toString());
     formData.append('certificate_name', data.certificate_name);
     if (data.pdf) {
         formData.append('pdf', data.pdf);
