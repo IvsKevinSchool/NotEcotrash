@@ -30,32 +30,32 @@ export const SidebarECO = () => {
     }
 
     const adminLinks = [
-        { to: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-        { to: '/admin/clients', label: 'Management Companies', icon: '🏢' },
+        { to: '/admin/dashboard', label: 'Tablero', icon: '📊' },
+        { to: '/admin/clients', label: 'Empresas de Gestión', icon: '🏢' },
     ];
 
     const managementLinks = [
-        { to: '/management/reports', label: 'Reports', icon: '📃' },
-        { to: '/management/clients', label: 'Clients', icon: '👥' },
-        { to: '/management/services', label: 'Services', icon: '♻️' },
-        { to: '/management/type-services', label: 'Type Services', icon: '📚' },
-        { to: '/management/locations', label: 'Locations', icon: '🚩' },
-        { to: '/management/collector', label: 'Collectors', icon: '🚛' },
-        { to: '/management/waste', label: 'Wastes', icon: '🗑️' },
-        { to: '/waste/subcategories', label: 'Sub Category Wastes', icon: '🏷️' },
-        { to: '/management/certificate', label: 'Certificate', icon: '📜' },
-        { to: '/management/backups', label: 'Backups', icon: '💩' },
+        { to: '/management/reports', label: 'Reportes', icon: '📃' },
+        { to: '/management/clients', label: 'Clientes', icon: '👥' },
+        { to: '/management/services', label: 'Servicios', icon: '♻️' },
+        { to: '/management/type-services', label: 'Tipo de Servicios', icon: '📚' },
+        { to: '/management/locations', label: 'Locaciones', icon: '🚩' },
+        { to: '/management/collector', label: 'Recolectores', icon: '🚛' },
+        { to: '/management/waste', label: 'Residuos', icon: '🗑️' },
+        { to: '/waste/subcategories', label: 'Subcategoria de Residuos', icon: '🏷️' },
+        { to: '/management/certificate', label: 'Certificados', icon: '📜' },
+        { to: '/management/backups', label: 'Repaldos', icon: '💩' },
     ];
 
     const clientLinks = [
-        { to: '/client/dashboard', label: 'Dashboard', icon: '📊' },
-        { to: '/client/services', label: 'My Services', icon: '♻️' },
-        { to: '/client/certificate', label: 'Certificates', icon: '📑' },
+        { to: '/client/dashboard', label: 'Tablero', icon: '📊' },
+        { to: '/client/services', label: 'Mis Servicios', icon: '♻️' },
+        { to: '/client/certificate', label: 'Certificados', icon: '📑' },
     ];
 
     const collectorLinks = [
-        { to: '/collector/dashboard', label: 'Dashboard', icon: '📊' },
-        { to: '/collector/services', label: 'Assigned Services', icon: '🚛' },
+        { to: '/collector/dashboard', label: 'Tablero', icon: '📊' },
+        { to: '/collector/services', label: 'Servicios Asignados', icon: '🚛' },
     ];
 
     // Selección de menú según rol
