@@ -99,8 +99,12 @@ export const getStatusesForForm = async (): Promise<Status[]> => {
   return response.data;
 };
 
-export const getTypeServicesForForm = async (): Promise<TypeService[]> => {
-  const response = await api.get('services/typeServices/');
+export const getTypeServicesForForm = async (managementId?: number): Promise<TypeService[]> => {
+  let url = 'services/typeServices/';
+  if (managementId) {
+    url += `?management_id=${managementId}`;
+  }
+  const response = await api.get(url);
   return response.data;
 };
 
@@ -121,7 +125,7 @@ export const getServiceFormData = async (managementId?: number) => {
       getClientsForForm(),
       managementId ? getLocationsForServices(managementId) : getLocationsForForm(),
       getStatusesForForm(),
-      getTypeServicesForForm(),
+      getTypeServicesForForm(managementId), // ← Pasar managementId aquí también
       getWastesForForm(),
       getWasteSubcategoriesForForm()
     ]);

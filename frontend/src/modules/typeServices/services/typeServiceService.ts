@@ -3,8 +3,12 @@ import { TypeServiceFormData } from "../schemas/typeServiceSchema";
 
 const API_URL = "services/typeServices/";
 
-export const getTypeServices = async () => {
-    const response = await api.get(API_URL);
+export const getTypeServices = async (managementId?: number) => {
+    let url = API_URL;
+    if (managementId) {
+        url += `?management_id=${managementId}`;
+    }
+    const response = await api.get(url);
     return response.data;
 };
 

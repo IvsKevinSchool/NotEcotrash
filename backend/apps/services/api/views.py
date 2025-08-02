@@ -25,6 +25,8 @@ import datetime
 import csv
 import glob
 from rest_framework.views import APIView
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 
 class StatusViewSet(viewsets.ModelViewSet):
@@ -38,10 +40,34 @@ class StatusViewSet(viewsets.ModelViewSet):
 class TypeServicesViewSet(viewsets.ModelViewSet):
     """
     A viewset for viewing and editing TypeServices instances.
+    Returns default services (IDs: 1, 2, 3) plus management-specific services.
+    
+    Query Parameters:
+    - management_id (optional): Filter services by management ID. Returns basic services (IDs: 1,2,3) + management-specific services.
     """
-    queryset = TypeServices.objects.all()
     serializer_class = TypeServicesSerializer
     http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    
+    def get_queryset(self):
+        """
+        Retorna los servicios básicos (IDs: 1, 2, 3) más los servicios específicos del management.
+        Si no hay management_id en query params, retorna todos los servicios.
+        
+        Query Parameters:
+        - management_id: ID del management para filtrar servicios
+        """
+        management_id = self.request.query_params.get('management_id', None)
+        
+        if management_id:
+            # Servicios básicos (IDs: 1, 2, 3) + servicios del management específico
+            from django.db.models import Q
+            return TypeServices.objects.filter(
+                Q(pk_type_services__in=[1, 2, 3]) |  # Servicios básicos
+                Q(fk_management_id=management_id)    # Servicios del management
+            ).distinct()
+        
+        # Si no hay management_id, retornar todos (para compatibilidad)
+        return TypeServices.objects.all()
 
 class ServicesViewSet(viewsets.ModelViewSet):
     """
