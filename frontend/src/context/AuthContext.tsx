@@ -40,16 +40,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = (userData: IUserData) => {
+        console.log('🔍 AuthContext - Login llamado con:', userData);
         setUser(userData);
         localStorage.setItem('ecotrash_user', JSON.stringify(userData));
+        console.log('🔍 AuthContext - Usuario guardado en localStorage');
     };
 
     const logout = () => {
+        console.log('🔍 AuthContext - Logout llamado');
         setUser(initialUser);
         localStorage.removeItem('ecotrash_user');
     };
 
-    const isAuthenticated = !!user; // Cambiado a propiedad computada
+    const isAuthenticated = !!user.token && user.id !== 0; // Verificar token y id válido
+
+    console.log('🔍 AuthContext - Estado actual:', {
+        user,
+        isAuthenticated,
+        loading,
+        hasToken: !!user.token,
+        hasValidId: user.id !== 0
+    });
 
     return (
         <AuthContext.Provider value={{

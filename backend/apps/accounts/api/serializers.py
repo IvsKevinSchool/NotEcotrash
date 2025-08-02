@@ -188,6 +188,7 @@ class LoginSerializer(serializers.Serializer):
                 "username": user.username,
                 "full_name": user.get_full_name,
                 "role": user.role,
+                "is_first_login": user.is_first_login,  # Agregar campo is_first_login
             },
             "management": management_info
         }
@@ -314,3 +315,33 @@ class UserListSerializer(serializers.ModelSerializer):
             'email',
             'is_active'
         ]
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """
+    Serializer for changing password for first-time login users.
+    Only requires new password since current password is temporary and known.
+    """
+    new_password = serializers.CharField(required=True, min_length=8)
+    
+    def validate_new_password(self, value):
+        """
+        Validate the new password.
+        """
+        user = self.context['request'].user
+        
+        # Check if new password is not the temporary password
+        if value in ['TempPass123!', 'TempPass123']:
+            raise serializers.ValidationError("New password cannot be the same as the temporary password.")
+        
+        return value
+    
+    def save(self):
+        """
+        Save the new password and update first login status.
+        """
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
+        user.is_first_login = False  # Mark as no longer first login
+        user.save()
+        return user
