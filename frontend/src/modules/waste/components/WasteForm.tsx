@@ -67,7 +67,7 @@ export const WasteForm = () => {
                 await createWaste(data, user.id);
                 reset();
             }
-            navigate("/admin/wastes");
+            navigate("/management/waste");
         } catch (error) {
             handleApiError(error, "Error al guardar el residuo");
         } finally {
