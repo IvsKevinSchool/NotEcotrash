@@ -5,9 +5,11 @@ import LoginForm from './LoginForm';
 import { toast } from 'react-toastify';
 import api from '../api'; // Asegúrate de importar tu configuración de axios
 import logo from '../assets/Logo.png';
+import ForcePasswordChange from '../components/ForcePasswordChange';
 
 const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
+    const [showForcePasswordChange, setShowForcePasswordChange] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -15,8 +17,11 @@ const Login = () => {
     const handleLogin = async (data) => {
         setIsLoading(true);
         try {
+            console.log('🔍 Datos de login enviados:', data);
             const response = await api.post('accounts/auth/login/', data);
-            console.log(response.data)
+            console.log('🔍 Respuesta completa del servidor:', response);
+            console.log('🔍 Status de respuesta:', response.status);
+            console.log('🔍 Data de respuesta:', response.data);
 
             // 2. Verificar si la respuesta fue exitosa
             if (response.status >= 200 && response.status < 300) {
@@ -29,20 +34,34 @@ const Login = () => {
                     token: response.data.data.access_token, // access_token en lugar de access
                     //refreshToken: response.data.data.refresh_token, // refresh_token en lugar de refresh
                     role: response.data.data.user.role,
+                    is_first_login: response.data.data.user.is_first_login || false, // Campo para primer login
                     //id_management: response.data.data.management.pk_management || 0, // Asegúrate de que este campo exista
                 };
 
-                console.log('Datos del usuario:', userData);
-                console.log('Rol específico:', userData.role, typeof userData.role);
+                console.log('🔍 Datos del usuario procesados:', userData);
+                console.log('🔍 Rol específico:', userData.role, typeof userData.role);
+                console.log('🔍 Primer login:', userData.is_first_login);
 
-                // 3. Guardar usuario en el contexto de autenticación
+                // 3. Verificar si es primer login
+                if (userData.is_first_login) {
+                    console.log('🔍 Es primer login, mostrando cambio de contraseña');
+                    // Guardar usuario en el contexto pero mostrar cambio de contraseña
+                    login(userData);
+                    setShowForcePasswordChange(true);
+                    return;
+                }
+
+                console.log('🔍 No es primer login, procediendo con login normal');
+
+                // 4. Guardar usuario en el contexto de autenticación (login normal)
                 login(userData);
 
-                // 4. Mostrar mensaje de bienvenida
+                // 5. Mostrar mensaje de bienvenida
                 toast.success(`Bienvenido ${userData.name}`);
 
-                // 5. Redireccionar según el rol
+                // 6. Redireccionar según el rol
                 const from = location.state?.from?.pathname || getDashboardPath(userData.role);
+                console.log('🔍 Redirigiendo a:', from);
                 navigate(from, { replace: true });
             } else {
                 throw new Error(response.data?.message || 'Error en el login');
@@ -73,6 +92,12 @@ const Login = () => {
         }
     };
 
+    // Función para manejar cuando se cambia la contraseña exitosamente
+    const handlePasswordChanged = () => {
+        setShowForcePasswordChange(false);
+        // El usuario será deslogueado automáticamente en ForcePasswordChange
+    };
+
     // Función para determinar la ruta según el rol
     const getDashboardPath = (role) => {
         console.log('Rol del usuario:', role);
@@ -89,6 +114,11 @@ const Login = () => {
                 return '/dashboard';
         }
     };
+
+    // Si necesita cambiar contraseña, mostrar el componente correspondiente
+    if (showForcePasswordChange) {
+        return <ForcePasswordChange onPasswordChanged={handlePasswordChanged} />;
+    }
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row">
