@@ -51,6 +51,7 @@ export const SidebarECO = () => {
         { to: '/client/dashboard', label: 'Tablero', icon: '📊' },
         { to: '/client/services', label: 'Mis Servicios', icon: '♻️' },
         { to: '/client/certificate', label: 'Certificados', icon: '📑' },
+        { to: '/client/profile', label: 'Perfil', icon: '👥' },
     ];
 
     const collectorLinks = [

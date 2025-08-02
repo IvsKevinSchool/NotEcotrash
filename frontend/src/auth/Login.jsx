@@ -26,7 +26,7 @@ const Login = () => {
             // 2. Verificar si la respuesta fue exitosa
             if (response.status >= 200 && response.status < 300) {
                 const userData = {
-                    id: response.data.data.management.pk_management, // Accede a través de data.user
+                    id: response.data.data.management.pk_management || response.data.data.client.pk_client, // Accede a través de data.user
                     // id: response.data.data.user.pk, // Accede a través de data.user
                     username: response.data.data.user.username,
                     name: response.data.data.user.full_name, // Usa full_name en lugar de combinar first y last

@@ -178,6 +178,24 @@ class LoginSerializer(serializers.Serializer):
         except ManagementUser.DoesNotExist:
             # El usuario no está asociado a un Management
             pass
+        
+        # Obtener información del Cliente asociado al usuario
+        client_info = {}
+        try:
+            client_user = ClientsUsers.objects.get(fk_user=user)
+            client = client_user.fk_client
+            client_info = {
+                "pk_client": client.pk,
+                "name": client.name,
+                "legal_name": client.legal_name,
+                "email": client.email,
+                "phone_number": client.phone_number,
+                "phone_number_2": client.phone_number_2,
+                "rfc": client.rfc
+            }
+        except ClientsUsers.DoesNotExist:
+            # El usuario no está asociado a un Cliente
+            pass
 
         return {
             "access_token": tokens["access"],
@@ -190,7 +208,8 @@ class LoginSerializer(serializers.Serializer):
                 "role": user.role,
                 "is_first_login": user.is_first_login,  # Agregar campo is_first_login
             },
-            "management": management_info
+            "management": management_info,
+            "client": client_info
         }
 
 
