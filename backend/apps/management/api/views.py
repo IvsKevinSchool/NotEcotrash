@@ -38,6 +38,19 @@ class CreateCollectorByManagementAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class CollectorsByManagementAPIView(generics.ListAPIView):
+    """
+    Vista para obtener todos los collectors de un management específico.
+    GET /management/management/<int:management_id>/collectors/
+    """
+    serializer_class = CollectorUserSerializer
+    
+    def get_queryset(self):
+        management_id = self.kwargs['management_id']
+        return CollectorUsers.objects.filter(
+            fk_management_id=management_id
+        ).select_related('fk_user', 'fk_management')
+
 # Actualizar Collector User By ID
 class CollectorUserUpdateAPIView(RetrieveUpdateAPIView):
     queryset = CollectorUsers.objects.all()

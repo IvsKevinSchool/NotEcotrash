@@ -3,8 +3,13 @@ import { CollectorUserFormData, EditCollectorFormData } from "../schemas/collect
 
 const API_URL = "management/collector/";
 
-export const getCollectorUsers = async () => {
-    const response = await api.get(API_URL);
+export const getCollectorUsers = async (managementId?: number) => {
+    // Si se proporciona managementId, usar endpoint filtrado, sino usar el general
+    let url = API_URL;
+    if (managementId) {
+        url = `management/management/${managementId}/collectors/`;
+    }
+    const response = await api.get(url);
     return response.data;
 };
 
