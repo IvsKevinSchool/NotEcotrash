@@ -75,3 +75,125 @@ class WasteByManagementAPIView(APIView):
         wastes = Waste.objects.filter(pk_waste__in=waste_ids)
         serializer = WasteSerializer(wastes, many=True)
         return Response(serializer.data)
+
+class WasteSubCategoryByManagementAPIView(APIView):
+    def get(self, request, management_id):
+        # Obtiene las subcategorías de residuos relacionadas con el Management a través de Waste
+        waste_ids = ManagementWaste.objects.filter(
+            fk_management=management_id
+        ).values_list('fk_waste', flat=True)
+        
+        subcategories = WasteSubCategory.objects.select_related('fk_waste').filter(
+            fk_waste__in=waste_ids
+        )
+        serializer = WasteSubCategorySerializer(subcategories, many=True)
+        return Response(serializer.data)
+
+class CreateWasteSubCategoryForManagementAPIView(APIView):
+    def post(self, request, management_id):
+        # Verifica que el Waste especificado pertenezca al Management
+        waste_id = request.data.get('fk_waste')
+        if not waste_id:
+            return Response({'error': 'fk_waste es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verifica que el Waste esté relacionado con el Management
+        if not ManagementWaste.objects.filter(fk_management=management_id, fk_waste=waste_id).exists():
+            return Response({
+                'error': 'El Waste especificado no pertenece a este Management'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Crea la subcategoría
+        serializer = WasteSubCategoryCreateUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            subcategory = serializer.save()
+            return Response(WasteSubCategorySerializer(subcategory).data, status=status.HTTP_201_CREATED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UpdateWasteSubCategoryForManagementAPIView(RetrieveUpdateAPIView):
+    queryset = WasteSubCategory.objects.select_related('fk_waste').all()
+    serializer_class = WasteSubCategoryCreateUpdateSerializer
+
+    def perform_update(self, serializer):
+        subcategory = self.get_object()
+        management_id = self.kwargs['management_id']
+        
+        # Verifica que la subcategoría pertenezca a un Waste del Management
+        if not ManagementWaste.objects.filter(
+            fk_management=management_id, 
+            fk_waste=subcategory.fk_waste
+        ).exists():
+            raise PermissionDenied("Esta subcategoría no pertenece al Management especificado.")
+        
+        serializer.save()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        management_id = self.kwargs['management_id']
+        
+        # Verifica que la subcategoría pertenezca a un Waste del Management
+        if not ManagementWaste.objects.filter(
+            fk_management=management_id, 
+            fk_waste=instance.fk_waste
+        ).exists():
+            raise PermissionDenied("Esta subcategoría no pertenece al Management especificado.")
+        
+        serializer = WasteSubCategorySerializer(instance)
+        return Response(serializer.data)
+
+class DeleteWasteForManagementAPIView(APIView):
+    def delete(self, request, management_id, pk):
+        try:
+            waste = Waste.objects.get(pk_waste=pk)
+        except Waste.DoesNotExist:
+            return Response({'error': 'Waste no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Verifica que el Waste esté relacionado con el Management
+        if not ManagementWaste.objects.filter(fk_management=management_id, fk_waste=waste).exists():
+            raise PermissionDenied("Este Waste no pertenece al Management especificado.")
+        
+        # Elimina la relación ManagementWaste primero
+        ManagementWaste.objects.filter(fk_management=management_id, fk_waste=waste).delete()
+        
+        # Elimina el Waste (esto también eliminará las subcategorías relacionadas por CASCADE)
+        waste.delete()
+        
+        return Response({'message': 'Waste eliminado exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+
+class DeleteWasteSubCategoryForManagementAPIView(APIView):
+    def delete(self, request, management_id, pk):
+        try:
+            subcategory = WasteSubCategory.objects.select_related('fk_waste').get(pk_waste_subcategory=pk)
+        except WasteSubCategory.DoesNotExist:
+            return Response({'error': 'Subcategoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Verifica que la subcategoría pertenezca a un Waste del Management
+        if not ManagementWaste.objects.filter(
+            fk_management=management_id, 
+            fk_waste=subcategory.fk_waste
+        ).exists():
+            raise PermissionDenied("Esta subcategoría no pertenece al Management especificado.")
+        
+        # Elimina la subcategoría
+        subcategory.delete()
+        
+        return Response({'message': 'Subcategoría eliminada exitosamente'}, status=status.HTTP_204_NO_CONTENT)
+
+class DeleteWasteSubCategoryForManagementAPIView(APIView):
+    def delete(self, request, management_id, pk):
+        try:
+            subcategory = WasteSubCategory.objects.select_related('fk_waste').get(pk_waste_subcategory=pk)
+        except WasteSubCategory.DoesNotExist:
+            return Response({'error': 'Subcategoría no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Verifica que la subcategoría pertenezca a un Waste del Management
+        if not ManagementWaste.objects.filter(
+            fk_management=management_id, 
+            fk_waste=subcategory.fk_waste
+        ).exists():
+            raise PermissionDenied("Esta subcategoría no pertenece al Management especificado.")
+        
+        # Elimina la subcategoría
+        subcategory.delete()
+        
+        return Response({'message': 'Subcategoría eliminada exitosamente'}, status=status.HTTP_204_NO_CONTENT)

@@ -41,8 +41,7 @@ export const SidebarECO = () => {
         { to: '/management/type-services', label: 'Tipo de Servicios', icon: '📚' },
         { to: '/management/locations', label: 'Locaciones', icon: '🚩' },
         { to: '/management/collector', label: 'Recolectores', icon: '🚛' },
-        { to: '/management/waste', label: 'Residuos', icon: '🗑️' },
-        { to: '/waste/subcategories', label: 'Subcategoria de Residuos', icon: '🏷️' },
+        { to: '/waste', label: 'Residuos', icon: '🗑️' },
         { to: '/management/certificate', label: 'Certificados', icon: '📜' },
         { to: '/management/backups', label: 'Repaldos', icon: '💩' },
     ];

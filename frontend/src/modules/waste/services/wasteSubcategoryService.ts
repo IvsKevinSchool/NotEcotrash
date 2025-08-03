@@ -26,9 +26,16 @@ export interface WasteSubcategoryFormData {
   is_active?: boolean;
 }
 
-// Servicios para subcategorías de residuos
-export const getWasteSubcategories = async (): Promise<WasteSubcategory[]> => {
-  const response = await api.get('waste/subcategory/');
+// Servicios para subcategorías de residuos (endpoints filtrados por gestión)
+export const getWasteSubcategories = async (managementId?: number): Promise<WasteSubcategory[]> => {
+  // Si se proporciona managementId, usar endpoint filtrado, sino usar el general
+  let url = 'waste/subcategory/';
+  
+  if (managementId) {
+    url = `management/management/${managementId}/waste-subcategories/`;
+  }
+  
+  const response = await api.get(url);
   return response.data;
 };
 
@@ -37,22 +44,85 @@ export const getWasteSubcategory = async (id: number): Promise<WasteSubcategory>
   return response.data;
 };
 
-export const createWasteSubcategory = async (data: WasteSubcategoryFormData): Promise<WasteSubcategory> => {
-  const response = await api.post('waste/subcategory/', data);
+export const createWasteSubcategory = async (data: WasteSubcategoryFormData, managementId?: number): Promise<WasteSubcategory> => {
+  // Si se proporciona managementId, usar endpoint de gestión, sino usar el general
+  let url = 'waste/subcategory/';
+  
+  if (managementId) {
+    url = `management/management/${managementId}/create-waste-subcategory/`;
+  }
+  
+  const response = await api.post(url, data);
   return response.data;
 };
 
-export const updateWasteSubcategory = async (id: number, data: WasteSubcategoryFormData): Promise<WasteSubcategory> => {
-  const response = await api.put(`waste/subcategory/${id}/`, data);
+export const updateWasteSubcategory = async (id: number, data: WasteSubcategoryFormData, managementId?: number): Promise<WasteSubcategory> => {
+  // Si se proporciona managementId, usar endpoint de gestión, sino usar el general
+  let url = `waste/subcategory/${id}/`;
+  
+  if (managementId) {
+    url = `management/management/${managementId}/update-waste-subcategory/${id}/`;
+  }
+  
+  const response = await api.put(url, data);
   return response.data;
 };
 
-export const deleteWasteSubcategory = async (id: number): Promise<void> => {
-  await api.delete(`waste/subcategory/${id}/`);
+export const deleteWasteSubcategory = async (id: number, managementId?: number): Promise<void> => {
+  // Si se proporciona managementId, usar endpoint de gestión, sino usar el general
+  let url = `waste/subcategory/${id}/`;
+  
+  if (managementId) {
+    url = `management/management/${managementId}/delete-waste-subcategory/${id}/`;
+  }
+  
+  await api.delete(url);
 };
 
-// Servicio para obtener residuos (para el dropdown)
-export const getWastes = async (): Promise<Waste[]> => {
-  const response = await api.get('waste/waste/');
+// Servicios para residuos (endpoints filtrados por gestión)
+export const getWastes = async (managementId?: number): Promise<Waste[]> => {
+  // Si se proporciona managementId, usar endpoint filtrado, sino usar el general
+  let url = 'waste/waste/';
+  
+  if (managementId) {
+    url = `management/management/${managementId}/wastes/`;
+  }
+  
+  const response = await api.get(url);
   return response.data;
+};
+
+export const createWaste = async (data: { name: string; description?: string; is_active?: boolean }, managementId?: number): Promise<Waste> => {
+  // Si se proporciona managementId, usar endpoint de gestión, sino usar el general
+  let url = 'waste/waste/';
+  
+  if (managementId) {
+    url = `management/management/${managementId}/create-waste/`;
+  }
+  
+  const response = await api.post(url, data);
+  return response.data;
+};
+
+export const updateWaste = async (id: number, data: { name: string; description?: string; is_active?: boolean }, managementId?: number): Promise<Waste> => {
+  // Si se proporciona managementId, usar endpoint de gestión, sino usar el general
+  let url = `waste/waste/${id}/`;
+  
+  if (managementId) {
+    url = `management/management/${managementId}/update-waste/${id}/`;
+  }
+  
+  const response = await api.put(url, data);
+  return response.data;
+};
+
+export const deleteWaste = async (id: number, managementId?: number): Promise<void> => {
+  // Si se proporciona managementId, usar endpoint de gestión, sino usar el general
+  let url = `waste/waste/${id}/`;
+  
+  if (managementId) {
+    url = `management/management/${managementId}/delete-waste/${id}/`;
+  }
+  
+  await api.delete(url);
 };

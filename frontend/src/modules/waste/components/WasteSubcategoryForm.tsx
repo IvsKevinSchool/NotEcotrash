@@ -17,6 +17,7 @@ interface WasteSubcategoryFormProps {
   onCancel: () => void;
   isEditing?: boolean;
   initialData?: WasteSubcategoryFormInitialData;
+  defaultWasteId?: number | null;
 }
 
 const WasteSubcategoryForm: React.FC<WasteSubcategoryFormProps> = ({
@@ -24,7 +25,8 @@ const WasteSubcategoryForm: React.FC<WasteSubcategoryFormProps> = ({
   onSubmit,
   onCancel,
   isEditing = false,
-  initialData
+  initialData,
+  defaultWasteId
 }) => {
   const {
     register,
@@ -35,7 +37,7 @@ const WasteSubcategoryForm: React.FC<WasteSubcategoryFormProps> = ({
     defaultValues: initialData || {
       name: '',
       description: '',
-      fk_waste: 0,
+      fk_waste: defaultWasteId || 0,
       is_active: true,
     },
   });

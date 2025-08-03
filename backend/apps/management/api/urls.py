@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from apps.management.api.views import ManagementViewSet, ManagementLocationsViewSet, ManagementUserViewSet, ManagementWasteViewSet, CollectorUsersViewSet, CreateCollectorByManagementAPIView, CollectorUserUpdateAPIView, CreateManagementLocationAPIView, ManagementLocationsList, CollectorsByManagementAPIView
-from apps.waste.api.views import CreateWasteForManagementAPIView, UpdateWasteForManagementAPIView, WasteByManagementAPIView
+from apps.waste.api.views import CreateWasteForManagementAPIView, UpdateWasteForManagementAPIView, WasteByManagementAPIView, WasteSubCategoryByManagementAPIView, CreateWasteSubCategoryForManagementAPIView, UpdateWasteSubCategoryForManagementAPIView, DeleteWasteForManagementAPIView, DeleteWasteSubCategoryForManagementAPIView
 from django.urls import path
 
 
@@ -26,6 +26,31 @@ urlpatterns = [
     'management/<int:management_id>/wastes/',
     WasteByManagementAPIView.as_view(),
     name='wastes-by-management'
+    ),
+    path(
+    'management/<int:management_id>/waste-subcategories/',
+    WasteSubCategoryByManagementAPIView.as_view(),
+    name='waste-subcategories-by-management'
+    ),
+    path(
+    'management/<int:management_id>/create-waste-subcategory/',
+    CreateWasteSubCategoryForManagementAPIView.as_view(),
+    name='create-waste-subcategory-for-management'
+    ),
+    path(
+    'management/<int:management_id>/update-waste-subcategory/<int:pk>/',
+    UpdateWasteSubCategoryForManagementAPIView.as_view(),
+    name='update-waste-subcategory-for-management'
+    ),
+    path(
+    'management/<int:management_id>/delete-waste/<int:pk>/',
+    DeleteWasteForManagementAPIView.as_view(),
+    name='delete-waste-for-management'
+    ),
+    path(
+    'management/<int:management_id>/delete-waste-subcategory/<int:pk>/',
+    DeleteWasteSubCategoryForManagementAPIView.as_view(),
+    name='delete-waste-subcategory-for-management'
     ),
     path(
     'management/<int:management_id>/create-collector/',
