@@ -25,7 +25,7 @@ class TypeServices(models.Model):
     pk_type_services = models.AutoField(primary_key=True)
     fk_management = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='type_services')
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
