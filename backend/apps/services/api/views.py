@@ -515,51 +515,51 @@ def get_latest_csv_for_table(table_name):
 
     return csv_files[0]
 
-@api_view(['POST'])
-def restore_table_from_latest_csv(request):
-    table_name = request.data.get('table')
-    if not table_name:
-        return Response({'error': 'El parámetro "table" es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# def restore_table_from_latest_csv(request):
+#     table_name = request.data.get('table')
+#     if not table_name:
+#         return Response({'error': 'El parámetro "table" es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
 
-    latest_csv = get_latest_csv_for_table(table_name)
-    if not latest_csv:
-        return Response({'error': f'No se encontró ningún respaldo CSV para la tabla "{table_name}".'}, status=status.HTTP_404_NOT_FOUND)
+#     latest_csv = get_latest_csv_for_table(table_name)
+#     if not latest_csv:
+#         return Response({'error': f'No se encontró ningún respaldo CSV para la tabla "{table_name}".'}, status=status.HTTP_404_NOT_FOUND)
 
-    try:
-        db = settings.DATABASES['default']
-        conn = psycopg2.connect(
-            dbname=db['NAME'],
-            user=db['USER'],
-            password=db['PASSWORD'],
-            host=db.get('HOST', 'localhost'),
-            port=db.get('PORT', '5432')
-        )
-        cursor = conn.cursor()
+#     try:
+#         db = settings.DATABASES['default']
+#         conn = psycopg2.connect(
+#             dbname=db['NAME'],
+#             user=db['USER'],
+#             password=db['PASSWORD'],
+#             host=db.get('HOST', 'localhost'),
+#             port=db.get('PORT', '5432')
+#         )
+#         cursor = conn.cursor()
 
-        # Leer CSV
-        with open(latest_csv, mode='r', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            headers = next(reader)
-            rows = list(reader)
+#         # Leer CSV
+#         with open(latest_csv, mode='r', encoding='utf-8') as f:
+#             reader = csv.reader(f)
+#             headers = next(reader)
+#             rows = list(reader)
 
-        # Limpiar tabla
-        cursor.execute(f'TRUNCATE TABLE "{table_name}" RESTART IDENTITY CASCADE;')
+#         # Limpiar tabla
+#         cursor.execute(f'TRUNCATE TABLE "{table_name}" RESTART IDENTITY CASCADE;')
 
-        # Insertar datos
-        placeholders = ','.join(['%s'] * len(headers))
-        insert_query = f'INSERT INTO "{table_name}" ({",".join(headers)}) VALUES ({placeholders})'
+#         # Insertar datos
+#         placeholders = ','.join(['%s'] * len(headers))
+#         insert_query = f'INSERT INTO "{table_name}" ({",".join(headers)}) VALUES ({placeholders})'
 
-        for row in rows:
-            cursor.execute(insert_query, row)
+#         for row in rows:
+#             cursor.execute(insert_query, row)
 
-        conn.commit()
-        cursor.close()
-        conn.close()
+#         conn.commit()
+#         cursor.close()
+#         conn.close()
 
-        return Response({'message': f'Tabla "{table_name}" restaurada desde: {latest_csv}'}, status=status.HTTP_200_OK)
+#         return Response({'message': f'Tabla "{table_name}" restaurada desde: {latest_csv}'}, status=status.HTTP_200_OK)
 
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     except Exception as e:
+#         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class StatusViewSet(viewsets.ModelViewSet):
