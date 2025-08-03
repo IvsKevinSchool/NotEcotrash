@@ -369,9 +369,10 @@ def destroy_and_restore_base(request):
 
 @api_view(['POST'])
 def export_table_to_csv(request):
-    table_name = request.data.get('table')
-    if not table_name:
-        return Response({'error': 'El parámetro "table" es obligatorio.'}, status=status.HTTP_400_BAD_REQUEST)
+    tables = request.data.get('tables')
+    if not tables or not isinstance(tables, list):
+        return Response({'error': 'El parámetro "tables" debe ser una lista de nombres de tablas.'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     db = settings.DATABASES['default']
     db_name = db['NAME']
@@ -381,9 +382,7 @@ def export_table_to_csv(request):
     db_port = db.get('PORT', '5432')
 
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    export_dir = os.path.join(settings.BASE_DIR, f'backups/CSV/{table_name}')
-    os.makedirs(export_dir, exist_ok=True)
-    csv_file = os.path.join(export_dir, f'{table_name}_{timestamp}.csv')
+    exported_files = {}
 
     try:
         conn = psycopg2.connect(
@@ -395,21 +394,112 @@ def export_table_to_csv(request):
         )
         cursor = conn.cursor()
 
-        # Comillas dobles para evitar problemas con nombres raros o sensibles a mayúsculas
-        cursor.execute(f'SELECT * FROM "{table_name}";')
-        rows = cursor.fetchall()
-        column_names = [desc[0] for desc in cursor.description]
+        for table_name in tables:
+            export_dir = os.path.join(settings.BASE_DIR, f'backups/CSV/{table_name}')
+            os.makedirs(export_dir, exist_ok=True)
+            csv_file = os.path.join(export_dir, f'{table_name}_{timestamp}.csv')
 
-        with open(csv_file, mode='w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(column_names)
-            writer.writerows(rows)
+            try:
+                cursor.execute(f'SELECT * FROM "{table_name}";')
+                rows = cursor.fetchall()
+                column_names = [desc[0] for desc in cursor.description]
+
+                with open(csv_file, mode='w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(column_names)
+                    writer.writerows(rows)
+
+                exported_files[table_name] = csv_file
+
+            except Exception as e_table:
+                exported_files[table_name] = f'Error: {str(e_table)}'
 
         cursor.close()
         conn.close()
 
-        return Response({'message': f'CSV exportado en: {csv_file}'}, status=status.HTTP_201_CREATED)
+        return Response({'exports': exported_files}, status=status.HTTP_201_CREATED)
 
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+def restore_table_from_latest_csv(request):
+    tables = request.data.get('tables')
+    if not tables or not isinstance(tables, list):
+        return Response({'error': 'El parámetro "tables" debe ser una lista de nombres de tablas.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    db = settings.DATABASES['default']
+    try:
+        conn = psycopg2.connect(
+            dbname=db['NAME'],
+            user=db['USER'],
+            password=db['PASSWORD'],
+            host=db.get('HOST', 'localhost'),
+            port=db.get('PORT', '5432')
+        )
+        cursor = conn.cursor()
+
+        results = {}
+
+        for table_name in tables:
+            latest_csv = get_latest_csv_for_table(table_name)
+            if not latest_csv:
+                results[table_name] = f'No se encontró respaldo CSV para la tabla "{table_name}".'
+                continue
+
+            try:
+                # Leer CSV
+                with open(latest_csv, mode='r', encoding='utf-8') as f:
+                    reader = csv.reader(f)
+                    headers = next(reader)
+                    rows = list(reader)
+
+                # Limpiar tabla
+                cursor.execute(f'TRUNCATE TABLE "{table_name}" RESTART IDENTITY CASCADE;')
+
+                # Insertar datos
+                placeholders = ','.join(['%s'] * len(headers))
+                insert_query = f'INSERT INTO "{table_name}" ({",".join(headers)}) VALUES ({placeholders})'
+
+                for row in rows:
+                    cursor.execute(insert_query, row)
+
+                results[table_name] = f'Tabla restaurada desde: {latest_csv}'
+
+            except Exception as e_table:
+                results[table_name] = f'Error restaurando tabla: {str(e_table)}'
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return Response({'results': results}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def list_all_tables(request):
+    try:
+        conn = psycopg2.connect(
+            dbname=settings.DATABASES['default']['NAME'],
+            user=settings.DATABASES['default']['USER'],
+            password=settings.DATABASES['default']['PASSWORD'],
+            host=settings.DATABASES['default'].get('HOST', 'localhost'),
+            port=settings.DATABASES['default'].get('PORT', '5432')
+        )
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_type='BASE TABLE';
+        """)
+        tables = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        conn.close()
+        return Response(tables)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 def get_latest_csv_for_table(table_name):
@@ -422,6 +512,7 @@ def get_latest_csv_for_table(table_name):
         return None
 
     csv_files.sort(reverse=True)
+
     return csv_files[0]
 
 @api_view(['POST'])
@@ -469,3 +560,74 @@ def restore_table_from_latest_csv(request):
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class StatusViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing Status instances.
+    """
+    queryset = Status.objects.all()
+    serializer_class = StatusSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class TypeServicesViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing TypeServices instances.
+    """
+    queryset = TypeServices.objects.all()
+    serializer_class = TypeServicesSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class ServicesViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing Services instances.
+    """
+    queryset = Services.objects.all()
+    serializer_class = ServicesSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class ServiceLogViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing ServiceLog instances.
+    Provides automatic CRUD operations for ServiceLog.
+    """
+    queryset = ServiceLog.objects.all()
+    serializer_class = ServiceLogSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    
+    def get_queryset(self):
+        """
+        Optionally filters ServiceLogs by service_id or user_id from query params
+        """
+        queryset = ServiceLog.objects.all()
+        service_id = self.request.query_params.get('service_id', None)
+        user_id = self.request.query_params.get('user_id', None)
+        
+        if service_id is not None:
+            queryset = queryset.filter(fk_services__pk_services=service_id)
+        if user_id is not None:
+            queryset = queryset.filter(fk_user__id=user_id)
+            
+        return queryset.order_by('-completed_date')
+
+class CreateTypeServiceView(APIView):
+    def post(self, request, management_id):
+        try:
+            management = Management.objects.get(pk=management_id)
+        except Management.DoesNotExist:
+            return Response(
+                {"error": "Management no encontrado"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        data = request.data.copy()
+        data['fk_management'] = management_id
+        
+        serializer = TypeServicesSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
