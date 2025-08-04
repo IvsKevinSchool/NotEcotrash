@@ -27,8 +27,8 @@ class TypeServices(models.Model):
         Management, 
         on_delete=models.CASCADE, 
         related_name='type_services',
-        null=True,
-        blank=True 
+        null=True,      # Permite tipos de servicio globales
+        blank=True      # Permite que el campo esté vacío en formularios
     )
 
     name = models.CharField(max_length=100)

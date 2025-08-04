@@ -223,7 +223,7 @@ const TypeServicesIndex = () => {
                                         {service.description || "-"}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        {service.fk_management === null || service.fk_management === undefined ? (
+                                        {[1, 2, 3].includes(service.pk_type_services) ? (
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                                 Básico
                                             </span>
@@ -234,17 +234,15 @@ const TypeServicesIndex = () => {
                                         )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-green-900 flex gap-2">
-                                        {/* Solo permitir editar y eliminar tipos servicios personalizados, osea que tengan un management_id */}
-                                        {service.fk_management !== null && service.fk_management !== undefined && (
-                                            <button
-                                                onClick={() => handleEdit(service.pk_type_services)}
-                                                className="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-100"
-                                                title="Editar"
-                                            >
-                                                <PencilIcon className="h-4 w-4" />
-                                            </button>
-                                        )}
-                                        {service.fk_management !== null && service.fk_management !== undefined && (
+                                        <button
+                                            onClick={() => handleEdit(service.pk_type_services)}
+                                            className="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-100"
+                                            title="Editar"
+                                        >
+                                            <PencilIcon className="h-4 w-4" />
+                                        </button>
+                                        {/* Solo permitir eliminar servicios personalizados */}
+                                        {![1, 2, 3].includes(service.pk_type_services) && (
                                             <button
                                                 onClick={() => handleDelete(service.pk_type_services)}
                                                 className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-100"

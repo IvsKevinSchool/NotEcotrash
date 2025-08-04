@@ -10,11 +10,8 @@ export interface Client {
 export interface Location {
   pk_location: number;
   name: string;
-  street_name?: string;
-  neighborhood?: string;
-  exterior_number?: string;
   city: string;
-  state?: string;
+  state?: string; // Opcional ya que no todos los datos lo tienen
   client_ids?: number[]; // IDs de clientes asociados a esta ubicación
 }
 
@@ -82,9 +79,6 @@ export const getLocationsForServices = async (managementId: number): Promise<Loc
         locationMap.set(locationId, {
           pk_location: location.pk_location,
           name: location.name,
-          street_name: location.street_name,
-          exterior_number: location.exterior_number,
-          neighborhood: location.neighborhood,
           city: location.city,
           state: location.state,
           client_ids: [clientLocation.fk_client]

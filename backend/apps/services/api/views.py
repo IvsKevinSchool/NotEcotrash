@@ -50,8 +50,8 @@ class TypeServicesViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         """
-        Retorna los servicios globales (fk_management=NULL) más los servicios específicos del management.
-        Si no hay management_id en query params, retorna solo los servicios globales por seguridad.
+        Retorna los servicios básicos (IDs: 1, 2, 3) más los servicios específicos del management.
+        Si no hay management_id en query params, retorna todos los servicios.
         
         Query Parameters:
         - management_id: ID del management para filtrar servicios
@@ -59,31 +59,15 @@ class TypeServicesViewSet(viewsets.ModelViewSet):
         management_id = self.request.query_params.get('management_id', None)
         
         if management_id:
-            # Servicios globales (fk_management=NULL) + servicios del management específico
+            # Servicios básicos (IDs: 1, 2, 3) + servicios del management específico
             from django.db.models import Q
             return TypeServices.objects.filter(
-                Q(fk_management__isnull=True) |      # Servicios globales
+                Q(pk_type_services__in=[1, 2, 3]) |  # Servicios básicos
                 Q(fk_management_id=management_id)    # Servicios del management
             ).distinct()
         
-        # Si no hay management_id, retornar solo servicios globales por seguridad
-        return TypeServices.objects.filter(fk_management__isnull=True)
-    
-    def get_object(self):
-        """
-        Para operaciones individuales (GET, PUT, PATCH, DELETE), permitir acceso a cualquier servicio
-        sin restricciones de management para evitar errores 404 en operaciones legítimas.
-        """
-        pk = self.kwargs.get('pk')
-        if pk:
-            try:
-                return TypeServices.objects.get(pk=pk)
-            except TypeServices.DoesNotExist:
-                from rest_framework.exceptions import NotFound
-                raise NotFound("TypeService not found")
-        
-        # Si no hay pk, usar el comportamiento por defecto
-        return super().get_object()
+        # Si no hay management_id, retornar todos (para compatibilidad)
+        return TypeServices.objects.all()
 
 class ServicesViewSet(viewsets.ModelViewSet):
     """
@@ -577,6 +561,54 @@ def get_latest_csv_for_table(table_name):
 #     except Exception as e:
 #         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class StatusViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing Status instances.
+    """
+    queryset = Status.objects.all()
+    serializer_class = StatusSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class TypeServicesViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing TypeServices instances.
+    """
+    queryset = TypeServices.objects.all()
+    serializer_class = TypeServicesSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class ServicesViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing Services instances.
+    """
+    queryset = Services.objects.all()
+    serializer_class = ServicesSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
+class ServiceLogViewSet(viewsets.ModelViewSet):
+    """
+    A viewset for viewing and editing ServiceLog instances.
+    Provides automatic CRUD operations for ServiceLog.
+    """
+    queryset = ServiceLog.objects.all()
+    serializer_class = ServiceLogSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    
+    def get_queryset(self):
+        """
+        Optionally filters ServiceLogs by service_id or user_id from query params
+        """
+        queryset = ServiceLog.objects.all()
+        service_id = self.request.query_params.get('service_id', None)
+        user_id = self.request.query_params.get('user_id', None)
+        
+        if service_id is not None:
+            queryset = queryset.filter(fk_services__pk_services=service_id)
+        if user_id is not None:
+            queryset = queryset.filter(fk_user__id=user_id)
+            
+        return queryset.order_by('-completed_date')
 
 class CreateTypeServiceView(APIView):
     def post(self, request, management_id):
