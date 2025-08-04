@@ -38,8 +38,10 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 }) => {
     const { register, handleSubmit, formState: { errors, isSubmitting }, watch, setValue } = form;
 
-    // Observar el cliente seleccionado
+    // Observar el cliente seleccionado, el tipo de servicio y el residuo seleccionado
     const selectedClient = watch("fk_clients");
+    const selectedTypeService = watch("fk_type_services");
+    const selectedWasteFromForm = watch("fk_waste");
 
     // Filtrar ubicaciones basándose en el cliente seleccionado
     const filteredLocations = useMemo(() => {
@@ -76,13 +78,37 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         }
     }, [selectedClient, filteredLocations, form, setValue]);
 
-    // Filtrar subcategorías basándose en el residuo seleccionado
+    // Filtrar subcategorías basándose en el residuo seleccionado en el formulario
     const filteredWasteSubcategories = useMemo(() => {
-        if (!selectedWaste || !wasteSubcategories) return [];
-        return wasteSubcategories.filter(
-            (subcategory) => subcategory.fk_waste === selectedWaste
-        );
-    }, [selectedWaste, wasteSubcategories]);
+        if (!selectedWasteFromForm || !wasteSubcategories) return [];
+        
+        const filtered = wasteSubcategories.filter((subcategory) => {
+            // Considerar tanto si fk_waste es un número como si es un objeto
+            const wasteId = typeof subcategory.fk_waste === 'number' 
+                ? subcategory.fk_waste 
+                : subcategory.fk_waste?.pk_waste;
+            
+            return wasteId === selectedWasteFromForm;
+        });
+        
+        return filtered;
+    }, [selectedWasteFromForm, wasteSubcategories]);
+
+    // Limpiar subcategoría seleccionada cuando cambie el residuo
+    useEffect(() => {
+        const currentSubcategory = form.getValues("fk_waste_subcategory");
+        if (currentSubcategory && selectedWasteFromForm) {
+            const subcategoryBelongsToWaste = filteredWasteSubcategories.find(
+                sub => sub.pk_waste_subcategory === currentSubcategory
+            );
+            
+            if (!subcategoryBelongsToWaste) {
+                setValue("fk_waste_subcategory", "" as any);
+            }
+        } else if (!selectedWasteFromForm) {
+            setValue("fk_waste_subcategory", "" as any);
+        }
+    }, [selectedWasteFromForm, filteredWasteSubcategories, form, setValue]);
 
     if (!isModalOpen) return null;
 
@@ -114,6 +140,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                 <label className="block text-green-700 mb-1 font-medium">Fecha Programada *</label>
                                 <input
                                     type="date"
+                                    min={new Date().toISOString().split('T')[0]}
                                     {...register("scheduled_date")}
                                     className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.scheduled_date ? "border-red-500" : "border-green-300"}`}
                                 />
@@ -155,7 +182,10 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                     </option>
                                     {filteredLocations.map((location) => (
                                         <option key={location.pk_location} value={location.pk_location}>
-                                            {location.name} - {location.address}
+                                            {location.name}
+                                            {location.street_name ? ` - ${location.street_name}` : ''}
+                                            {location.exterior_number ? ` ${location.exterior_number}` : ''}
+                                            {location.neighborhood ? `, ${location.neighborhood}` : ''}
                                         </option>
                                     ))}
                                 </select>
@@ -218,8 +248,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                             )}
                         </div>
 
-                        {/* Campos de residuo solo para servicios de recolección */}
-                        {isWasteCollectionService && (
+                        {/* Campos de residuo solo para servicios de recolección de residuos */}
+                        {selectedTypeService === 1 && (
                             <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
                                 <h4 className="text-green-800 font-medium">Información de Residuos</h4>
                                 
@@ -247,10 +277,10 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                         <select
                                             {...register("fk_waste_subcategory", { valueAsNumber: true })}
                                             className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                            disabled={!selectedWaste}
+                                            disabled={!selectedWasteFromForm}
                                         >
                                             <option value="">
-                                                {!selectedWaste ? "Primero selecciona un residuo" : "Seleccionar Subcategoría (Opcional)"}
+                                                {!selectedWasteFromForm ? "Primero selecciona un residuo" : "Seleccionar Subcategoría (Opcional)"}
                                             </option>
                                             {filteredWasteSubcategories.map((subcategory) => (
                                                 <option key={subcategory.pk_waste_subcategory} value={subcategory.pk_waste_subcategory}>
