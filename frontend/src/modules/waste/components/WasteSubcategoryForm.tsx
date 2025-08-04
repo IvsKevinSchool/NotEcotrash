@@ -78,22 +78,38 @@ const WasteSubcategoryForm: React.FC<WasteSubcategoryFormProps> = ({
             <label htmlFor="fk_waste" className="block text-sm font-medium text-gray-700 mb-2">
               Residuo <span className="text-red-500">*</span>
             </label>
-            <select
-              id="fk_waste"
-              {...register('fk_waste', { valueAsNumber: true })}
-              className={`block w-full px-3 py-2 border ${
-                errors.fk_waste 
-                  ? "border-red-300 focus:ring-red-500 focus:border-red-500" 
-                  : "border-gray-300 focus:ring-green-500 focus:border-green-500"
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2`}
-            >
-              <option value={0}>Seleccione un residuo</option>
-              {wastes.map((waste) => (
-                <option key={waste.pk_waste} value={waste.pk_waste}>
-                  {waste.name}
-                </option>
-              ))}
-            </select>
+            {defaultWasteId || isEditing ? (
+              // Mostrar como campo de solo lectura cuando viene desde un residuo específico o cuando se está editando
+              <div className="block w-full px-3 py-2 border border-gray-200 rounded-lg shadow-sm bg-gray-50 text-gray-700">
+                {defaultWasteId 
+                  ? wastes.find(waste => waste.pk_waste === defaultWasteId)?.name || 'Residuo seleccionado'
+                  : wastes.find(waste => waste.pk_waste === initialData?.fk_waste)?.name || 'Residuo seleccionado'
+                }
+                <input
+                  type="hidden"
+                  {...register('fk_waste', { valueAsNumber: true })}
+                  value={defaultWasteId || initialData?.fk_waste || 0}
+                />
+              </div>
+            ) : (
+              // Mostrar como dropdown editable cuando no hay residuo preseleccionado y no se está editando
+              <select
+                id="fk_waste"
+                {...register('fk_waste', { valueAsNumber: true })}
+                className={`block w-full px-3 py-2 border ${
+                  errors.fk_waste 
+                    ? "border-red-300 focus:ring-red-500 focus:border-red-500" 
+                    : "border-gray-300 focus:ring-green-500 focus:border-green-500"
+                } rounded-lg shadow-sm focus:outline-none focus:ring-2`}
+              >
+                <option value={0}>Seleccione un residuo</option>
+                {wastes.map((waste) => (
+                  <option key={waste.pk_waste} value={waste.pk_waste}>
+                    {waste.name}
+                  </option>
+                ))}
+              </select>
+            )}
             {errors.fk_waste && (
               <p className="mt-1 text-sm text-red-600">{errors.fk_waste.message}</p>
             )}

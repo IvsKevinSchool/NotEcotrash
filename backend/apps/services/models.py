@@ -23,7 +23,13 @@ class Status(models.Model):
 
 class TypeServices(models.Model):
     pk_type_services = models.AutoField(primary_key=True)
-    fk_management = models.ForeignKey(Management, on_delete=models.CASCADE, related_name='type_services')
+    fk_management = models.ForeignKey(
+        Management, 
+        on_delete=models.CASCADE, 
+        related_name='type_services',
+        null=True,
+        blank=True 
+    )
 
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
