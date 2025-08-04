@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from django.utils import timezone
-from apps.services.models import Status, TypeServices, Services, ServiceLog
+from apps.services.models import Status, TypeServices, Services, ServiceLog, RecurringService, ServiceNotification
 from apps.client.api.serializer import ClientSerializer
 from apps.core.api.serializer import LocationSerializer
 from apps.waste.api.serializer import WasteSerializer, WasteSubCategorySerializer
+from apps.management.api.serializer import ManagementSerializer
 
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -97,3 +98,143 @@ class ServiceLogSerializer(serializers.ModelSerializer):
             'role': instance.fk_user.role
         } if instance.fk_user else None
         return representation
+
+
+class RecurringServiceSerializer(serializers.ModelSerializer):
+    """Serializer para servicios recurrentes"""
+    
+    class Meta:
+        model = RecurringService
+        fields = [
+            'pk_recurring_service', 'name', 'fk_client', 'fk_management', 
+            'fk_location', 'fk_type_service', 'fk_waste', 'fk_waste_subcategory',
+            'frequency', 'custom_days', 'start_date', 'end_date', 
+            'next_generation_date', 'status', 'notes', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ('pk_recurring_service', 'created_at', 'updated_at')
+    
+    def validate(self, data):
+        """Validaciones personalizadas"""
+        # Si la frecuencia es personalizada, custom_days es requerido
+        if data.get('frequency') == 'custom' and not data.get('custom_days'):
+            raise serializers.ValidationError({
+                'custom_days': 'Este campo es requerido cuando la frecuencia es personalizada.'
+            })
+        
+        # Validar que end_date sea posterior a start_date
+        if data.get('end_date') and data.get('start_date'):
+            if data['end_date'] <= data['start_date']:
+                raise serializers.ValidationError({
+                    'end_date': 'La fecha de fin debe ser posterior a la fecha de inicio.'
+                })
+        
+        return data
+    
+    def create(self, validated_data):
+        """Crear servicio recurrente y establecer próxima fecha de generación"""
+        # Si no se proporciona next_generation_date, usar start_date
+        if 'next_generation_date' not in validated_data:
+            validated_data['next_generation_date'] = validated_data['start_date']
+        
+        # Establecer el usuario que crea el servicio
+        if 'created_by' not in validated_data:
+            validated_data['created_by'] = self.context['request'].user
+        
+        return super().create(validated_data)
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        
+        # Anidar objetos completos de las relaciones
+        representation['fk_client'] = ClientSerializer(instance.fk_client).data if instance.fk_client else None
+        representation['fk_management'] = ManagementSerializer(instance.fk_management).data if instance.fk_management else None
+        representation['fk_location'] = LocationSerializer(instance.fk_location).data if instance.fk_location else None
+        representation['fk_type_service'] = TypeServicesSerializer(instance.fk_type_service).data if instance.fk_type_service else None
+        representation['fk_waste'] = WasteSerializer(instance.fk_waste).data if instance.fk_waste else None
+        representation['fk_waste_subcategory'] = WasteSubCategorySerializer(instance.fk_waste_subcategory).data if instance.fk_waste_subcategory else None
+        
+        # Agregar información adicional útil
+        representation['frequency_display'] = instance.get_frequency_display()
+        representation['status_display'] = instance.get_status_display()
+        
+        return representation
+
+
+class ServiceNotificationSerializer(serializers.ModelSerializer):
+    """Serializer para notificaciones de servicios"""
+    
+    class Meta:
+        model = ServiceNotification
+        fields = [
+            'pk_notification', 'fk_user', 'fk_service', 'fk_recurring_service',
+            'notification_type', 'title', 'message', 'is_read', 'created_at', 'read_at'
+        ]
+        read_only_fields = ('pk_notification', 'created_at', 'read_at')
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        
+        # Información básica del servicio (si existe)
+        if instance.fk_service:
+            representation['fk_service'] = {
+                'pk_services': instance.fk_service.pk_services,
+                'service_number': instance.fk_service.service_number,
+                'scheduled_date': instance.fk_service.scheduled_date,
+            }
+        
+        # Información básica del servicio recurrente (si existe)
+        if instance.fk_recurring_service:
+            representation['fk_recurring_service'] = {
+                'pk_recurring_service': instance.fk_recurring_service.pk_recurring_service,
+                'name': instance.fk_recurring_service.name,
+                'frequency': instance.fk_recurring_service.get_frequency_display(),
+            }
+        
+        # Tipo de notificación legible
+        representation['notification_type_display'] = instance.get_notification_type_display()
+        
+        return representation
+
+
+class RecurringServiceCreateSerializer(serializers.ModelSerializer):
+    """Serializer simplificado para crear servicios recurrentes desde el frontend"""
+    
+    class Meta:
+        model = RecurringService
+        fields = [
+            'name', 'fk_client', 'fk_location', 'fk_type_service', 
+            'fk_waste', 'fk_waste_subcategory', 'frequency', 'custom_days', 
+            'start_date', 'end_date', 'notes'
+        ]
+    
+    def validate(self, data):
+        """Validaciones para creación"""
+        # Validar frecuencia personalizada
+        if data.get('frequency') == 'custom' and not data.get('custom_days'):
+            raise serializers.ValidationError({
+                'custom_days': 'Debe especificar el número de días para la frecuencia personalizada.'
+            })
+        
+        # Validar fechas
+        if data.get('end_date') and data.get('start_date'):
+            if data['end_date'] <= data['start_date']:
+                raise serializers.ValidationError({
+                    'end_date': 'La fecha de fin debe ser posterior a la fecha de inicio.'
+                })
+        
+        return data
+    
+    def create(self, validated_data):
+        """Crear servicio recurrente con valores por defecto"""
+        # Obtener management del cliente
+        client = validated_data['fk_client']
+        validated_data['fk_management'] = client.fk_management
+        
+        # Establecer próxima fecha de generación
+        validated_data['next_generation_date'] = validated_data['start_date']
+        
+        # Establecer usuario creador
+        if self.context.get('request'):
+            validated_data['created_by'] = self.context['request'].user
+        
+        return super().create(validated_data)

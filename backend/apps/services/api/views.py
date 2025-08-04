@@ -1,8 +1,11 @@
 from rest_framework import viewsets
-from apps.services.models import Status, TypeServices, Services, ServiceLog
+from apps.services.models import Status, TypeServices, Services, ServiceLog, RecurringService, ServiceNotification
 from apps.management.models import Management
-from apps.services.api.serializer import StatusSerializer, TypeServicesSerializer, ServicesSerializer, ServiceLogSerializer
-from rest_framework.decorators import api_view
+from apps.services.api.serializer import (
+    StatusSerializer, TypeServicesSerializer, ServicesSerializer, ServiceLogSerializer,
+    RecurringServiceSerializer, ServiceNotificationSerializer, RecurringServiceCreateSerializer
+)
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
@@ -25,6 +28,13 @@ import datetime
 import csv
 import glob
 from rest_framework.views import APIView
+<<<<<<< Updated upstream
+=======
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+from django.utils import timezone
+from rest_framework.permissions import IsAuthenticated
+>>>>>>> Stashed changes
 
 
 class StatusViewSet(viewsets.ModelViewSet):
@@ -394,7 +404,249 @@ def restore_table_from_latest_csv(request):
         cursor.close()
         conn.close()
 
+<<<<<<< Updated upstream
         return Response({'message': f'Tabla "{table_name}" restaurada desde: {latest_csv}'}, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+=======
+class RecurringServiceViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para servicios recurrentes.
+    Permite crear, leer, actualizar y eliminar servicios recurrentes.
+    """
+    queryset = RecurringService.objects.all()
+    serializer_class = RecurringServiceSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+    
+    def get_queryset(self):
+        """Filtrar servicios recurrentes según el usuario"""
+        queryset = RecurringService.objects.all()
+        
+        # Filtros por query parameters
+        client_id = self.request.query_params.get('client_id', None)
+        management_id = self.request.query_params.get('management_id', None)
+        status_filter = self.request.query_params.get('status', None)
+        
+        if client_id:
+            queryset = queryset.filter(fk_client__pk_client=client_id)
+        if management_id:
+            queryset = queryset.filter(fk_management__pk_management=management_id)
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+        
+        return queryset.order_by('-created_at')
+    
+    def get_serializer_class(self):
+        """Usar serializer diferente para creación"""
+        if self.action == 'create':
+            return RecurringServiceCreateSerializer
+        return RecurringServiceSerializer
+    
+    @action(detail=True, methods=['post'])
+    def pause(self, request, pk=None):
+        """Pausar un servicio recurrente"""
+        recurring_service = self.get_object()
+        
+        if recurring_service.status == 'paused':
+            return Response(
+                {'message': 'El servicio ya está pausado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        recurring_service.status = 'paused'
+        recurring_service.save()
+        
+        # Crear notificación
+        ServiceNotification.objects.create(
+            fk_user=request.user,
+            fk_recurring_service=recurring_service,
+            notification_type='recurring_paused',
+            title='Servicio recurrente pausado',
+            message=f'El servicio recurrente "{recurring_service.name}" ha sido pausado.'
+        )
+        
+        return Response({'message': 'Servicio pausado exitosamente'})
+    
+    @action(detail=True, methods=['post'])
+    def resume(self, request, pk=None):
+        """Reanudar un servicio recurrente pausado"""
+        recurring_service = self.get_object()
+        
+        if recurring_service.status != 'paused':
+            return Response(
+                {'message': 'El servicio no está pausado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        recurring_service.status = 'active'
+        recurring_service.save()
+        
+        return Response({'message': 'Servicio reanudado exitosamente'})
+    
+    @action(detail=True, methods=['post'])
+    def cancel(self, request, pk=None):
+        """Cancelar un servicio recurrente"""
+        recurring_service = self.get_object()
+        
+        if recurring_service.status == 'cancelled':
+            return Response(
+                {'message': 'El servicio ya está cancelado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        recurring_service.status = 'cancelled'
+        recurring_service.save()
+        
+        # Crear notificación
+        ServiceNotification.objects.create(
+            fk_user=request.user,
+            fk_recurring_service=recurring_service,
+            notification_type='recurring_cancelled',
+            title='Servicio recurrente cancelado',
+            message=f'El servicio recurrente "{recurring_service.name}" ha sido cancelado.'
+        )
+        
+        return Response({'message': 'Servicio cancelado exitosamente'})
+    
+    @action(detail=True, methods=['post'])
+    def reactivate(self, request, pk=None):
+        """Reactivar un servicio recurrente cancelado"""
+        recurring_service = self.get_object()
+        
+        if recurring_service.status != 'cancelled':
+            return Response(
+                {'message': 'Solo se pueden reactivar servicios cancelados'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        recurring_service.status = 'active'
+        recurring_service.save()
+        
+        # Crear notificación
+        ServiceNotification.objects.create(
+            fk_user=request.user,
+            fk_recurring_service=recurring_service,
+            notification_type='recurring_reactivated',
+            title='Servicio recurrente reactivado',
+            message=f'El servicio recurrente "{recurring_service.name}" ha sido reactivado.'
+        )
+        
+        return Response({'message': 'Servicio reactivado exitosamente'})
+    
+    @action(detail=True, methods=['post'])
+    def generate_next_service(self, request, pk=None):
+        """Generar manualmente el siguiente servicio"""
+        recurring_service = self.get_object()
+        
+        if recurring_service.status != 'active':
+            return Response(
+                {'message': 'Solo se pueden generar servicios de servicios recurrentes activos'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            new_service = recurring_service.generate_service()
+            return Response({
+                'message': 'Servicio generado exitosamente',
+                'service': ServicesSerializer(new_service).data
+            })
+        except Exception as e:
+            return Response(
+                {'error': f'Error al generar servicio: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class ServiceNotificationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para notificaciones de servicios.
+    """
+    queryset = ServiceNotification.objects.all()
+    serializer_class = ServiceNotificationSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'patch', 'delete']  # Solo lectura, marcar como leída y eliminar
+    
+    def get_queryset(self):
+        """Filtrar notificaciones por usuario"""
+        return ServiceNotification.objects.filter(
+            fk_user=self.request.user
+        ).order_by('-created_at')
+    
+    @action(detail=True, methods=['post'])
+    def mark_as_read(self, request, pk=None):
+        """Marcar notificación como leída"""
+        notification = self.get_object()
+        notification.mark_as_read()
+        return Response({'message': 'Notificación marcada como leída'})
+    
+    @action(detail=False, methods=['post'])
+    def mark_all_as_read(self, request):
+        """Marcar todas las notificaciones del usuario como leídas"""
+        updated = ServiceNotification.objects.filter(
+            fk_user=request.user,
+            is_read=False
+        ).update(is_read=True, read_at=timezone.now())
+        
+        return Response({
+            'message': f'{updated} notificaciones marcadas como leídas'
+        })
+    
+    @action(detail=False, methods=['get'])
+    def unread_count(self, request):
+        """Obtener el número de notificaciones no leídas"""
+        count = ServiceNotification.objects.filter(
+            fk_user=request.user,
+            is_read=False
+        ).count()
+        
+        return Response({'unread_count': count})
+
+
+@api_view(['POST'])
+def generate_recurring_services(request):
+    """
+    Vista para generar servicios automáticamente desde servicios recurrentes.
+    Esta vista se puede llamar desde un cron job o tarea programada.
+    """
+    today = timezone.now().date()
+    
+    # Obtener servicios recurrentes activos que necesitan generar servicios
+    recurring_services = RecurringService.objects.filter(
+        status='active',
+        next_generation_date__lte=today
+    )
+    
+    generated_count = 0
+    errors = []
+    
+    for recurring_service in recurring_services:
+        try:
+            # Verificar si ya existe un servicio para esta fecha
+            existing_service = Services.objects.filter(
+                fk_clients=recurring_service.fk_client,
+                fk_locations=recurring_service.fk_location,
+                scheduled_date=recurring_service.next_generation_date
+            ).exists()
+            
+            if not existing_service:
+                new_service = recurring_service.generate_service()
+                generated_count += 1
+                
+        except Exception as e:
+            errors.append({
+                'recurring_service_id': recurring_service.pk_recurring_service,
+                'error': str(e)
+            })
+    
+    response_data = {
+        'generated_services': generated_count,
+        'processed_recurring_services': len(recurring_services),
+    }
+    
+    if errors:
+        response_data['errors'] = errors
+    
+    return Response(response_data)
+>>>>>>> Stashed changes

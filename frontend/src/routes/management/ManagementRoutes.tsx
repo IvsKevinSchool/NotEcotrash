@@ -4,6 +4,7 @@ import ClientsIndex from '../../modules/client/pages/ClientsIndex'
 import { WasteListPage } from '../../modules/waste/components/WasteListPage'
 import CollectorUsers from '../../modules/collector/pages/CollectorUsers'
 import ServicesIndex from '../../modules/services/pages/ServicesIndex'
+import RecurringServicesIndex from '../../modules/services/pages/RecurringServicesIndex'
 import TypeServicesIndex from '../../modules/typeServices/components/TypeServicesIndex'
 import CertificateIndex from '../../modules/certificate/pages/CertificateIndex'
 import { ListLocations } from '../../modules/locations/pages/ListLocations'
@@ -38,6 +39,7 @@ export const ManagementRoutes = () => {
 
             {/* Services Module */}
             <Route path="/services" element={<ServicesIndex />} />
+            <Route path="/recurring-services" element={<RecurringServicesIndex />} />
             <Route path="/type-services" element={<TypeServicesIndex />} />
 
             {/* Certificate Module */}

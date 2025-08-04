@@ -35,6 +35,7 @@ export const SidebarECO = () => {
     ];
 
     const managementLinks = [
+<<<<<<< Updated upstream
         { to: '/management/reports', label: 'Reports', icon: '📃' },
         { to: '/management/clients', label: 'Clients', icon: '👥' },
         { to: '/management/services', label: 'Services', icon: '♻️' },
@@ -51,6 +52,26 @@ export const SidebarECO = () => {
         { to: '/client/dashboard', label: 'Dashboard', icon: '📊' },
         { to: '/client/services', label: 'My Services', icon: '♻️' },
         { to: '/client/certificate', label: 'Certificates', icon: '📑' },
+=======
+        { to: '/management/reports', label: 'Reportes', icon: '📃' },
+        { to: '/management/clients', label: 'Clientes', icon: '👥' },
+        { to: '/management/services', label: 'Servicios', icon: '♻️' },
+        { to: '/management/recurring-services', label: 'Servicios Recurrentes', icon: '🔄' },
+        { to: '/management/type-services', label: 'Tipo de Servicios', icon: '📚' },
+        { to: '/management/locations', label: 'Locaciones', icon: '🚩' },
+        { to: '/management/collector', label: 'Recolectores', icon: '🚛' },
+        { to: '/waste', label: 'Residuos', icon: '🗑️' },
+        { to: '/management/certificate', label: 'Certificados', icon: '📜' },
+        { to: '/management/backups', label: 'Repaldos', icon: '💩' },
+    ];
+
+    const clientLinks = [
+        { to: '/client/dashboard', label: 'Tablero', icon: '📊' },
+        { to: '/client/services', label: 'Mis Servicios', icon: '♻️' },
+        { to: '/client/recurring-services', label: 'Servicios Programados', icon: '🔄' },
+        { to: '/client/certificate', label: 'Certificados', icon: '📑' },
+        { to: '/client/profile', label: 'Perfil', icon: '👥' },
+>>>>>>> Stashed changes
     ];
 
     const collectorLinks = [
@@ -122,7 +143,7 @@ export const SidebarECO = () => {
                     <span>🌱</span>
                 </div>
                 <div className="mt-2 text-xs text-green-400">
-                    Sesión activa: {user?.name || 'Invitado'}
+                    Sesión activa: {user?.name || user?.username || user?.email || 'Invitado'}
                 </div>
             </div>
         </div>

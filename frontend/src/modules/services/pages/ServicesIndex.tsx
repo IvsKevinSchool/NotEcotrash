@@ -105,6 +105,7 @@ const ServicesIndex = () => {
 
   const fetchFormData = async () => {
     try {
+      console.log('Cargando datos del formulario para management:', user?.id);
       const data = await getServiceFormData(user?.id);
       setClients(data.clients);
       setLocations(data.locations);
@@ -134,6 +135,9 @@ const ServicesIndex = () => {
         wastes: data.wastes.length,
         wasteSubcategories: data.wasteSubcategories.length
       });
+      
+      console.log('Ubicaciones cargadas:', data.locations);
+      console.log('Subcategorías cargadas:', data.wasteSubcategories);
     } catch (error) {
       console.error("Error fetching form data:", error);
       showErrorToast("Error al cargar datos del formulario");
@@ -180,6 +184,8 @@ const ServicesIndex = () => {
 
   const onSubmit = async (data: ServiceFormData) => {
     try {
+      console.log('Datos del formulario a enviar:', data);
+      
       // Validación adicional para servicios de recolección
       if (isWasteCollectionService()) {
         if (!data.fk_waste) {
@@ -188,13 +194,27 @@ const ServicesIndex = () => {
         }
       }
 
-      // Limpiar campos de residuo si no es servicio de recolección
+      // Manejar campos de residuo según el tipo de servicio
       let serviceData = { ...data };
       if (!isWasteCollectionService()) {
-        delete serviceData.fk_waste;
-        delete serviceData.fk_waste_subcategory;
+        // Para servicios que no son de recolección, enviar null (la migración 0012 permite esto)
+        serviceData.fk_waste = null;
+        serviceData.fk_waste_subcategory = null;
+        
+        console.log('Enviando valores null para residuos (servicio no de recolección)');
+      } else {
+        // Para servicios de recolección, validar que los campos estén correctos
+        if (!serviceData.fk_waste_subcategory || serviceData.fk_waste_subcategory <= 0) {
+          serviceData.fk_waste_subcategory = null;
+        }
+        if (!serviceData.fk_waste || serviceData.fk_waste <= 0) {
+          // Para servicios de recolección, el residuo es requerido
+          showErrorToast("Para servicios de recolección, debe seleccionar un tipo de residuo");
+          return;
+        }
       }
 
+<<<<<<< Updated upstream
       // Asignar automáticamente el estado "En progreso" si no se especifica uno
       serviceData = {
         ...serviceData,
@@ -206,33 +226,101 @@ const ServicesIndex = () => {
         showSuccessToast("Servicio actualizado exitosamente");
       } else {
         await createService(serviceData);
+=======
+      // Limpiar campo de estado si está vacío
+      if (!serviceData.fk_status || serviceData.fk_status <= 0) {
+        delete serviceData.fk_status;
+      }
+
+      console.log('Datos procesados a enviar:', serviceData);
+      console.log('Es edición:', isEditing, 'ID:', currentId);
+
+      if (isEditing && currentId) {
+        // Al editar, mantener el estado actual del servicio
+        console.log('Actualizando servicio...');
+        await updateService(currentId, serviceData);
+        showSuccessToast("Servicio actualizado exitosamente");
+      } else {
+        // Al crear, asignar automáticamente estado "En progreso" (ID 1) y management_id
+        const newServiceData = {
+          ...serviceData,
+          fk_status: 1, // Siempre "En progreso" al crear
+          fk_management: user?.id // Asignar management_id del usuario logueado
+        };
+        console.log('Creando nuevo servicio:', newServiceData);
+        await createService(newServiceData);
+>>>>>>> Stashed changes
         showSuccessToast("Servicio creado exitosamente");
       }
       fetchData();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving service:", error);
-      showErrorToast("Error al guardar servicio");
+      
+      // Mostrar error más específico
+      let errorMessage = "Error al guardar servicio";
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Si hay errores de validación específicos
+      if (error.response?.data?.errors) {
+        const validationErrors = Object.entries(error.response.data.errors)
+          .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+          .join('\n');
+        errorMessage = `Errores de validación:\n${validationErrors}`;
+      }
+      
+      console.error("Error detallado:", errorMessage);
+      showErrorToast(errorMessage);
     }
   };
 
   const handleEdit = async (id: number) => {
     try {
+      console.log('Editando servicio con ID:', id);
       const service = await getService(id);
+<<<<<<< Updated upstream
+=======
+      console.log('Servicio cargado:', service);
+      setCurrentService(service);
+      
+      // Construir los datos del formulario de manera segura
+>>>>>>> Stashed changes
       const formData = {
-        ...service,
-        fk_clients: service.fk_clients.pk_client,
-        fk_locations: service.fk_locations.pk_location,
-        fk_status: service.fk_status.pk_status,
-        fk_type_services: service.fk_type_services.pk_type_services,
-        fk_waste: service.fk_waste.pk_waste,
-        fk_waste_subcategory: service.fk_waste_subcategory?.pk_waste_subcategory,
+        scheduled_date: service.scheduled_date,
+        fk_clients: service.fk_clients?.pk_client || (typeof service.fk_clients === 'number' ? service.fk_clients : ''),
+        fk_locations: service.fk_locations?.pk_location || (typeof service.fk_locations === 'number' ? service.fk_locations : ''),
+        fk_status: service.fk_status?.pk_status || (typeof service.fk_status === 'number' ? service.fk_status : ''),
+        fk_type_services: service.fk_type_services?.pk_type_services || (typeof service.fk_type_services === 'number' ? service.fk_type_services : ''),
+        fk_waste: service.fk_waste?.pk_waste || (typeof service.fk_waste === 'number' ? service.fk_waste : undefined),
+        fk_waste_subcategory: service.fk_waste_subcategory?.pk_waste_subcategory || (typeof service.fk_waste_subcategory === 'number' ? service.fk_waste_subcategory : undefined),
       };
+      
+      console.log('Datos para el formulario de edición:', formData);
+      console.log('Datos disponibles en el momento de editar:', {
+        clients: clients.length,
+        locations: locations.length,
+        statuses: statuses.length,
+        typeServices: typeServices.length,
+        wastes: wastes.length,
+        wasteSubcategories: wasteSubcategories.length
+      });
+      
       form.reset(formData);
       setIsEditing(true);
       setCurrentId(id);
     } catch (error) {
+<<<<<<< Updated upstream
       showErrorToast("Error fetching service for edit");
+=======
+      console.error("Error al cargar servicio para editar:", error);
+      toast.error("Error al cargar servicio para editar");
+>>>>>>> Stashed changes
     }
   };
 
@@ -301,8 +389,13 @@ const ServicesIndex = () => {
           wasteSubcategories={wasteSubcategories}
           isEditing={isEditing}
           onSubmit={onSubmit}
+<<<<<<< Updated upstream
           onReset={resetForm}
           selectedWaste={selectedWaste}
+=======
+          onClose={resetForm}
+          selectedWaste={selectedWaste || undefined}
+>>>>>>> Stashed changes
           isWasteCollectionService={isWasteCollectionService()}
         />
 
