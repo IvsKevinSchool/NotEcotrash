@@ -261,7 +261,7 @@ const Home = () => {
         animate={{ opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       >
-        © {new Date().getFullYear()} EcoRegistro. Todos los derechos reservados.
+        © {new Date().getFullYear()} Zerura. Todos los derechos reservados.
       </motion.footer>
     </div>
   );
