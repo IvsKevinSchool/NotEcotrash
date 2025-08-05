@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+
 const apiBase = "http://127.0.0.1:8000/api/v1/services";
 
 const BackupsIndex = () => {
@@ -8,27 +9,32 @@ const BackupsIndex = () => {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [tableList, setTableList] = useState<string[]>([]);
 
-  // Traer lista de tablas desde el backend al montar el componente
+  // Obtener lista de tablas al montar el componente
   useEffect(() => {
-    axios.get(`${apiBase}/list-tables/`)
-      .then(response => {
-        setTableList(response.data); // espera array de strings
+    axios
+      .get(`${apiBase}/list-tables/`)
+      .then((response) => {
+        setTableList(response.data); // espera un array de strings
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching table list:", error);
         toast.error("Failed to fetch table list");
       });
   }, []);
 
   const toggleTableSelection = (tableName: string) => {
-    setSelectedTables(prev =>
+    setSelectedTables((prev) =>
       prev.includes(tableName)
-        ? prev.filter(t => t !== tableName)
+        ? prev.filter((t) => t !== tableName)
         : [...prev, tableName]
     );
   };
 
-  const callApi = async (url: string, options?: RequestInit, actionName?: string) => {
+  const callApi = async (
+    url: string,
+    options?: RequestInit,
+    actionName?: string
+  ) => {
     try {
       setLoading(actionName || null);
       const res = await fetch(url, options);
@@ -49,6 +55,8 @@ const BackupsIndex = () => {
       return;
     }
 
+    if (!window.confirm("Are you sure you want to export the selected tables?")) return;
+
     callApi(
       `${apiBase}/export-csv/`,
       {
@@ -60,39 +68,47 @@ const BackupsIndex = () => {
     );
   };
 
-const handleImportCsv = () => {
-  if (selectedTables.length === 0) {
-    toast.info("Please select at least one table.");
-    return;
-  }
+  const handleImportCsv = () => {
+    if (selectedTables.length === 0) {
+      toast.info("Please select at least one table.");
+      return;
+    }
 
-  callApi(
-    `${apiBase}/restore-csv/`, // Cambia a la ruta correcta de tu API
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tables: selectedTables }),
-    },
-    "Import CSV"
-  );
-};
+    if (!window.confirm("Are you sure you want to import CSV for the selected tables?")) return;
 
+    callApi(
+      `${apiBase}/restore-csv/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tables: selectedTables }),
+      },
+      "Import CSV"
+    );
+  };
 
   const handleRestoreDB = () => {
+    if (!window.confirm("This will restore the full database from the last backup. Are you sure?")) return;
+
     callApi(`${apiBase}/restoreCompleteDB/`, { method: "POST" }, "Restore DB");
   };
 
   const restoreStructure = () => {
+    if (!window.confirm("This will restore the database to its initial structure. Are you sure?")) return;
+
     callApi(`${apiBase}/restoreCompleteDBStruckture/`, { method: "POST" }, "Restore DB 0");
   };
 
   const handleBackupDB = () => {
+    if (!window.confirm("Do you want to back up the entire database?")) return;
+
     callApi(`${apiBase}/backupCompleteDB/`, { method: "POST" }, "Backup DB");
   };
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded shadow space-y-6">
       <h2 className="text-xl font-bold">Select Tables to Export</h2>
+
       <div className="grid grid-cols-2 gap-2">
         {tableList.map((table) => (
           <label key={table} className="flex items-center space-x-2">
@@ -111,7 +127,9 @@ const handleImportCsv = () => {
         onClick={handleExportSelected}
         disabled={loading !== null}
         className={`w-full py-2 px-4 rounded text-white font-semibold transition-colors ${
-          loading === "Export CSV" ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+          loading === "Export CSV"
+            ? "bg-blue-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
         }`}
       >
         {loading === "Export CSV" ? "Exporting..." : "Export Selected tables CSV"}
@@ -121,7 +139,9 @@ const handleImportCsv = () => {
         onClick={handleImportCsv}
         disabled={loading !== null}
         className={`w-full py-2 px-4 rounded text-white font-semibold transition-colors ${
-          loading === "Import CSV" ? "bg-blue-400 cursor-not-allowed" : "bg-orange-600 hover:bg-blue-700"
+          loading === "Import CSV"
+            ? "bg-blue-400 cursor-not-allowed"
+            : "bg-orange-600 hover:bg-blue-700"
         }`}
       >
         {loading === "Import CSV" ? "Importing CSV..." : "Import Selected tables CSV"}
@@ -131,7 +151,9 @@ const handleImportCsv = () => {
         onClick={handleRestoreDB}
         disabled={loading !== null}
         className={`w-full py-2 px-4 rounded text-white font-semibold transition-colors ${
-          loading === "Restore DB" ? "bg-red-400 cursor-not-allowed" : "bg-purple-600 hover:bg-red-700"
+          loading === "Restore DB"
+            ? "bg-red-400 cursor-not-allowed"
+            : "bg-purple-600 hover:bg-red-700"
         }`}
       >
         {loading === "Restore DB" ? "Restoring DB..." : "Restore Complete DB last backup"}
@@ -141,7 +163,9 @@ const handleImportCsv = () => {
         onClick={handleBackupDB}
         disabled={loading !== null}
         className={`w-full py-2 px-4 rounded text-white font-semibold transition-colors ${
-          loading === "Backup DB" ? "bg-green-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+          loading === "Backup DB"
+            ? "bg-green-400 cursor-not-allowed"
+            : "bg-green-600 hover:bg-green-700"
         }`}
       >
         {loading === "Backup DB" ? "Backing up DB..." : "Backup Complete DB"}
@@ -151,7 +175,9 @@ const handleImportCsv = () => {
         onClick={restoreStructure}
         disabled={loading !== null}
         className={`w-full py-2 px-4 rounded text-white font-semibold transition-colors ${
-          loading === "Restore DB 0" ? "bg-red-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+          loading === "Restore DB 0"
+            ? "bg-red-400 cursor-not-allowed"
+            : "bg-red-600 hover:bg-red-700"
         }`}
       >
         {loading === "Restore DB 0" ? "Restoring DB..." : "Restore by Initial DB"}
