@@ -87,7 +87,7 @@ export const SidebarECO = () => {
                     alt="Logo EcoTrash"
                     className="h-12 w-auto mb-2"
                 />
-                <h1 className="text-2xl font-bold text-green-100">EcoTrash</h1>
+                <h1 className="text-2xl font-bold text-green-100">Zerura</h1>
                 <p className="text-xs text-green-300 mt-1">Gestión de residuos</p>
             </div>
 
