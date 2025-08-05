@@ -45,11 +45,14 @@ export const AddLocationForm = () => {
 
     const {
         handleSubmit,
-        formState: { isSubmitting },
+        formState: { isSubmitting, errors: formErrors },
         reset,
         setError,
         register
     } = methods;
+
+    // Verificar si hay errores en el formulario
+    const hasErrors = Object.keys(formErrors).length > 0;
 
     // Cargar lista de clientes
     useEffect(() => {
@@ -115,9 +118,36 @@ export const AddLocationForm = () => {
             }
 
             setTimeout(() => navigate("/management/locations"), 1000);
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            handleApiError(error, `Error al ${isEditing ? 'actualizar' : 'crear'} ubicación:`,)
+            
+            // Manejar errores de validación del backend
+            if (error.response?.status === 400 && error.response?.data) {
+                const backendErrors = error.response.data;
+                
+                // Mapear errores del backend a los campos del formulario
+                Object.keys(backendErrors).forEach((field) => {
+                    const errorMessage = Array.isArray(backendErrors[field]) 
+                        ? backendErrors[field][0] 
+                        : backendErrors[field];
+                    
+                    if (field === 'fk_client') {
+                        setError('fk_client', { message: errorMessage });
+                    } else if (field.startsWith('fk_location.')) {
+                        setError(field as any, { message: errorMessage });
+                    } else if (field === 'is_main') {
+                        setError('is_main', { message: errorMessage });
+                    } else {
+                        // Para errores de campos de ubicación sin el prefijo fk_location
+                        const locationField = `fk_location.${field}` as any;
+                        setError(locationField, { message: errorMessage });
+                    }
+                });
+                
+                toast.error('Por favor corrige los errores en el formulario');
+            } else {
+                handleApiError(error, `Error al ${isEditing ? 'actualizar' : 'crear'} ubicación:`);
+            }
         }
     };
 
@@ -143,8 +173,16 @@ export const AddLocationForm = () => {
                             </div>
                         ) : (
                             <select
-                                {...register("fk_client", { valueAsNumber: true })}
-                                className="w-full p-2 border border-green-300 rounded focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                {...register("fk_client", { 
+                                    valueAsNumber: true,
+                                    required: "Debe seleccionar un cliente"
+                                })}
+                                className={`w-full p-2 border ${
+                                    methods.formState.errors.fk_client 
+                                        ? "border-red-300 focus:ring-red-500 focus:border-red-500" 
+                                        : "border-green-300 focus:ring-green-500 focus:border-green-500"
+                                } rounded focus:ring-2`}
+                                aria-invalid={methods.formState.errors.fk_client ? "true" : "false"}
                             >
                                 <option value={0}>Seleccionar Cliente</option>
                                 {clients.map((client) => (
@@ -155,7 +193,7 @@ export const AddLocationForm = () => {
                             </select>
                         )}
                         {methods.formState.errors.fk_client && (
-                            <p className="text-red-500 text-sm mt-1">
+                            <p className="mt-1 text-sm text-red-600" role="alert">
                                 {methods.formState.errors.fk_client.message}
                             </p>
                         )}
@@ -202,7 +240,7 @@ export const AddLocationForm = () => {
                         label="Número Interior"
                         placeholder="Ej: 4B"
                         optional
-                        inputMode="numeric"
+                        inputMode="text"
                     />
                 </FormSection>
 
@@ -251,6 +289,22 @@ export const AddLocationForm = () => {
                         inputMode="tel"
                     />
                 </FormSection>
+
+                {/* Mensaje de error general */}
+                {hasErrors && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                        <div className="flex">
+                            <div className="ml-3">
+                                <h3 className="text-sm font-medium text-red-800">
+                                    Hay errores en el formulario
+                                </h3>
+                                <div className="mt-2 text-sm text-red-700">
+                                    <p>Por favor revisa y corrige los campos marcados en rojo.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex justify-end">
                     <button
