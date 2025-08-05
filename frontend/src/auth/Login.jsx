@@ -140,10 +140,10 @@ const Login = () => {
             </svg>
 
             <span className="text-3xl font-extrabold text-green-600 group-hover:text-green-800 transition-colors duration-200 tracking-wide select-text">
-              Eco
+              Zeru
             </span>
             <span className="text-3xl font-extrabold text-gray-800 group-hover:text-gray-900 transition-colors duration-200 tracking-wide select-text">
-              Trash
+              ra
             </span>
           </div>
           <h1 className="text-4xl font-extrabold text-gray-900 mb-3 tracking-tight animate-fadeInDown">
@@ -169,7 +169,7 @@ const Login = () => {
             className="mx-auto h-32 md:h-48 w-auto mb-6 animate-bounce-slow"
           />
           <h2 className="text-4xl md:text-5xl font-extrabold mb-5 tracking-wider animate-pulse">
-            EcoTrash
+            Zerura
           </h2>
           <p className="text-lg md:text-xl text-green-100 font-semibold animate-fadeInSlow">
             Transformando residuos en recursos
