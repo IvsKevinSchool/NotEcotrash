@@ -79,9 +79,9 @@ export const SidebarECO = () => {
 
 
     return (
-        <div className="w-64 h-screen bg-green-800 text-white fixed left-0 top-0 py-5 flex flex-col">
+        <div className="w-48 min-h-screen bg-green-800 text-white flex flex-col">
             {/* Logo */}
-            <div className="text-center py-5 mb-8 border-b border-green-700 flex flex-col items-center">
+            <div className="text-center py-5 mb-2 border-b border-green-700 flex flex-col items-center">
                 <img
                     src={logo}
                     alt="Logo EcoTrash"
@@ -98,7 +98,7 @@ export const SidebarECO = () => {
                         <NavLink
                             key={link.to}
                             to={link.to}
-                            className={getStyle(link.to)}
+                            className={getStyle(link.to) + ' text-sm'}
                         >
                             <span className="mr-3">{link.icon}</span>
                             {link.label}
@@ -110,9 +110,9 @@ export const SidebarECO = () => {
             {/* Botón de cerrar sesión */}
             <button
                 onClick={handleLogout}
-                className="flex items-center px-4 py-3 text-red-200 hover:text-white hover:bg-red-600 rounded-lg transition-colors duration-200 mx-2 mb-3"
+                className="flex px-4 py-3 text-white hover:text-white hover:bg-red-600 rounded-lg transition-colors duration-200 mx-2 mb-3"
             >
-                <span className="ml-3">🚪Cerrar sesión</span>
+                <span className="text-sm ml-1">🚪   Cerrar Sesión</span>
             </button>
 
             {/* Footer del sidebar */}
@@ -121,7 +121,7 @@ export const SidebarECO = () => {
                     <span>Versión 1.0.0</span>
                     <span>🌱</span>
                 </div>
-                <div className="mt-2 text-xs text-green-400">
+                <div className="mt-2 text-xs text-green-300">
                     Sesión activa: {user?.name || 'Invitado'}
                 </div>
             </div>
