@@ -110,6 +110,13 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         }
     }, [selectedWasteFromForm, filteredWasteSubcategories, form, setValue]);
 
+    // Establecer valor por defecto para fk_status cuando no se está editando
+    useEffect(() => {
+        if (!isEditing) {
+            setValue("fk_status", 1);
+        }
+    }, [isEditing, setValue]);
+
     if (!isModalOpen) return null;
 
     return (
@@ -225,6 +232,12 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                     <p className="text-xs text-green-600 mt-1">
                                         Los nuevos servicios se crean automáticamente en estado "En progreso"
                                     </p>
+                                    {/* Input hidden para registrar el valor por defecto */}
+                                    <input
+                                        type="hidden"
+                                        {...register("fk_status", { valueAsNumber: true })}
+                                        value={1}
+                                    />
                                 </div>
                             )}
                         </div>

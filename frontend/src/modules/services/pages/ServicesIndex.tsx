@@ -28,10 +28,43 @@ const ServicesIndex = () => {
 
   const form = useForm<ServiceFormData>({
     resolver: zodResolver(serviceSchema),
+    mode: 'onChange', // Validar en tiempo real cuando cambian los campos
+    defaultValues: {
+      scheduled_date: "",
+      fk_clients: undefined,
+      fk_locations: undefined,
+      fk_status: 1, // Estado por defecto: "En progreso"
+      fk_type_services: undefined,
+      fk_waste: undefined,
+      fk_waste_subcategory: undefined,
+    }
   });
+
+  const { formState: { errors, isSubmitting, isValid } } = form;
+
+  // Función para traducir nombres de campos a español
+  const getFieldLabel = (fieldName: string): string => {
+    const fieldLabels: Record<string, string> = {
+      scheduled_date: "Fecha Programada",
+      fk_clients: "Cliente",
+      fk_locations: "Ubicación", 
+      fk_status: "Estado",
+      fk_type_services: "Tipo de Servicio",
+      fk_waste: "Tipo de Residuo",
+      fk_waste_subcategory: "Subcategoría de Residuo"
+    };
+    return fieldLabels[fieldName] || fieldName;
+  };
 
   const selectedWaste = form.watch("fk_waste");
   const selectedTypeService = form.watch("fk_type_services");
+
+  // Log de errores para debugging
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log("Form validation errors:", errors);
+    }
+  }, [errors]);
 
   // Determinar si el tipo de servicio seleccionado es "Recolección de residuos"
   const isWasteCollectionService = () => {
@@ -167,6 +200,9 @@ const ServicesIndex = () => {
   };
 
   const onSubmit = async (data: ServiceFormData) => {
+    console.log("Submitting service data:", data);
+    console.log("Form errors:", errors);
+    
     try {
       // Validación adicional para servicios de recolección
       if (isWasteCollectionService()) {
@@ -188,10 +224,10 @@ const ServicesIndex = () => {
         await updateService(currentId, serviceData);
         showSuccessToast("Servicio actualizado exitosamente");
       } else {
-        // Al crear, asignar automáticamente estado "En progreso" (ID 1) y management_id
+        // Al crear, asignar management_id del usuario logueado
+        // El fk_status ya viene del formulario (valor por defecto: 1 = "En progreso")
         const newServiceData = {
           ...serviceData,
-          fk_status: 1, // Siempre "En progreso" al crear
           fk_management: user?.id // Asignar management_id del usuario logueado
         };
         await createService(newServiceData);
@@ -199,9 +235,27 @@ const ServicesIndex = () => {
       }
       fetchData();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving service:", error);
-      showErrorToast("Error al guardar servicio");
+      
+      // Manejo específico de errores de validación del backend
+      if (error?.response?.data) {
+        const backendErrors = error.response.data;
+        
+        // Si el backend devuelve errores específicos por campo
+        if (typeof backendErrors === 'object') {
+          Object.keys(backendErrors).forEach(field => {
+            const errorMessage = Array.isArray(backendErrors[field]) 
+              ? backendErrors[field][0] 
+              : backendErrors[field];
+            showErrorToast(`${getFieldLabel(field)}: ${errorMessage}`);
+          });
+        } else {
+          showErrorToast(backendErrors.message || "Error al guardar servicio");
+        }
+      } else {
+        showErrorToast("Error al guardar servicio");
+      }
     }
   };
 
@@ -268,7 +322,7 @@ const ServicesIndex = () => {
       scheduled_date: "",
       fk_clients: "" as any,
       fk_locations: "" as any,
-      fk_status: "" as any,
+      fk_status: 1, // Estado por defecto: "En progreso"
       fk_type_services: "" as any,
       fk_waste: "" as any,
       fk_waste_subcategory: "" as any,
@@ -284,7 +338,7 @@ const ServicesIndex = () => {
       scheduled_date: "",
       fk_clients: "" as any,
       fk_locations: "" as any,
-      fk_status: "" as any,
+      fk_status: 1, // Estado por defecto: "En progreso"
       fk_type_services: "" as any,
       fk_waste: "" as any,
       fk_waste_subcategory: "" as any,
@@ -298,6 +352,27 @@ const ServicesIndex = () => {
   return (
     <div className="min-h-screen bg-green-50 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
+        
+        {/* Mostrar errores de validación si existen */}
+        {Object.keys(errors).length > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h3 className="text-red-800 font-medium mb-2 flex items-center gap-2">
+              <span>⚠️</span>
+              Errores de validación:
+            </h3>
+            <ul className="text-red-700 text-sm space-y-1">
+              {Object.entries(errors).map(([field, error]) => (
+                <li key={field} className="flex items-start gap-2">
+                  <span className="text-red-500">•</span>
+                  <span>
+                    <strong>{getFieldLabel(field)}:</strong> {error?.message}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <ServiceForm
           form={form}
           clients={clients}
