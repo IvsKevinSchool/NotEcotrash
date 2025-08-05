@@ -388,6 +388,7 @@ const ServicesIndex = () => {
           selectedWaste={selectedWaste}
           isWasteCollectionService={isWasteCollectionService()}
           isModalOpen={showForm}
+          currentManagementId={user?.id}
         />
 
         <ServicesTable

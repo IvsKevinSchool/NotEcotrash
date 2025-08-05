@@ -18,6 +18,7 @@ interface ServiceFormProps {
     selectedWaste?: number;
     isWasteCollectionService?: boolean;
     isModalOpen: boolean;
+    currentManagementId: number; // Nuevo prop para el id del management actual
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -34,8 +35,17 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     onClose,
     selectedWaste,
     isWasteCollectionService = false,
-    isModalOpen
+    isModalOpen,
+    currentManagementId
 }) => {
+    // Filtrar clientes por management actual
+    const filteredClients = useMemo(() => {
+        if (!clients || !currentManagementId) return [];
+        // Si el cliente tiene fk_management, filtrar, si no, mostrar todos
+        return clients.filter(client =>
+            client.fk_management ? client.fk_management === currentManagementId : true
+        );
+    }, [clients, currentManagementId]);
     const { register, handleSubmit, formState: { errors, isSubmitting }, watch, setValue } = form;
 
     // Observar el cliente seleccionado, el tipo de servicio y el residuo seleccionado
@@ -163,7 +173,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                     className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_clients ? "border-red-500" : "border-green-300"}`}
                                 >
                                     <option value="">Seleccionar Cliente</option>
-                                    {clients.map((client) => (
+                                    {filteredClients.map((client) => (
                                         <option key={client.pk_client} value={client.pk_client}>
                                             {client.name} - {client.legal_name}
                                         </option>
