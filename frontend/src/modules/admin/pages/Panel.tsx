@@ -58,7 +58,7 @@ export const Panel = () => {
             </div>
 
             {/* Sección de acciones rápidas */}
-            <div className="bg-white p-6 rounded-xl shadow-sm mb-8">
+            {/* <div className="bg-white p-6 rounded-xl shadow-sm mb-8">
                 <h2 className="text-xl font-semibold text-green-700 mb-4">Acciones rápidas</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Link
@@ -90,8 +90,8 @@ export const Panel = () => {
                         <p className="text-sm font-medium text-green-700">Configuración</p>
                     </Link>
                 </div>
-            </div>
-
+            </div> */}
+        
             {/* Actividad reciente */}
             <div className="bg-white p-6 rounded-xl shadow-sm">
                 <h2 className="text-xl font-semibold text-green-700 mb-4">Actividad reciente</h2>
