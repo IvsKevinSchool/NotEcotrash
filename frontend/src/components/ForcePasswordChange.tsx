@@ -12,15 +12,17 @@ import { DEFAULT_TEMP_PASSWORD } from "../utils/passwordGenerator";
 const passwordChangeSchema = z.object({
     newPassword: z
         .string()
-        .min(8, "Password must be at least 8 characters")
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
-            "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character"),
-    confirmPassword: z.string().min(1, "Password confirmation is required"),
+        .min(8, "La contraseña debe tener al menos 8 caracteres")
+        .regex(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+            "La contraseña debe contener al menos una minúscula, una mayúscula, un número y un carácter especial"
+        ),
+    confirmPassword: z.string().min(1, "La confirmación de la contraseña es obligatoria"),
 }).refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Las contraseñas no coinciden",
     path: ["confirmPassword"],
 }).refine((data) => data.newPassword !== DEFAULT_TEMP_PASSWORD, {
-    message: "New password cannot be the same as the temporary password",
+    message: "La nueva contraseña no puede ser igual a la contraseña temporal",
     path: ["newPassword"],
 });
 
@@ -60,22 +62,23 @@ const ForcePasswordChange = ({ onPasswordChanged }: ForcePasswordChangeProps) =>
                 new_password: data.newPassword,
             });
 
-            toast.success("Password changed successfully! Please log in with your new password.");
-            
+            toast.success("¡Contraseña cambiada exitosamente! Por favor, inicia sesión con tu nueva contraseña.");
+
             // Cerrar sesión para que el usuario inicie sesión con la nueva contraseña
             logout();
-            navigate('/login');
-            
+            setTimeout(() => {
+                navigate('/login', { replace: true });
+                window.location.reload();
+            }, 1500); // Espera 1.5 segundos para mostrar el toast
         } catch (error: any) {
             console.error('Error changing password:', error);
-            
-            let errorMessage = 'Error changing password';
+
+            let errorMessage = 'Error al cambiar la contraseña';
             if (error.response?.data?.new_password) {
                 errorMessage = error.response.data.new_password[0];
             } else if (error.response?.data?.detail) {
                 errorMessage = error.response.data.detail;
             }
-            
             toast.error(errorMessage);
         } finally {
             setIsLoading(false);
@@ -95,23 +98,23 @@ const ForcePasswordChange = ({ onPasswordChanged }: ForcePasswordChangeProps) =>
                 <div className="text-center mb-6">
                     <div className="text-green-500 text-5xl mb-4">🔒</div>
                     <h1 className="text-2xl font-bold text-green-800 mb-2">
-                        Password Change Required
+                        Cambio de contraseña requerido
                     </h1>
                     <p className="text-green-600 text-sm">
-                        You must change your temporary password before continuing.
+                        Debes cambiar tu contraseña temporal antes de continuar.
                     </p>
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
                         <p className="text-xs text-yellow-700">
-                            <strong>Current temporary password:</strong> {DEFAULT_TEMP_PASSWORD}
+                            <strong>Contraseña temporal actual:</strong> {DEFAULT_TEMP_PASSWORD}
                         </p>
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {/* New Password */}
+                    {/* Nueva contraseña */}
                     <div>
                         <label className="block text-green-700 mb-2 font-medium text-sm">
-                            New Password *
+                            Nueva contraseña *
                         </label>
                         <div className="relative">
                             <input
@@ -120,7 +123,7 @@ const ForcePasswordChange = ({ onPasswordChanged }: ForcePasswordChangeProps) =>
                                 className={`w-full p-3 pr-10 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
                                     errors.newPassword ? "border-red-500" : "border-green-300"
                                 }`}
-                                placeholder="Enter new password"
+                                placeholder="Ingresa la nueva contraseña"
                             />
                             <button
                                 type="button"
@@ -134,14 +137,14 @@ const ForcePasswordChange = ({ onPasswordChanged }: ForcePasswordChangeProps) =>
                             <p className="text-red-500 text-xs mt-1">{errors.newPassword.message}</p>
                         )}
                         <div className="text-xs text-green-600 mt-1">
-                            Must contain: 8+ characters, uppercase, lowercase, number, and special character
+                            Debe contener: 8+ caracteres, mayúscula, minúscula, número y carácter especial
                         </div>
                     </div>
 
-                    {/* Confirm Password */}
+                    {/* Confirmar contraseña */}
                     <div>
                         <label className="block text-green-700 mb-2 font-medium text-sm">
-                            Confirm New Password *
+                            Confirmar nueva contraseña *
                         </label>
                         <div className="relative">
                             <input
@@ -150,7 +153,7 @@ const ForcePasswordChange = ({ onPasswordChanged }: ForcePasswordChangeProps) =>
                                 className={`w-full p-3 pr-10 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${
                                     errors.confirmPassword ? "border-red-500" : "border-green-300"
                                 }`}
-                                placeholder="Confirm new password"
+                                placeholder="Confirma la nueva contraseña"
                             />
                             <button
                                 type="button"
@@ -193,27 +196,16 @@ const ForcePasswordChange = ({ onPasswordChanged }: ForcePasswordChangeProps) =>
                                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                         ></path>
                                     </svg>
-                                    Updating Password...
+                                    Actualizando contraseña...
                                 </>
                             ) : (
-                                "Change Password"
+                                "Cambiar contraseña"
                             )}
                         </button>
                     </div>
                 </form>
 
-                <div className="mt-6 text-center">
-                    <button
-                        onClick={() => {
-                            logout();
-                            navigate('/login', { replace: true });
-                            window.location.reload();
-                        }}
-                        className="text-sm text-green-600 hover:text-green-700 underline"
-                    >
-                        Logout and return to login
-                    </button>
-                </div>
+                {/* Eliminado el botón de regreso manual al login, ahora la redirección es automática tras el cambio de contraseña */}
             </div>
         </div>
     );
