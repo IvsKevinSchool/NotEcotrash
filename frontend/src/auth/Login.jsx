@@ -50,7 +50,7 @@ const Login = () => {
         toast.success(`Bienvenido ${userData.name}`);
 
         const from =
-          location.state?.from?.pathname || getDashboardPath(userData.role);
+          '' || getDashboardPath(userData.role);
         navigate(from, { replace: true });
       } else {
         throw new Error(response.data?.message || 'Error en el login');
@@ -88,7 +88,7 @@ const Login = () => {
       case 'admin':
         return '/admin/dashboard';
       case 'management':
-        return '/management/dashboard';
+        return '/management';
       case 'collector':
         return '/collector/dashboard';
       case 'client':
