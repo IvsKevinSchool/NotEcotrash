@@ -6,7 +6,6 @@ from apps.waste.models import Waste, WasteSubCategory
 from apps.accounts.models import User
 from django.core.validators import MinValueValidator
 from datetime import date  # Para validar fechas
-from apps.management.models import CollectorUsers
 
 
 # Create your models here.
@@ -76,23 +75,12 @@ class Services(models.Model):
     fk_waste = models.ForeignKey(
         Waste,  # Modelo Waste (Residuos)
         on_delete=models.PROTECT,
-        verbose_name="Residuo",
-        null=True,
-        blank=True
+        verbose_name="Residuo"
     )
     fk_waste_subcategory = models.ForeignKey(
         WasteSubCategory,  # Modelo WasteSubcategory
         on_delete=models.PROTECT,
-        verbose_name="Subcategoría de Residuo",
-        null=True,
-        blank=True
-    )
-    fk_collector = models.ForeignKey(
-        CollectorUsers,  
-        on_delete=models.PROTECT,
-        verbose_name="Collector",
-        null=True,
-        blank=True
+        verbose_name="Subcategoría de Residuo"
     )
     
     class Meta:
