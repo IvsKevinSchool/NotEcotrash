@@ -33,8 +33,8 @@ export interface User {
 }
 
 // Servicios para obtener datos de filtros
-export const getServices = async (): Promise<Service[]> => {
-  const response = await api.get('services/services/');
+export const getServices = async (management_id: number): Promise<Service[]> => {
+  const response = await api.get(`services/services/?management_id=${management_id}`);
   return response.data;
 };
 

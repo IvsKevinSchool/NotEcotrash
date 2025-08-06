@@ -19,7 +19,7 @@ const ReportsIndex = () => {
   const [currentId, setCurrentId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [filters, setFilters] = useState({  service_id: '',  user_id: '',  client_id: '', status_id: '',  selected_date: '', });
+  const [filters, setFilters] = useState({ service_id: '', user_id: '', client_id: '', status_id: '', selected_date: '', });
 
   const { user } = useAuth();
 
@@ -46,7 +46,7 @@ const ReportsIndex = () => {
       if (filters.client_id) filterParams.client_id = parseInt(filters.client_id);
       if (filters.status_id) filterParams.status_id = parseInt(filters.status_id);
       if (filters.selected_date) filterParams.selected_date = filters.selected_date;
-      
+
       const data = await getServiceLogs(filterParams);
       setServiceLogs(data);
     } catch (error) {
@@ -60,7 +60,7 @@ const ReportsIndex = () => {
     try {
       // Obtener datos reales de la base de datos
       const [servicesData, clientsData, statusesData, collectorsData] = await Promise.all([
-        getServices(),
+        getServices(user.id),
         getClients(),
         getStatuses(),
         getCollectors()
@@ -70,7 +70,7 @@ const ReportsIndex = () => {
       setClients(clientsData);
       setStatuses(statusesData);
       setUsers(collectorsData);
-      
+
       console.log('Datos cargados:', {
         services: servicesData.length,
         clients: clientsData.length,
@@ -163,11 +163,11 @@ const ReportsIndex = () => {
   };
 
   const clearFilters = () => {
-    setFilters({ 
-      service_id: '', 
-      user_id: '', 
-      client_id: '', 
-      status_id: '', 
+    setFilters({
+      service_id: '',
+      user_id: '',
+      client_id: '',
+      status_id: '',
       selected_date: '', // Solo una fecha
     });
     setTimeout(() => {
@@ -209,7 +209,7 @@ const ReportsIndex = () => {
             </button>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Filtro por Fecha */}
           <div className="lg:col-span-1">
@@ -279,7 +279,7 @@ const ReportsIndex = () => {
               ))}
             </select>
           </div>
-          
+
           {/* Filtro por Recolector */}
           <div>
             <label className="block text-green-700 mb-1 text-sm font-medium">Recolector</label>
@@ -308,7 +308,7 @@ const ReportsIndex = () => {
           </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
+
               {/* Cantidad de Residuos */}
               <div>
                 <label className="block text-green-700 mb-1">Cantidad de Residuos (kg)</label>
