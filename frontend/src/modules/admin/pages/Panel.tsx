@@ -17,7 +17,7 @@ export const Panel = () => {
             </div>
 
             {/* Cards de estadísticas */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 gap-6 mb-8">
                 {[
                     {
                         title: "Usuarios registrados",
@@ -27,22 +27,22 @@ export const Panel = () => {
                         bg: "bg-green-50",
                         text: "text-green-700"
                     },
-                    {
-                        title: "Residuos gestionados",
-                        value: "5,742 kg",
-                        change: "↓3%",
-                        icon: "♻️",
-                        bg: "bg-teal-50",
-                        text: "text-teal-700"
-                    },
-                    {
-                        title: "Puntos de reciclaje",
-                        value: "24",
-                        change: "+2 nuevos",
-                        icon: "📍",
-                        bg: "bg-emerald-50",
-                        text: "text-emerald-700"
-                    }
+                    // {
+                    //     title: "Residuos gestionados",
+                    //     value: "5,742 kg",
+                    //     change: "↓3%",
+                    //     icon: "♻️",
+                    //     bg: "bg-teal-50",
+                    //     text: "text-teal-700"
+                    // },
+                    // {
+                    //     title: "Puntos de reciclaje",
+                    //     value: "24",
+                    //     change: "+2 nuevos",
+                    //     icon: "📍",
+                    //     bg: "bg-emerald-50",
+                    //     text: "text-emerald-700"
+                    // }
                 ].map((item, index) => (
                     <div key={index} className={`${item.bg} p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow`}>
                         <div className="flex justify-between">

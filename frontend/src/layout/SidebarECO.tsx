@@ -36,7 +36,6 @@ export const SidebarECO = () => {
 
     const managementLinks = [
         { to: '/management/', label: 'Panel Principal', icon: '📊' },
-        { to: '/management/reports', label: 'Reportes', icon: '📃' },
         { to: '/management/clients', label: 'Clientes', icon: '👥' },
         { to: '/management/services', label: 'Gestión de Servicios', icon: '♻️' },
         { to: '/management/type-services', label: 'Tipo de Servicios', icon: '📚' },
@@ -44,7 +43,7 @@ export const SidebarECO = () => {
         { to: '/management/collector', label: 'Recolectores', icon: '🚛' },
         { to: '/waste', label: 'Residuos', icon: '🗑️' },
         { to: '/management/certificate', label: 'Certificados', icon: '📜' },
-        { to: '/management/backups', label: 'Repaldos', icon: '💩' },
+        { to: '/management/backups', label: 'Repaldos', icon: '📑' },
     ];
 
     const clientLinks = [
