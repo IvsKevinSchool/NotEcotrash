@@ -50,7 +50,9 @@ class Services(models.Model):
         Management,
         on_delete=models.CASCADE,
         verbose_name="Management",
-        related_name="services"
+        related_name="services",
+        blank=True,
+        null=True
     )
     fk_clients = models.ForeignKey(
         Client,  # Asume que existe un modelo Clients
@@ -75,12 +77,25 @@ class Services(models.Model):
     fk_waste = models.ForeignKey(
         Waste,  # Modelo Waste (Residuos)
         on_delete=models.PROTECT,
-        verbose_name="Residuo"
+        verbose_name="Residuo",
+        blank=True,
+        null=True
     )
     fk_waste_subcategory = models.ForeignKey(
         WasteSubCategory,  # Modelo WasteSubcategory
         on_delete=models.PROTECT,
-        verbose_name="Subcategoría de Residuo"
+        verbose_name="Subcategoría de Residuo",
+        blank=True,
+        null=True
+    )
+    fk_collector = models.ForeignKey(
+        User,  # Usuario con rol de collector
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Collector Asignado",
+        related_name="assigned_services",
+        limit_choices_to={'role': 'collector'}
     )
     
     class Meta:

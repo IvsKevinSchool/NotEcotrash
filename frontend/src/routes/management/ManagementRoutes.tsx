@@ -3,7 +3,7 @@ import { Panel } from '../../modules/admin/pages/Panel'
 import ClientsIndex from '../../modules/client/pages/ClientsIndex'
 import { WasteListPage } from '../../modules/waste/components/WasteListPage'
 import CollectorUsers from '../../modules/collector/pages/CollectorUsers'
-import ServicesIndex from '../../modules/services/pages/ServicesIndex'
+import { ManagementServicePanel } from '../../modules/services/components/ManagementServicePanel'
 import TypeServicesIndex from '../../modules/typeServices/components/TypeServicesIndex'
 import CertificateIndex from '../../modules/certificate/pages/CertificateIndex'
 import { ListLocations } from '../../modules/locations/pages/ListLocations'
@@ -39,8 +39,8 @@ export const ManagementRoutes = () => {
             <Route path="/collector" element={<CollectorUsers />} />
             <Route path="/collector/edit/:id" element={<EditCollector />} />
 
-            {/* Services Module */}
-            <Route path="/services" element={<ServicesIndex />} />
+            {/* Services Module - New Workflow */}
+            <Route path="/services" element={<ManagementServicePanel />} />
             <Route path="/type-services" element={<TypeServicesIndex />} />
 
             {/* Certificate Module */}

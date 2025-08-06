@@ -35,9 +35,10 @@ export const SidebarECO = () => {
     ];
 
     const managementLinks = [
+        { to: '/management/', label: 'Panel Principal', icon: '📊' },
         { to: '/management/reports', label: 'Reportes', icon: '📃' },
         { to: '/management/clients', label: 'Clientes', icon: '👥' },
-        { to: '/management/services', label: 'Servicios', icon: '♻️' },
+        { to: '/management/services', label: 'Gestión de Servicios', icon: '♻️' },
         { to: '/management/type-services', label: 'Tipo de Servicios', icon: '📚' },
         { to: '/management/locations', label: 'Locaciones', icon: '🚩' },
         { to: '/management/collector', label: 'Recolectores', icon: '🚛' },
@@ -48,14 +49,14 @@ export const SidebarECO = () => {
 
     const clientLinks = [
         { to: '/client/dashboard', label: 'Tablero', icon: '📊' },
-        { to: '/client/services', label: 'Mis Servicios', icon: '♻️' },
+        { to: '/client/services', label: 'Solicitar Servicios', icon: '♻️' },
         { to: '/client/certificate', label: 'Certificados', icon: '📑' },
         { to: '/client/profile', label: 'Perfil', icon: '👥' },
     ];
 
     const collectorLinks = [
         { to: '/collector/dashboard', label: 'Tablero', icon: '📊' },
-        { to: '/collector/services', label: 'Servicios Asignados', icon: '🚛' },
+        { to: '/collector/services', label: 'Mis Servicios', icon: '🚛' },
     ];
 
     // Selección de menú según rol

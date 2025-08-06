@@ -27,6 +27,13 @@ class WasteSubCategoryViewSet(viewsets.ModelViewSet):
 
 class CreateWasteForManagementAPIView(APIView):
     def post(self, request, management_id):
+        # Verificar si ya existe un residuo con el mismo nombre
+        waste_name = request.data.get('name', '').strip()
+        if Waste.objects.filter(name__iexact=waste_name).exists():
+            return Response({
+                'name': ['Ya existe un residuo con este nombre. Por favor, use un nombre diferente.']
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         # Paso 1: Crear el Waste
         waste_serializer = WasteSerializer(data=request.data)
         if waste_serializer.is_valid():
@@ -62,6 +69,15 @@ class UpdateWasteForManagementAPIView(RetrieveUpdateAPIView):
         # Verifica que el Waste esté relacionado con el Management
         if not ManagementWaste.objects.filter(fk_management=management_id, fk_waste=waste).exists():
             raise PermissionDenied("Este Waste no pertenece al Management especificado.")
+        
+        # Verificar duplicación de nombres antes de actualizar
+        new_name = serializer.validated_data.get('name')
+        if new_name and new_name != waste.name:
+            if Waste.objects.filter(name__iexact=new_name).exists():
+                from rest_framework.serializers import ValidationError
+                raise ValidationError({
+                    'name': ['Ya existe un residuo con este nombre. Por favor, use un nombre diferente.']
+                })
         
         serializer.save()  # Actualiza el Waste
 

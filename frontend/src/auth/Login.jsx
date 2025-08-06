@@ -82,9 +82,9 @@ const Login = () => {
       case 'management':
         return '/management/';
       case 'collector':
-        return '/collector/routes';
+        return '/collector/services';
       case 'client':
-        return '/client/requests';
+        return '/client/services';
       default:
         return '/dashboard';
     }

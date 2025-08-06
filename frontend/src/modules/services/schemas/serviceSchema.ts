@@ -12,38 +12,31 @@ export const serviceSchema = z.object({
             today.setHours(0, 0, 0, 0);
             return selectedDate >= today;
         }, "La fecha no puede ser anterior a hoy"),
-    fk_clients: z.number({
+    fk_clients: z.coerce.number({
         required_error: "Debe seleccionar un cliente",
         invalid_type_error: "Cliente inválido"
     }).min(1, "Debe seleccionar un cliente válido"),
-    fk_locations: z.number({
+    fk_locations: z.coerce.number({
         required_error: "Debe seleccionar una ubicación",
         invalid_type_error: "Ubicación inválida"
     }).min(1, "Debe seleccionar una ubicación válida"),
-    fk_status: z.number({
+    fk_status: z.coerce.number({
         required_error: "Estado es requerido",
         invalid_type_error: "Estado inválido"
-    }).min(1, "Estado inválido"),
-    fk_type_services: z.number({
+    }).min(1, "Estado inválido").optional(),
+    fk_type_services: z.coerce.number({
         required_error: "Debe seleccionar un tipo de servicio",
         invalid_type_error: "Tipo de servicio inválido"
     }).min(1, "Debe seleccionar un tipo de servicio válido"),
-    fk_waste: z.number({
+    fk_waste: z.coerce.number({
         invalid_type_error: "Residuo inválido"
     }).optional(),
-    fk_waste_subcategory: z.number({
+    fk_waste_subcategory: z.coerce.number({
         invalid_type_error: "Subcategoría de residuo inválida"
     }).optional(),
 })
-.refine((data) => {
-    // Validación condicional: si es servicio de recolección de residuos (ID 1), fk_waste es requerido
-    if (data.fk_type_services === 1 && !data.fk_waste) {
-        return false;
-    }
-    return true;
-}, {
-    message: "Para servicios de recolección de residuos, debe seleccionar un tipo de residuo",
-    path: ["fk_waste"] // Especifica en qué campo mostrar el error
-});
+// Nota: La validación específica para servicios de recolección se hace en el componente
+// donde tenemos acceso a la lista de typeServices para determinar dinámicamente
+// si el servicio seleccionado requiere campos de residuo
 
 export type ServiceFormData = z.infer<typeof serviceSchema>;

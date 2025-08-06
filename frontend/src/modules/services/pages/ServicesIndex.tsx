@@ -79,7 +79,8 @@ const ServicesIndex = () => {
            serviceName.includes('recoleccion') || 
            serviceName.includes('residuo') ||
            serviceName.includes('waste') ||
-           serviceName.includes('collection');
+           serviceName.includes('collection') ||
+           serviceName.includes('general'); // Agregar "general" para capturar "recolección general"
   };
 
   useEffect(() => {
@@ -212,12 +213,24 @@ const ServicesIndex = () => {
         }
       }
 
+      // Transformar los datos asegurando que sean números
+      let serviceData = {
+        ...data,
+        fk_clients: Number(data.fk_clients),
+        fk_locations: Number(data.fk_locations),
+        fk_status: Number(data.fk_status),
+        fk_type_services: Number(data.fk_type_services),
+        fk_waste: data.fk_waste ? Number(data.fk_waste) : undefined,
+        fk_waste_subcategory: data.fk_waste_subcategory ? Number(data.fk_waste_subcategory) : undefined,
+      };
+
       // Limpiar campos de residuo si no es servicio de recolección
-      let serviceData = { ...data };
       if (!isWasteCollectionService()) {
         delete serviceData.fk_waste;
         delete serviceData.fk_waste_subcategory;
       }
+
+      console.log("Datos transformados para envío:", serviceData); // Debug
 
       if (isEditing && currentId) {
         // Al editar, mantener el estado actual del servicio

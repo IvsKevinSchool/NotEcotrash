@@ -114,13 +114,21 @@ export const getTypeServicesForForm = async (managementId?: number): Promise<Typ
   return response.data;
 };
 
-export const getWastesForForm = async (): Promise<Waste[]> => {
-  const response = await api.get('waste/waste/');
+export const getWastesForForm = async (managementId?: number): Promise<Waste[]> => {
+  let url = 'waste/waste/';
+  if (managementId) {
+    url = `management/management/${managementId}/wastes/`;
+  }
+  const response = await api.get(url);
   return response.data;
 };
 
-export const getWasteSubcategoriesForForm = async (): Promise<WasteSubcategory[]> => {
-  const response = await api.get('waste/subcategory/');
+export const getWasteSubcategoriesForForm = async (managementId?: number): Promise<WasteSubcategory[]> => {
+  let url = 'waste/subcategory/';
+  if (managementId) {
+    url = `management/management/${managementId}/waste-subcategories/`;
+  }
+  const response = await api.get(url);
   return response.data;
 };
 
@@ -132,8 +140,8 @@ export const getServiceFormData = async (managementId?: number) => {
       managementId ? getLocationsForServices(managementId) : getLocationsForForm(),
       getStatusesForForm(),
       getTypeServicesForForm(managementId), // ← Pasar managementId aquí también
-      getWastesForForm(),
-      getWasteSubcategoriesForForm()
+      getWastesForForm(managementId), // ← Pasar managementId aquí también
+      getWasteSubcategoriesForForm(managementId) // ← Pasar managementId aquí también
     ]);
 
     return {

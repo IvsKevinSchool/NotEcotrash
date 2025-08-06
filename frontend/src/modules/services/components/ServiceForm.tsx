@@ -19,6 +19,7 @@ interface ServiceFormProps {
     isWasteCollectionService?: boolean;
     isModalOpen: boolean;
     currentManagementId: number; // Nuevo prop para el id del management actual
+    isClientMode?: boolean; // Nuevo prop para modo cliente
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({
@@ -36,7 +37,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     selectedWaste,
     isWasteCollectionService = false,
     isModalOpen,
-    currentManagementId
+    currentManagementId,
+    isClientMode = false
 }) => {
     // Filtrar clientes por management actual
     const filteredClients = useMemo(() => {
@@ -135,7 +137,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                 <div className="p-4 border-b border-green-200 bg-green-50/80 rounded-t-lg sticky top-0">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-green-800">
-                            {currentService ? 'Editar Servicio' : 'Crear Nuevo Servicio'}
+                            {currentService ? 'Editar Servicio' : 
+                             isClientMode ? 'Solicitar Nuevo Servicio' : 'Crear Nuevo Servicio'}
                         </h3>
                         <button
                             onClick={onClose}
@@ -151,8 +154,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-6">
                     <div className="space-y-6">
-                        {/* Primera fila: Fecha y Cliente */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Primera fila: Fecha y Cliente (o solo Fecha en modo cliente) */}
+                        <div className={`grid grid-cols-1 ${!isClientMode ? 'md:grid-cols-2' : ''} gap-4`}>
                             <div>
                                 <label className="block text-green-700 mb-1 font-medium">Fecha Programada *</label>
                                 <input
@@ -166,23 +169,35 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                 )}
                             </div>
 
-                            <div>
-                                <label className="block text-green-700 mb-1 font-medium">Cliente *</label>
-                                <select
-                                    {...register("fk_clients", { valueAsNumber: true })}
-                                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_clients ? "border-red-500" : "border-green-300"}`}
-                                >
-                                    <option value="">Seleccionar Cliente</option>
-                                    {filteredClients.map((client) => (
-                                        <option key={client.pk_client} value={client.pk_client}>
-                                            {client.name} - {client.legal_name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.fk_clients && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.fk_clients.message}</p>
-                                )}
-                            </div>
+                            {/* Solo mostrar selección de cliente si no está en modo cliente */}
+                            {!isClientMode && (
+                                <div>
+                                    <label className="block text-green-700 mb-1 font-medium">Cliente *</label>
+                                    <select
+                                        {...register("fk_clients")}
+                                        className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_clients ? "border-red-500" : "border-green-300"}`}
+                                    >
+                                        <option value="">Seleccionar Cliente</option>
+                                        {filteredClients.map((client) => (
+                                            <option key={client.pk_client} value={client.pk_client}>
+                                                {client.name} - {client.legal_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.fk_clients && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.fk_clients.message}</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Campo oculto para cliente en modo cliente */}
+                            {isClientMode && (
+                                <input
+                                    type="hidden"
+                                    {...register("fk_clients")}
+                                    value={currentManagementId}
+                                />
+                            )}
                         </div>
 
                         {/* Segunda fila: Ubicación y Estado (condicional) */}
@@ -190,7 +205,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                             <div>
                                 <label className="block text-green-700 mb-1 font-medium">Ubicación *</label>
                                 <select
-                                    {...register("fk_locations", { valueAsNumber: true })}
+                                    {...register("fk_locations")}
                                     className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_locations ? "border-red-500" : "border-green-300"}`}
                                     disabled={!selectedClient}
                                 >
@@ -216,7 +231,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                 <div>
                                     <label className="block text-green-700 mb-1 font-medium">Estado *</label>
                                     <select
-                                        {...register("fk_status", { valueAsNumber: true })}
+                                        {...register("fk_status")}
                                         className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_status ? "border-red-500" : "border-green-300"}`}
                                     >
                                         <option value="">Seleccionar Estado</option>
@@ -245,7 +260,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                     {/* Input hidden para registrar el valor por defecto */}
                                     <input
                                         type="hidden"
-                                        {...register("fk_status", { valueAsNumber: true })}
+                                        {...register("fk_status")}
                                         value={1}
                                     />
                                 </div>
@@ -256,7 +271,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         <div>
                             <label className="block text-green-700 mb-1 font-medium">Tipo de Servicio *</label>
                             <select
-                                {...register("fk_type_services", { valueAsNumber: true })}
+                                {...register("fk_type_services")}
                                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_type_services ? "border-red-500" : "border-green-300"}`}
                             >
                                 <option value="">Seleccionar Tipo de Servicio</option>
@@ -272,7 +287,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         </div>
 
                         {/* Campos de residuo solo para servicios de recolección de residuos */}
-                        {selectedTypeService === 1 && (
+                        {isWasteCollectionService && (
                             <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
                                 <h4 className="text-green-800 font-medium">Información de Residuos</h4>
                                 
@@ -280,7 +295,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                     <div>
                                         <label className="block text-green-700 mb-1 font-medium">Tipo de Residuo *</label>
                                         <select
-                                            {...register("fk_waste", { valueAsNumber: true })}
+                                            {...register("fk_waste")}
                                             className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 ${errors.fk_waste ? "border-red-500" : "border-green-300"}`}
                                         >
                                             <option value="">Seleccionar Residuo</option>
@@ -298,7 +313,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                     <div>
                                         <label className="block text-green-700 mb-1 font-medium">Subcategoría de Residuo</label>
                                         <select
-                                            {...register("fk_waste_subcategory", { valueAsNumber: true })}
+                                            {...register("fk_waste_subcategory")}
                                             className="w-full p-3 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                             disabled={!selectedWasteFromForm}
                                         >
@@ -344,6 +359,8 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                                 </span>
                             ) : currentService ? (
                                 'Guardar Cambios'
+                            ) : isClientMode ? (
+                                'Solicitar Servicio'
                             ) : (
                                 'Crear Servicio'
                             )}

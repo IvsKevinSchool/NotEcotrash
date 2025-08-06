@@ -4,6 +4,7 @@ from apps.services.models import Status, TypeServices, Services, ServiceLog
 from apps.client.api.serializer import ClientSerializer
 from apps.core.api.serializer import LocationSerializer
 from apps.waste.api.serializer import WasteSerializer, WasteSubCategorySerializer
+from apps.accounts.api.serializers import UserListSerializer
 
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,6 +56,7 @@ class ServicesSerializer(serializers.ModelSerializer):
         representation['fk_type_services'] = TypeServicesSerializer(instance.fk_type_services).data if instance.fk_type_services else None
         representation['fk_waste'] = WasteSerializer(instance.fk_waste).data if instance.fk_waste else None
         representation['fk_waste_subcategory'] = WasteSubCategorySerializer(instance.fk_waste_subcategory).data if instance.fk_waste_subcategory else None
+        representation['fk_collector'] = UserListSerializer(instance.fk_collector).data if instance.fk_collector else None
         
         return representation
     
