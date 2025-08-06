@@ -197,6 +197,22 @@ class LoginSerializer(serializers.Serializer):
             # El usuario no está asociado a un Cliente
             pass
 
+        # Obtener información del Collector asociado al usuario
+        collector_info = {}
+        try:
+            from apps.management.models import CollectorUsers
+            collector_user = CollectorUsers.objects.get(fk_user=user)
+            collector_info = {
+                "pk_collector_user": collector_user.pk_collector_user,
+                "name": collector_user.name,
+                "last_name": collector_user.last_name,
+                "phone_number": collector_user.phone_number,
+                "fk_management": collector_user.fk_management.pk_management
+            }
+        except CollectorUsers.DoesNotExist:
+            # El usuario no está asociado a un Collector
+            pass
+
         return {
             "access_token": tokens["access"],
             "refresh_token": tokens["refresh"],
@@ -209,7 +225,8 @@ class LoginSerializer(serializers.Serializer):
                 "is_first_login": user.is_first_login,  # Agregar campo is_first_login
             },
             "management": management_info,
-            "client": client_info
+            "client": client_info,
+            "collector": collector_info
         }
 
 

@@ -201,7 +201,6 @@ export const ClientServicesPage = () => {
               onSubmit={onSubmit}
               onClose={handleCloseForm}
               selectedWaste={selectedWaste}
-              isWasteCollectionService={isWasteCollectionService()}
               isModalOpen={activeTab === 'create'}
               currentManagementId={user?.id || 0}
               isClientMode={true}

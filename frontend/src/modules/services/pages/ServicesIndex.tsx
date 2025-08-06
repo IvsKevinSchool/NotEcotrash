@@ -399,7 +399,6 @@ const ServicesIndex = () => {
           onSubmit={onSubmit}
           onClose={resetForm}
           selectedWaste={selectedWaste}
-          isWasteCollectionService={isWasteCollectionService()}
           isModalOpen={showForm}
           currentManagementId={user?.id}
         />

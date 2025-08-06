@@ -21,6 +21,32 @@ export interface IUserData {
     email: string;
     role: string;
     token: string;
+    id_admin: number;
+    // Información específica por rol
+    management?: {
+        pk_management: number;
+        name: string;
+        email: string;
+        phone_number: string;
+        phone_number_2: string;
+        rfc: string;
+    };
+    client?: {
+        pk_client: number;
+        name: string;
+        legal_name: string;
+        email: string;
+        phone_number: string;
+        phone_number_2: string;
+        rfc: string;
+    };
+    collector?: {
+        pk_collector_user: number;
+        name: string;
+        last_name: string;
+        phone_number: string;
+        fk_management: number;
+    };
 }
 
 export interface IAuthContext {

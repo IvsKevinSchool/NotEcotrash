@@ -709,14 +709,15 @@ class AssignCollectorView(APIView):
 class CollectorServicesView(APIView):
     """Vista para obtener servicios de un collector"""
     def get(self, request, collector_id):
-        from datetime import date
         try:
             from apps.accounts.models import User
             collector = User.objects.get(pk=collector_id, role='collector')
+            
+            # Obtener todos los servicios asignados al collector, no solo los de hoy
             collector_services = Services.objects.filter(
-                fk_collector=collector,
-                scheduled_date=date.today()
-            ).order_by('scheduled_date')
+                fk_collector=collector
+            ).order_by('-scheduled_date')  # Ordenar por fecha descendente para ver los más recientes primero
+            
             serializer = ServicesSerializer(collector_services, many=True)
             return Response(serializer.data)
         except User.DoesNotExist:

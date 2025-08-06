@@ -197,8 +197,6 @@ class CollectorServicesView(APIView):
     Vista para obtener servicios asignados a un collector
     """
     def get(self, request, collector_id):
-        from datetime import date
-        
         try:
             from apps.accounts.models import User
             collector = User.objects.get(pk=collector_id, role='collector')
@@ -208,11 +206,10 @@ class CollectorServicesView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Obtener servicios asignados al collector para hoy
+        # Obtener todos los servicios asignados al collector, no solo los de hoy
         collector_services = Services.objects.filter(
-            fk_collector=collector,
-            scheduled_date=date.today()
-        ).order_by('scheduled_date')
+            fk_collector=collector
+        ).order_by('-scheduled_date')  # Ordenar por fecha descendente
         
         serializer = ServicesSerializer(collector_services, many=True)
         return Response(serializer.data)

@@ -10,19 +10,29 @@ export const CollectorServicesPage = () => {
   const [completingService, setCompletingService] = useState<number | null>(null);
 
   useEffect(() => {
-    if (user?.id) {
+    const collectorId = user?.collector?.pk_collector_user || user?.id;
+    if (collectorId) {
+      console.log('Collector ID detected, fetching services:', collectorId);
       fetchServices();
+    } else {
+      console.log('No collector ID found');
+      setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.collector?.pk_collector_user, user?.id]);
 
   const fetchServices = async () => {
     try {
       setLoading(true);
-      const collectorServices = await getCollectorServices(user?.id || 0);
+      const collectorId = user?.collector?.pk_collector_user || user?.id || 0;
+      console.log('Fetching services for collector ID:', collectorId);
+      const collectorServices = await getCollectorServices(collectorId);
+      console.log('Received services:', collectorServices);
       setServices(collectorServices);
     } catch (error) {
       console.error('Error fetching collector services:', error);
       toast.error('Error al cargar los servicios asignados');
+      // En caso de error, establecer un array vacío para que no se quede cargando indefinidamente
+      setServices([]);
     } finally {
       setLoading(false);
     }

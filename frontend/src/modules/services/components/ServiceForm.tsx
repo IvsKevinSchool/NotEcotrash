@@ -16,7 +16,6 @@ interface ServiceFormProps {
     onSubmit: (data: ServiceFormData) => void;
     onClose: () => void;
     selectedWaste?: number;
-    isWasteCollectionService?: boolean;
     isModalOpen: boolean;
     currentManagementId: number; // Nuevo prop para el id del management actual
     isClientMode?: boolean; // Nuevo prop para modo cliente
@@ -35,7 +34,6 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     onSubmit,
     onClose,
     selectedWaste,
-    isWasteCollectionService = false,
     isModalOpen,
     currentManagementId,
     isClientMode = false
@@ -54,6 +52,23 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     const selectedClient = watch("fk_clients");
     const selectedTypeService = watch("fk_type_services");
     const selectedWasteFromForm = watch("fk_waste");
+
+    // Calcular dinámicamente si es un servicio de recolección de residuos
+    const isDynamicWasteCollectionService = useMemo(() => {
+        if (!selectedTypeService || !typeServices || typeServices.length === 0) return false;
+        
+        const selectedService = typeServices.find(service => service.pk_type_services === selectedTypeService);
+        if (!selectedService) return false;
+        
+        // Buscar si el nombre del servicio contiene palabras relacionadas con recolección de residuos
+        const serviceName = selectedService.name.toLowerCase();
+        return serviceName.includes('recolección') || 
+               serviceName.includes('recoleccion') || 
+               serviceName.includes('residuo') ||
+               serviceName.includes('waste') ||
+               serviceName.includes('collection') ||
+               serviceName.includes('general'); // Agregar "general" para capturar "recolección general"
+    }, [selectedTypeService, typeServices]);
 
     // Filtrar ubicaciones basándose en el cliente seleccionado
     const filteredLocations = useMemo(() => {
@@ -121,6 +136,15 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
             setValue("fk_waste_subcategory", "" as any);
         }
     }, [selectedWasteFromForm, filteredWasteSubcategories, form, setValue]);
+
+    // Limpiar campos de residuo cuando el tipo de servicio no sea recolección de residuos
+    useEffect(() => {
+        if (!isDynamicWasteCollectionService) {
+            // Si no es servicio de recolección, limpiar campos de residuo
+            setValue("fk_waste", "" as any);
+            setValue("fk_waste_subcategory", "" as any);
+        }
+    }, [isDynamicWasteCollectionService, setValue]);
 
     // Establecer valor por defecto para fk_status cuando no se está editando
     useEffect(() => {
@@ -287,7 +311,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         </div>
 
                         {/* Campos de residuo solo para servicios de recolección de residuos */}
-                        {isWasteCollectionService && (
+                        {isDynamicWasteCollectionService && (
                             <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
                                 <h4 className="text-green-800 font-medium">Información de Residuos</h4>
                                 

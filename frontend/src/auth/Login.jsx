@@ -24,13 +24,20 @@ const Login = () => {
         const userData = {
           id:
             response.data.data.management?.pk_management ||
-            response.data.data.client?.pk_client,
+            response.data.data.client?.pk_client ||
+            response.data.data.collector?.pk_collector_user ||
+            response.data.data.user.pk,
           username: response.data.data.user.username,
           name: response.data.data.user.full_name,
           email: response.data.data.user.email,
           token: response.data.data.access_token,
           role: response.data.data.user.role,
+          id_admin: response.data.data.user.pk || 0,
           is_first_login: response.data.data.user.is_first_login || false,
+          // Información específica del rol
+          management: response.data.data.management || null,
+          client: response.data.data.client || null,
+          collector: response.data.data.collector || null,
         };
 
         if (userData.is_first_login) {
@@ -81,11 +88,11 @@ const Login = () => {
       case 'admin':
         return '/admin/dashboard';
       case 'management':
-        return '/management/';
+        return '/management/dashboard';
       case 'collector':
-        return '/collector/services';
+        return '/collector/dashboard';
       case 'client':
-        return '/client/services';
+        return '/client/dashboard';
       default:
         return '/dashboard';
     }

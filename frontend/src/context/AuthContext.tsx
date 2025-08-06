@@ -7,7 +7,8 @@ const initialUser: IUserData = {
     name: '',
     email: '',
     role: '',
-    token: ''
+    token: '',
+    id_admin: 0,
 };
 
 const AuthContext = createContext<IAuthContext>({

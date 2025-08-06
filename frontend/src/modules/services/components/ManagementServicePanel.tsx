@@ -169,7 +169,7 @@ export const ManagementServicePanel = () => {
               >
                 <option value="">Asignar Collector</option>
                 {availableCollectors.map(collector => (
-                  <option key={collector.pk} value={collector.pk}>
+                  <option key={collector.id} value={collector.id}>
                     {collector.first_name} {collector.last_name}
                   </option>
                 ))}
