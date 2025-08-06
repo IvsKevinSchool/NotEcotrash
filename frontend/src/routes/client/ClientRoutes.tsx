@@ -4,7 +4,6 @@ import { Route, Routes } from 'react-router-dom';
 import { Panel } from '../../modules/admin/pages/Panel';
 import { ClienteProfile } from '../../modules/client/pages/ClienteProfile';
 import ListCertificate from '../../modules/client/pages/ListCertificate';
-import { ClientServicesPage } from '../../modules/services/pages/ClientServicesPage';
 
 const ClientRoutes = () => {
     return (
@@ -14,6 +13,7 @@ const ClientRoutes = () => {
             <Route path="/services" element={<ClientServicesPage />} />
             <Route path="/profile" element={<ClienteProfile />} />
             <Route path="/certificate" element={<ListCertificate />} />
+
         </Routes>
     );
 };

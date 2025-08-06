@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import api from '../api'; // Asegúrate de importar tu configuración de axios
 import logo from '../assets/Logo.png';
 import ForcePasswordChange from '../components/ForcePasswordChange';
+import { FaRecycle, FaGlobeAmericas } from 'react-icons/fa';
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -176,13 +177,16 @@ const Login = () => {
           </p>
 
           <div className="mt-10 flex justify-center space-x-6">
-            {['♻️', '🌱', '🌍'].map((emoji, index) => (
+            {[
+              { icon: FaRecycle, key: 'recycle' },
+              { icon: FaGlobeAmericas, key: 'world' }
+            ].map(({ icon: Icon, key }, index) => (
               <div
-                key={index}
-                className="bg-green-400 bg-opacity-30 p-4 rounded-full cursor-pointer hover:bg-opacity-60 transition-all duration-500 transform hover:scale-125 shadow-lg"
+                key={key}
+                className="bg-green-700 bg-opacity-30 p-4 rounded-full hover:bg-opacity-60 transition-all duration-500 transform shadow-lg"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
-                <span className="text-white text-3xl">{emoji}</span>
+                <Icon className="text-white text-3xl" />
               </div>
             ))}
           </div>

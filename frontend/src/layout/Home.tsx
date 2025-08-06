@@ -217,21 +217,18 @@ const Home = () => {
             title: "Registro Fácil",
             description:
               "Captura datos de recolección y actualiza bitácoras en tiempo real desde cualquier dispositivo.",
-            icon: "📝",
           },
           {
             title: "Reportes Claros",
             description:
               "Obtén estadísticas y reportes visuales para analizar el desempeño y optimizar rutas.",
-            icon: "📊",
           },
           {
             title: "Comunicación Efectiva",
             description:
               "Coordina a tu equipo y comparte actualizaciones instantáneas para mejorar la eficiencia.",
-            icon: "📡",
           },
-        ].map(({ title, description, icon }, i) => (
+        ].map(({ title, description }, i) => (
           <motion.div
             key={title}
             className="bg-green-800 bg-opacity-30 rounded-xl p-8 shadow-lg backdrop-blur-md cursor-default"
@@ -239,16 +236,13 @@ const Home = () => {
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.3, duration: 0.8, ease: "easeOut" }}
-            whileHover={{
-              scale: 1.1,
-              rotate: [0, 3, -3, 3, 0],
-              boxShadow: "0 0 20px rgba(34,197,94,0.8)",
-              transition: { duration: 0.6, ease: "easeInOut" },
-            }}
+            // whileHover={{
+            //   scale: 1.1,
+            //   rotate: [0, 3, -3, 3, 0],
+            //   boxShadow: "0 0 20px rgba(34,197,94,0.8)",
+            //   transition: { duration: 0.6, ease: "easeInOut" },
+            // }}
           >
-            <motion.div className="text-5xl mb-4 select-none" {...wiggle}>
-              {icon}
-            </motion.div>
             <h3 className="text-xl font-bold mb-2">{title}</h3>
             <p className="text-green-200">{description}</p>
           </motion.div>
