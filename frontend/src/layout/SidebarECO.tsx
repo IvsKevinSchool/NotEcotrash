@@ -1,6 +1,6 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logo from '../assets/Logo.png';
+import logo from '../assets/logo-zerura.png';
 
 export const SidebarECO = () => {
     const navigate = useNavigate();
@@ -86,10 +86,9 @@ export const SidebarECO = () => {
                 <img
                     src={logo}
                     alt="Logo EcoTrash"
-                    className="h-12 w-auto mb-2"
+                    className="h-24 w-auto"
                 />
-                <h1 className="text-2xl font-bold text-green-100">Zerura</h1>
-                <p className="text-xs text-green-300 mt-1">Gestión de residuos</p>
+                <p className="text-xs text-green-300">Gestión de residuos</p>
             </div>
 
             {/* Menú */}

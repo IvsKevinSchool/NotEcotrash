@@ -4,7 +4,7 @@ import { useState } from 'react';
 import LoginForm from './LoginForm';
 import { toast } from 'react-toastify';
 import api from '../api'; // Asegúrate de importar tu configuración de axios
-import logo from '../assets/Logo.png';
+import logo from '../assets/logo-zerura.png';
 import ForcePasswordChange from '../components/ForcePasswordChange';
 import { FaRecycle, FaGlobeAmericas } from 'react-icons/fa';
 
@@ -174,11 +174,8 @@ const Login = () => {
           <img
             src={logo}
             alt="Logo EcoTrash"
-            className="mx-auto h-32 md:h-48 w-auto mb-6 animate-bounce-slow"
+            className="mx-auto h-32 md:h-48 w-auto animate-bounce-slow"
           />
-          <h2 className="text-4xl md:text-5xl font-extrabold mb-5 tracking-wider animate-pulse">
-            Zerura
-          </h2>
           <p className="text-lg md:text-xl text-green-100 font-semibold animate-fadeInSlow">
             Transformando residuos en recursos
           </p>
