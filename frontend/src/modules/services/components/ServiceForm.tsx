@@ -58,13 +58,10 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
 
     // Calcular dinámicamente si es un servicio de recolección de residuos
     const isDynamicWasteCollectionService = useMemo(() => {
-        console.log('🔍 ServiceForm - calculating isDynamicWasteCollectionService');
-        console.log('🔍 selectedTypeService:', selectedTypeService);
-        console.log('🔍 typeServices:', typeServices);
-        console.log('🔍 typeServices.length:', typeServices?.length || 0);
+        console.log('🔍 ServiceForm - isDynamicWasteCollectionService check - selectedTypeService:', selectedTypeService, 'type:', typeof selectedTypeService);
         
         if (!selectedTypeService || !typeServices || typeServices.length === 0) {
-            console.log('🔍 ServiceForm - returning false: no selectedTypeService or no typeServices');
+            console.log('🔍 ServiceForm - returning false: missing data');
             return false;
         }
         
@@ -78,9 +75,6 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
         
         // Buscar si el nombre del servicio contiene palabras relacionadas con recolección de residuos
         const serviceName = selectedService.name.toLowerCase();
-        const keywords = ['recolección', 'recoleccion', 'residuo', 'waste', 'collection', 'general'];
-        
-        // Usar la misma lógica exacta que en el test
         const hasKeyword = serviceName.includes('recolección') || 
                serviceName.includes('recoleccion') || 
                serviceName.includes('residuo') ||
@@ -88,10 +82,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                serviceName.includes('collection') ||
                serviceName.includes('general');
                
-        console.log('🔍 ServiceForm - selectedService:', selectedService);
-        console.log('🔍 ServiceForm - serviceName:', serviceName);
-        console.log('🔍 ServiceForm - keywords found:', keywords.filter(kw => serviceName.includes(kw)));
-        console.log('🔍 ServiceForm - hasKeyword (result):', hasKeyword);
+        console.log('🔍 ServiceForm - Service:', selectedService.name, '-> hasKeyword:', hasKeyword);
         
         return hasKeyword;
     }, [selectedTypeService, typeServices]);
@@ -337,11 +328,6 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         </div>
 
                         {/* Campos de residuo solo para servicios de recolección de residuos */}
-                        {(() => {
-                            console.log('🚀 RENDER CHECK - isDynamicWasteCollectionService:', isDynamicWasteCollectionService);
-                            console.log('🚀 RENDER CHECK - Will show waste fields?:', !!isDynamicWasteCollectionService);
-                            return null;
-                        })()}
                         {isDynamicWasteCollectionService && (
                             <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
                                 <h4 className="text-green-800 font-medium">Información de Residuos</h4>

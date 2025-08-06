@@ -4,14 +4,14 @@ export const serviceSchema = z.object({
     pk_services: z.number().optional(),
     // service_number se genera automáticamente en el backend
     scheduled_date: z.string()
-        .min(1, "La fecha programada es requerida")
-        .regex(/^\d{4}-\d{2}-\d{2}$/, "La fecha debe estar en formato YYYY-MM-DD")
-        .refine((date) => {
-            const selectedDate = new Date(date);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            return selectedDate >= today;
-        }, "La fecha no puede ser anterior a hoy"),
+    .min(1, "La fecha programada es requerida")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "La fecha debe estar en formato YYYY-MM-DD")
+    .refine((date) => {
+        const selectedDate = new Date(date + "T00:00:00");
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate.getTime() >= today.getTime();
+    }, "La fecha no puede ser anterior a hoy"),
     fk_clients: z.coerce.number({
         required_error: "Debe seleccionar un cliente",
         invalid_type_error: "Cliente inválido"
