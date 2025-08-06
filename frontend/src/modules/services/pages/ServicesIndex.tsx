@@ -68,19 +68,32 @@ const ServicesIndex = () => {
 
   // Determinar si el tipo de servicio seleccionado es "Recolección de residuos"
   const isWasteCollectionService = () => {
-    if (!selectedTypeService || typeServices.length === 0) return false;
+    if (!selectedTypeService || typeServices.length === 0) {
+      console.log('🔍 isWasteCollectionService - no selectedTypeService or no typeServices');
+      return false;
+    }
     
-    const selectedService = typeServices.find(service => service.pk_type_services === selectedTypeService);
-    if (!selectedService) return false;
+    const selectedService = typeServices.find(service => service.pk_type_services === Number(selectedTypeService));
+    if (!selectedService) {
+      console.log('🔍 isWasteCollectionService - selectedService not found for ID:', selectedTypeService);
+      return false;
+    }
     
     // Buscar si el nombre del servicio contiene palabras relacionadas con recolección de residuos
     const serviceName = selectedService.name.toLowerCase();
-    return serviceName.includes('recolección') || 
+    const keywords = ['recolección', 'recoleccion', 'residuo', 'waste', 'collection', 'general'];
+    const hasKeyword = serviceName.includes('recolección') || 
            serviceName.includes('recoleccion') || 
            serviceName.includes('residuo') ||
            serviceName.includes('waste') ||
            serviceName.includes('collection') ||
            serviceName.includes('general'); // Agregar "general" para capturar "recolección general"
+    
+    console.log('🔍 isWasteCollectionService - selectedService:', selectedService);
+    console.log('🔍 isWasteCollectionService - serviceName:', serviceName);
+    console.log('🔍 isWasteCollectionService - hasKeyword:', hasKeyword);
+    
+    return hasKeyword;
   };
 
   useEffect(() => {
@@ -127,7 +140,16 @@ const ServicesIndex = () => {
 
   const fetchFormData = async () => {
     try {
-      const data = await getServiceFormData(user?.id);
+      // Usar el management ID del usuario logueado
+      const managementId = user?.management?.pk_management || user?.id;
+      console.log('🔍 fetchFormData - managementId:', managementId);
+      console.log('🔍 user?.management?.pk_management:', user?.management?.pk_management);
+      console.log('🔍 user?.id:', user?.id);
+      
+      const data = await getServiceFormData(managementId);
+      console.log('🔍 fetchFormData - data received:', data);
+      console.log('🔍 typeServices count:', data.typeServices?.length || 0);
+      
       setClients(data.clients);
       setLocations(data.locations);
       setStatuses(data.statuses);

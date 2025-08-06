@@ -10,12 +10,20 @@ export const CollectorServicesPage = () => {
   const [completingService, setCompletingService] = useState<number | null>(null);
 
   useEffect(() => {
+    console.log('🔍 CollectorServicesPage - useEffect triggered');
+    console.log('🔍 user object:', user);
+    console.log('🔍 user.collector:', user?.collector);
+    console.log('🔍 user.collector.pk_collector_user:', user?.collector?.pk_collector_user);
+    console.log('🔍 user.id:', user?.id);
+    
     const collectorId = user?.collector?.pk_collector_user || user?.id;
+    console.log('🔍 Final collectorId calculated:', collectorId);
+    
     if (collectorId) {
-      console.log('Collector ID detected, fetching services:', collectorId);
+      console.log('✅ Collector ID detected, fetching services:', collectorId);
       fetchServices();
     } else {
-      console.log('No collector ID found');
+      console.log('❌ No collector ID found');
       setLoading(false);
     }
   }, [user?.collector?.pk_collector_user, user?.id]);
@@ -24,12 +32,23 @@ export const CollectorServicesPage = () => {
     try {
       setLoading(true);
       const collectorId = user?.collector?.pk_collector_user || user?.id || 0;
-      console.log('Fetching services for collector ID:', collectorId);
+      console.log('🔍 fetchServices called with collectorId:', collectorId);
+      console.log('🔍 user?.collector?.pk_collector_user:', user?.collector?.pk_collector_user);
+      console.log('🔍 user?.id:', user?.id);
+      
       const collectorServices = await getCollectorServices(collectorId);
-      console.log('Received services:', collectorServices);
+      console.log('✅ Services fetched successfully:', collectorServices);
       setServices(collectorServices);
-    } catch (error) {
-      console.error('Error fetching collector services:', error);
+    } catch (error: any) {
+      console.error('❌ Error fetching collector services:', error);
+      
+      // Log más detallado del error
+      if (error?.response) {
+        console.error('❌ Error response status:', error.response.status);
+        console.error('❌ Error response data:', error.response.data);
+        console.error('❌ Error response URL:', error.response.config?.url);
+      }
+      
       toast.error('Error al cargar los servicios asignados');
       // En caso de error, establecer un array vacío para que no se quede cargando indefinidamente
       setServices([]);

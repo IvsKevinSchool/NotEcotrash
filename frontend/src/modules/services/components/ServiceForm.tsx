@@ -51,23 +51,49 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
     // Observar el cliente seleccionado, el tipo de servicio y el residuo seleccionado
     const selectedClient = watch("fk_clients");
     const selectedTypeService = watch("fk_type_services");
+    console.log('🎯 ServiceForm - selectedTypeService from watch:', selectedTypeService);
+    console.log('🎯 ServiceForm - watch type:', typeof selectedTypeService);
+    console.log('🎯 ServiceForm - watch value is number?:', typeof selectedTypeService === 'number');
     const selectedWasteFromForm = watch("fk_waste");
 
     // Calcular dinámicamente si es un servicio de recolección de residuos
     const isDynamicWasteCollectionService = useMemo(() => {
-        if (!selectedTypeService || !typeServices || typeServices.length === 0) return false;
+        console.log('🔍 ServiceForm - calculating isDynamicWasteCollectionService');
+        console.log('🔍 selectedTypeService:', selectedTypeService);
+        console.log('🔍 typeServices:', typeServices);
+        console.log('🔍 typeServices.length:', typeServices?.length || 0);
         
-        const selectedService = typeServices.find(service => service.pk_type_services === selectedTypeService);
-        if (!selectedService) return false;
+        if (!selectedTypeService || !typeServices || typeServices.length === 0) {
+            console.log('🔍 ServiceForm - returning false: no selectedTypeService or no typeServices');
+            return false;
+        }
+        
+        const selectedService = typeServices.find(service => service.pk_type_services === Number(selectedTypeService));
+        if (!selectedService) {
+            console.log('🔍 ServiceForm - returning false: selectedService not found for ID:', selectedTypeService);
+            console.log('🔍 ServiceForm - selectedTypeService type:', typeof selectedTypeService);
+            console.log('🔍 ServiceForm - available service IDs:', typeServices.map(s => s.pk_type_services));
+            return false;
+        }
         
         // Buscar si el nombre del servicio contiene palabras relacionadas con recolección de residuos
         const serviceName = selectedService.name.toLowerCase();
-        return serviceName.includes('recolección') || 
+        const keywords = ['recolección', 'recoleccion', 'residuo', 'waste', 'collection', 'general'];
+        
+        // Usar la misma lógica exacta que en el test
+        const hasKeyword = serviceName.includes('recolección') || 
                serviceName.includes('recoleccion') || 
                serviceName.includes('residuo') ||
                serviceName.includes('waste') ||
                serviceName.includes('collection') ||
-               serviceName.includes('general'); // Agregar "general" para capturar "recolección general"
+               serviceName.includes('general');
+               
+        console.log('🔍 ServiceForm - selectedService:', selectedService);
+        console.log('🔍 ServiceForm - serviceName:', serviceName);
+        console.log('🔍 ServiceForm - keywords found:', keywords.filter(kw => serviceName.includes(kw)));
+        console.log('🔍 ServiceForm - hasKeyword (result):', hasKeyword);
+        
+        return hasKeyword;
     }, [selectedTypeService, typeServices]);
 
     // Filtrar ubicaciones basándose en el cliente seleccionado
@@ -311,6 +337,11 @@ const ServiceForm: React.FC<ServiceFormProps> = ({
                         </div>
 
                         {/* Campos de residuo solo para servicios de recolección de residuos */}
+                        {(() => {
+                            console.log('🚀 RENDER CHECK - isDynamicWasteCollectionService:', isDynamicWasteCollectionService);
+                            console.log('🚀 RENDER CHECK - Will show waste fields?:', !!isDynamicWasteCollectionService);
+                            return null;
+                        })()}
                         {isDynamicWasteCollectionService && (
                             <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
                                 <h4 className="text-green-800 font-medium">Información de Residuos</h4>

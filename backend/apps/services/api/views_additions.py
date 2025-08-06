@@ -109,7 +109,15 @@ class CollectorServicesView(APIView):
     def get(self, request, collector_id):
         try:
             from apps.accounts.models import User
-            collector = User.objects.get(pk=collector_id, role='collector')
+            from apps.management.models import CollectorUsers
+            
+            # Primero intentar buscar por pk_collector_user (el comportamiento correcto)
+            try:
+                collector_user = CollectorUsers.objects.get(pk_collector_user=collector_id)
+                collector = collector_user.fk_user
+            except CollectorUsers.DoesNotExist:
+                # Fallback: buscar directamente por User ID con role collector (para compatibilidad)
+                collector = User.objects.get(pk=collector_id, role='collector')
             
             # Obtener todos los servicios asignados al collector, no solo los de hoy
             collector_services = Services.objects.filter(
@@ -118,7 +126,7 @@ class CollectorServicesView(APIView):
             
             serializer = ServicesSerializer(collector_services, many=True)
             return Response(serializer.data)
-        except User.DoesNotExist:
+        except (User.DoesNotExist, CollectorUsers.DoesNotExist):
             return Response({"error": "Collector no encontrado"}, status=status.HTTP_404_NOT_FOUND)
 
 
